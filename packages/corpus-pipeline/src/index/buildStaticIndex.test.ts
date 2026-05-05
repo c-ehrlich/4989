@@ -212,6 +212,34 @@ describe("buildStaticIndex", () => {
     );
   });
 
+  it("rejects alignment files whose filename episode does not match the content", async () => {
+    const dataDirectory = await makeTempDataDirectory();
+    await writeJson(
+      join(dataDirectory, "alignments", "ep1.json"),
+      makeAlignment(2, "youtube0002", [makeSegment(2, "youtube0002", 0, "不一致です。")])
+    );
+
+    await expect(buildStaticIndex({ dataDirectory })).rejects.toThrow(
+      /ep1\.json contains episode 2; expected episode 1/
+    );
+  });
+
+  it("rejects duplicate parsed alignment episodes", async () => {
+    const dataDirectory = await makeTempDataDirectory();
+    await writeJson(
+      join(dataDirectory, "alignments", "ep2.json"),
+      makeAlignment(2, "youtube0002", [makeSegment(2, "youtube0002", 0, "重複1です。")])
+    );
+    await writeJson(
+      join(dataDirectory, "alignments", "ep02.json"),
+      makeAlignment(2, "youtube0002b", [makeSegment(2, "youtube0002b", 0, "重複2です。")])
+    );
+
+    await expect(buildStaticIndex({ dataDirectory })).rejects.toThrow(
+      /Duplicate alignment episode 2 in ep02\.json and ep2\.json|Duplicate alignment episode 2 in ep2\.json and ep02\.json/
+    );
+  });
+
   it("fails on a missing alignments directory unless empty indexes are explicit", async () => {
     const directory = await mkdtemp(join(tmpdir(), "4989-index-missing-"));
     tempDirectories.push(directory);

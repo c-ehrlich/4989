@@ -181,11 +181,40 @@ async function readAlignments(
       return leftEpisode - rightEpisode || left.localeCompare(right);
     });
 
-  return Promise.all(
-    alignmentFiles.map(async (fileName) =>
-      AlignmentSchema.parse(await readJson(resolve(alignmentDirectory, fileName)))
-    )
-  );
+  const seenEpisodes = new Map<number, string>();
+  const alignments: Alignment[] = [];
+
+  for (const fileName of alignmentFiles) {
+    const fileEpisode = parseEpisodeFromAlignmentFileName(fileName);
+    const alignment = AlignmentSchema.parse(await readJson(resolve(alignmentDirectory, fileName)));
+
+    if (alignment.episode !== fileEpisode) {
+      throw new Error(
+        `Alignment file ${fileName} contains episode ${alignment.episode}; expected episode ${fileEpisode}`
+      );
+    }
+
+    const previousFileName = seenEpisodes.get(alignment.episode);
+    if (previousFileName) {
+      throw new Error(
+        `Duplicate alignment episode ${alignment.episode} in ${previousFileName} and ${fileName}`
+      );
+    }
+
+    seenEpisodes.set(alignment.episode, fileName);
+    alignments.push(alignment);
+  }
+
+  return alignments;
+}
+
+function parseEpisodeFromAlignmentFileName(fileName: string): number {
+  const match = /^ep(\d+)\.json$/.exec(fileName);
+  if (!match) {
+    throw new Error(`Invalid alignment file name: ${fileName}`);
+  }
+
+  return Number(match[1]);
 }
 
 function normalizeAlignmentSegments(alignment: Alignment): CorpusSegment[] {
