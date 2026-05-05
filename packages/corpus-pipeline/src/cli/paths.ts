@@ -22,6 +22,10 @@ export async function defaultCorpusDataDirectory(): Promise<string> {
   return resolve(await findRepoRoot(), "packages/corpus-data/data");
 }
 
+export async function defaultWorkDirectory(): Promise<string> {
+  return resolve(await findRepoRoot(), ".work/4989");
+}
+
 export async function defaultSourceOverridesPath(): Promise<string> {
   return resolve(await findRepoRoot(), "packages/corpus-pipeline/config/source-overrides.json");
 }

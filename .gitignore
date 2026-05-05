@@ -15,5 +15,9 @@ packages/corpus-data/data/index/
 packages/corpus-data/data/manifest.json
 packages/corpus-data/data/episodes.json
 packages/corpus-data/data/videos.json
+packages/corpus-data/data/scripts.json
+packages/corpus-data/data/scripts.sample.json
 packages/corpus-data/data/build-report.json
 packages/corpus-data/data/video-enumeration-report.json
+packages/corpus-data/data/script-discovery-report.json
+packages/corpus-data/data/script-discovery-report.sample.json

@@ -17,6 +17,7 @@
     "lint": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run src",
     "list-videos": "pnpm build && node ./dist/cli/list-videos.js",
+    "discover-scripts": "pnpm build && node ./dist/cli/discover-scripts.js",
     "clean": "rm -rf dist"
   },
   "dependencies": {

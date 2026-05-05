@@ -160,6 +160,22 @@ export const VideoSchema = z
 
 export const VideosSchema = z.array(VideoSchema);
 
+export const ScriptSchema = z
+  .object({
+    episode: episodeNumberSchema,
+    title: nonEmptyStringSchema,
+    url: z.string().url(),
+    publishedAt: optionalDateTimeStringSchema,
+    modifiedAt: optionalDateTimeStringSchema,
+    lastmod: optionalDateStringSchema,
+    text: nonEmptyStringSchema,
+    htmlPath: nonEmptyStringSchema,
+    textPath: nonEmptyStringSchema
+  })
+  .strict();
+
+export const ScriptsSchema = z.array(ScriptSchema);
+
 export const EpisodeSchema = z
   .object({
     episode: episodeNumberSchema,
@@ -475,6 +491,8 @@ export type CorpusToken = z.infer<typeof CorpusTokenSchema>;
 export type CorpusSegment = z.infer<typeof CorpusSegmentSchema>;
 export type Video = z.infer<typeof VideoSchema>;
 export type Videos = z.infer<typeof VideosSchema>;
+export type Script = z.infer<typeof ScriptSchema>;
+export type Scripts = z.infer<typeof ScriptsSchema>;
 export type Episode = z.infer<typeof EpisodeSchema>;
 export type Episodes = z.infer<typeof EpisodesSchema>;
 export type ManifestEntry = z.infer<typeof ManifestEntrySchema>;

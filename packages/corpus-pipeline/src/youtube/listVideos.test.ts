@@ -9,6 +9,7 @@ import { parseEpisodeNumberFromTitle } from "./parseEpisode.js";
 describe("parseEpisodeNumberFromTitle", () => {
   it("parses common 4989 episode title formats", () => {
     expect(parseEpisodeNumberFromTitle("ep.367/アメリカの道路が凸凹すぎる件")).toBe(367);
+    expect(parseEpisodeNumberFromTitle("https://example.com/post/ep-343--title")).toBe(343);
     expect(parseEpisodeNumberFromTitle("4989 American Life EP 12 topic")).toBe(12);
     expect(parseEpisodeNumberFromTitle("第89回 アメリカ生活")).toBe(89);
   });
