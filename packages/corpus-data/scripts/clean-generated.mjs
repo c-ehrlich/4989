@@ -1,7 +1,7 @@
 import { rm } from "node:fs/promises";
 
 const generatedPaths = [
-  "../data/alignments",
+  "../dist",
   "../data/segments",
   "../data/index",
   "../data/manifest.json",
