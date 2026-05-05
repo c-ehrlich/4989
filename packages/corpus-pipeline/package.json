@@ -21,6 +21,7 @@
     "build-manifest": "pnpm build && node ./dist/cli/build-manifest.js",
     "process-episode": "pnpm build && node ./dist/cli/process-episode.js",
     "rebuild-index": "pnpm build && node ./dist/cli/rebuild-index.js",
+    "search": "pnpm build && node ./dist/cli/search.js",
     "validate-alignment": "pnpm build && node ./dist/cli/validate-alignment.js",
     "clean": "rm -rf dist"
   },
