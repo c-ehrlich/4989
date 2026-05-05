@@ -15,6 +15,8 @@
     "build": "tsc -b tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run src",
+    "list-videos": "pnpm build && node ./dist/cli/list-videos.js",
     "clean": "rm -rf dist"
   },
   "dependencies": {

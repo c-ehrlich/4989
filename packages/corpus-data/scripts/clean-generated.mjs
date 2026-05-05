@@ -7,7 +7,8 @@ const generatedPaths = [
   "../data/manifest.json",
   "../data/episodes.json",
   "../data/videos.json",
-  "../data/build-report.json"
+  "../data/build-report.json",
+  "../data/video-enumeration-report.json"
 ];
 
 await Promise.all(
