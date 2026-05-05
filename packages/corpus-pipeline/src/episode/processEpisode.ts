@@ -14,6 +14,7 @@ import {
   type BuildReport,
   type BuildReportEntry,
   type CorpusSegment,
+  type EpisodeStatus,
   type ManifestEntry,
   type Script,
   type Video
@@ -28,6 +29,7 @@ import { downloadEpisodeSources } from "../youtube/downloadEpisodeSources.js";
 
 const PIPELINE_VERSION = 4;
 const LOW_CONFIDENCE_THRESHOLD = 0.68;
+const MAX_REVIEW_ITEMS = 30;
 
 export type ProcessEpisodeOptions = {
   episode: number;
@@ -41,6 +43,7 @@ export type ProcessEpisodeOptions = {
 export type ProcessEpisodeResult = {
   alignment: Alignment;
   alignmentPath: string;
+  reportPath: string;
   skipped: boolean;
   scriptUnitCount: number;
   unmatchedIssues: AlignmentIssue[];
@@ -54,11 +57,17 @@ export async function processEpisode(
   const repoRoot = await findRepoRoot();
   const episodeKey = makeEpisodeKey(options.episode);
   const alignmentDirectory = resolve(dataDirectory, "alignments");
+  const reportDirectory = resolve(dataDirectory, "reports");
   const alignmentPath = resolve(alignmentDirectory, `${episodeKey}.json`);
+  const reportPath = resolve(reportDirectory, `${episodeKey}.json`);
 
-  await mkdir(alignmentDirectory, { recursive: true });
+  await Promise.all([
+    mkdir(alignmentDirectory, { recursive: true }),
+    mkdir(reportDirectory, { recursive: true })
+  ]);
 
   const { manifestEntry, video, script } = await resolveEpisodeSources(dataDirectory, options.episode);
+  assertProcessableManifestEntry(manifestEntry);
   if (!manifestEntry.youtubeId || !manifestEntry.videoUrl || !manifestEntry.scriptUrl) {
     throw new Error(`Episode ${options.episode} does not have complete video and script sources`);
   }
@@ -102,6 +111,7 @@ export async function processEpisode(
     return {
       alignment: existingAlignment,
       alignmentPath,
+      reportPath,
       skipped: true,
       scriptUnitCount: existingAlignment.summary.scriptUnitCount ?? existingAlignment.segments.length,
       unmatchedIssues: []
@@ -166,6 +176,13 @@ export async function processEpisode(
   const alignment = AlignmentSchema.parse(rawAlignment);
 
   await writeStableJson(alignmentPath, alignment);
+  await writeEpisodeReviewReport({
+    path: reportPath,
+    episodeKey,
+    alignment,
+    unmatchedIssues: alignmentResult.issues,
+    lowConfidenceThreshold: LOW_CONFIDENCE_THRESHOLD
+  });
   await updateBuildReport(dataDirectory, episodeKey, {
     status: lowConfidenceCount > 0 ? "low-confidence" : "processed",
     segments: segments.length,
@@ -173,12 +190,14 @@ export async function processEpisode(
     unmatchedCount: alignmentResult.issues.length,
     inferredCount,
     lowConfidenceCount,
+    reportPath: `data/reports/${episodeKey}.json`,
     ...(averageConfidence === undefined ? {} : { averageConfidence })
   });
 
   return {
     alignment,
     alignmentPath,
+    reportPath,
     skipped: false,
     scriptUnitCount: scriptUnits.length,
     unmatchedIssues: alignmentResult.issues
@@ -223,6 +242,20 @@ async function resolveEpisodeSources(
   }
 
   return { manifestEntry, video, script };
+}
+
+function assertProcessableManifestEntry(entry: ManifestEntry): void {
+  const allowedStatuses = new Set<EpisodeStatus>(["discovered", "processed", "low-confidence"]);
+
+  if (!allowedStatuses.has(entry.status)) {
+    throw new Error(
+      `Episode ${entry.episode} cannot be processed while manifest status is ${entry.status}`
+    );
+  }
+
+  if (!entry.youtubeId || !entry.videoUrl || !entry.hasScript || !entry.scriptUrl) {
+    throw new Error(`Episode ${entry.episode} does not have complete video and script sources`);
+  }
 }
 
 async function ensureScriptCache(script: Script, repoRoot: string): Promise<void> {
@@ -284,6 +317,64 @@ async function updateBuildReport(
 
   report[episodeKey] = entry;
   await writeStableJson(reportPath, BuildReportSchema.parse(report));
+}
+
+async function writeEpisodeReviewReport(input: {
+  path: string;
+  episodeKey: string;
+  alignment: Alignment;
+  unmatchedIssues: AlignmentIssue[];
+  lowConfidenceThreshold: number;
+}): Promise<void> {
+  const lowConfidenceSegments = input.alignment.segments
+    .filter((segment) => (segment.confidence ?? 1) < input.lowConfidenceThreshold)
+    .sort((left, right) => (left.confidence ?? 1) - (right.confidence ?? 1))
+    .slice(0, MAX_REVIEW_ITEMS)
+    .map(toReviewSegment);
+  const inferredSegments = input.alignment.segments
+    .filter((segment) => segment.timingSource === "interpolated-between-caption-matches")
+    .map(toReviewSegment);
+
+  await writeStableJson(input.path, {
+    generatedAt: input.alignment.source.generatedAt,
+    episode: input.alignment.episode,
+    youtubeId: input.alignment.youtubeId,
+    alignmentPath: `data/alignments/${input.episodeKey}.json`,
+    summary: input.alignment.summary,
+    reviewLimits: {
+      maxLowConfidenceSegments: MAX_REVIEW_ITEMS
+    },
+    unmatchedIssues: input.unmatchedIssues.slice(0, MAX_REVIEW_ITEMS).map((issue) => ({
+      scriptIndex: issue.scriptIndex,
+      reason: issue.reason,
+      confidence: issue.confidence === undefined ? undefined : roundConfidence(issue.confidence),
+      text: issue.text
+    })),
+    lowConfidenceSegments,
+    inferredSegments
+  });
+}
+
+function toReviewSegment(segment: CorpusSegment): {
+  id: number;
+  segmentKey: string;
+  localIndex: number;
+  start: number;
+  end: number;
+  confidence?: number;
+  timingSource?: CorpusSegment["timingSource"];
+  text: string;
+} {
+  return {
+    id: segment.id,
+    segmentKey: segment.segmentKey,
+    localIndex: segment.localIndex,
+    start: segment.start,
+    end: segment.end,
+    confidence: segment.confidence,
+    timingSource: segment.timingSource,
+    text: segment.text
+  };
 }
 
 async function readJson(path: string): Promise<unknown> {

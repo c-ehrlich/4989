@@ -49,7 +49,6 @@ export function alignCaptionLattice(input: {
   const issues: AlignmentIssue[] = [];
   const directMatches: DraftSegment[] = [];
   let captionCursor = 0;
-  const lowConfidenceThreshold = input.lowConfidenceThreshold ?? LOW_CONFIDENCE;
 
   for (const scriptUnit of input.scriptUnits) {
     if (input.lattice.text.length === 0) {
@@ -117,11 +116,7 @@ export function alignCaptionLattice(input: {
       start,
       end,
       text: scriptUnit.text,
-      confidence: roundConfidence(
-        candidate.confidence < lowConfidenceThreshold
-          ? candidate.confidence
-          : candidate.confidence
-      ),
+      confidence: roundConfidence(candidate.confidence),
       timingSource: "youtube-caption-lattice"
     });
 

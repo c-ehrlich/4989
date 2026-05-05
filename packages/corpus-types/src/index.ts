@@ -495,6 +495,7 @@ export const BuildReportEntrySchema = z
     inferredCount: z.number().int().nonnegative().optional(),
     averageConfidence: z.number().finite().min(0).max(1).optional(),
     lowConfidenceCount: z.number().int().nonnegative().optional(),
+    reportPath: nonEmptyStringSchema.optional(),
     message: nonEmptyStringSchema.optional()
   })
   .strict();

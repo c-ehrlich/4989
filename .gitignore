@@ -10,6 +10,7 @@ _temp/
 *.log
 
 packages/corpus-data/data/alignments/
+packages/corpus-data/data/reports/
 packages/corpus-data/data/segments/
 packages/corpus-data/data/index/
 packages/corpus-data/data/manifest.json
