@@ -683,6 +683,8 @@ Completeness:
   - episode/timestamp display
   - basic Anki TSV export
 - The app loads static JSON from `packages/corpus-data` or copied public assets.
+- For the first deployment, static corpus assets use stable paths such as `/data/segments/ep367.json` and `/data/index/lemma-buckets/00.json`, not one large bundled JS payload.
+- On Vercel, rely on automatic gzip/Brotli compression and edge caching for those JSON assets, but keep browser caching conservative with revalidating headers such as `Cache-Control: public, max-age=0, must-revalidate` so corpus updates are visible after redeploys.
 
 Correctness:
 
