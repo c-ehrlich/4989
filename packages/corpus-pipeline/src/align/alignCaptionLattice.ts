@@ -17,12 +17,8 @@ export type CaptionAlignmentResult = {
 };
 
 type Candidate = {
-  scriptIndex: number;
-  blockIndex: number;
   start: number;
   end: number;
-  startTime: number;
-  endTime: number;
   confidence: number;
   score: number;
   lattice: CaptionLattice;
@@ -44,27 +40,12 @@ const INTERPOLATED_CONFIDENCE = 0.25;
 const MIN_INTERPOLATED_SEGMENT_SECONDS = 0.25;
 const MAX_INTERPOLATED_SECONDS_PER_CHARACTER = 0.55;
 const SEARCH_WINDOW_CHARACTERS = 2600;
-const MAX_CANDIDATE_OCCURRENCES = 80;
-const MAX_CANDIDATES_PER_UNIT = 12;
-const MAX_GLOBAL_STATES = 120;
-const GLOBAL_CANDIDATE_MIN_CONFIDENCE = 0.2;
-const MATCH_REWARD = 0.15;
-const SKIP_PENALTY = 0.45;
+const MAX_CANDIDATE_OCCURRENCES = 40;
 const CONTEXT_WEIGHT = 0.18;
 const PREVIOUS_CONTEXT_WEIGHT = 0.05;
 const DISTANCE_PENALTY_WEIGHT = 0.18;
 const SAME_BLOCK_JUMP_SECONDS = 75;
 const SAME_BLOCK_JUMP_PENALTY = 0.2;
-const LONG_JUMP_SECONDS = 120;
-const LONG_JUMP_PENALTY = 0.25;
-const MONOTONIC_TOLERANCE_SECONDS = 0.01;
-
-type AlignmentState = {
-  score: number;
-  lastEndTime: number;
-  lastBlockIndex?: number;
-  path: Array<DraftSegment | undefined>;
-};
 
 export function alignCaptionLattice(input: {
   episode: number;
@@ -74,31 +55,48 @@ export function alignCaptionLattice(input: {
   readingLattice?: CaptionLattice;
   lowConfidenceThreshold?: number;
 }): CaptionAlignmentResult {
-  const candidateGroups = input.scriptUnits.map((scriptUnit) => {
+  const issues: AlignmentIssue[] = [];
+  const directMatches: DraftSegment[] = [];
+
+  for (const scriptUnit of input.scriptUnits) {
     if (input.lattice.text.length === 0) {
-      return [];
+      issues.push({
+        scriptIndex: scriptUnit.index,
+        text: scriptUnit.text,
+        normalizedText: scriptUnit.normalizedText,
+        reason: "empty-caption-lattice"
+      });
+      continue;
     }
 
+    const previousMatch = directMatches[directMatches.length - 1];
+    const previousEnd = previousMatch?.end ?? 0;
     const previousScriptUnit = input.scriptUnits[scriptUnit.index - 1];
     const nextScriptUnits = collectNextContextUnits(input.scriptUnits, scriptUnit);
-    const surfaceCandidates = collectCandidates({
-      scriptIndex: scriptUnit.index,
-      blockIndex: scriptUnit.blockIndex,
+    const surfaceCursor = characterIndexAtOrAfterTime(input.lattice, Math.max(0, previousEnd - 1.5));
+    const surfaceCandidate = findBestCandidate({
       needle: scriptUnit.normalizedText,
       lattice: input.lattice,
+      cursor: surfaceCursor,
+      previousEnd,
+      blockIndex: scriptUnit.blockIndex,
       previousContext:
         previousScriptUnit?.blockIndex === scriptUnit.blockIndex
           ? previousScriptUnit.normalizedText
           : undefined,
       nextContext: nextScriptUnits.map((unit) => unit.normalizedText).join("")
     });
-    const readingCandidates =
+    const readingCursor = input.readingLattice
+      ? characterIndexAtOrAfterTime(input.readingLattice, Math.max(0, previousEnd - 1.5))
+      : 0;
+    const readingCandidate =
       input.readingLattice && scriptUnit.normalizedReadingText
-        ? collectCandidates({
-            scriptIndex: scriptUnit.index,
-            blockIndex: scriptUnit.blockIndex,
+        ? findBestCandidate({
             needle: scriptUnit.normalizedReadingText,
             lattice: input.readingLattice,
+            cursor: readingCursor,
+            previousEnd,
+            blockIndex: scriptUnit.blockIndex,
             previousContext:
               previousScriptUnit?.blockIndex === scriptUnit.blockIndex
                 ? previousScriptUnit.normalizedReadingText
@@ -107,18 +105,64 @@ export function alignCaptionLattice(input: {
               .flatMap((unit) => unit.normalizedReadingText ?? [])
               .join("")
           })
-        : [];
+        : undefined;
+    const candidate = chooseCandidate(surfaceCandidate, readingCandidate);
+    if (!candidate) {
+      issues.push({
+        scriptIndex: scriptUnit.index,
+        text: scriptUnit.text,
+        normalizedText: scriptUnit.normalizedText,
+        reason: "no-candidate"
+      });
+      continue;
+    }
 
-    return mergeCandidates([...surfaceCandidates, ...readingCandidates]);
-  });
-  const directMatches = selectGlobalPath(input.scriptUnits, candidateGroups);
-  const issues = buildAlignmentIssues({
-    scriptUnits: input.scriptUnits,
-    candidateGroups,
-    directMatches,
-    emptyLattice: input.lattice.text.length === 0
-  });
+    if (!isAcceptedCandidate(candidate)) {
+      issues.push({
+        scriptIndex: scriptUnit.index,
+        text: scriptUnit.text,
+        normalizedText: scriptUnit.normalizedText,
+        reason: "below-threshold",
+        confidence: candidate.confidence
+      });
+      continue;
+    }
 
+    const emittedStartIndex = candidate.start;
+    if (emittedStartIndex >= candidate.end) {
+      issues.push({
+        scriptIndex: scriptUnit.index,
+        text: scriptUnit.text,
+        normalizedText: scriptUnit.normalizedText,
+        reason: "no-candidate"
+      });
+      continue;
+    }
+
+    const startCharacter = candidate.lattice.characters[emittedStartIndex];
+    const endCharacter = candidate.lattice.characters[Math.max(candidate.end - 1, emittedStartIndex)];
+    if (!startCharacter || !endCharacter) {
+      issues.push({
+        scriptIndex: scriptUnit.index,
+        text: scriptUnit.text,
+        normalizedText: scriptUnit.normalizedText,
+        reason: "no-candidate"
+      });
+      continue;
+    }
+
+    const start = roundSeconds(Math.max(startCharacter.start, previousEnd));
+    const end = roundSeconds(Math.max(endCharacter.end, start + 0.25));
+
+    directMatches.push({
+      scriptIndex: scriptUnit.index,
+      start,
+      end,
+      text: scriptUnit.text,
+      confidence: roundConfidence(candidate.confidence),
+      timingSource: "youtube-caption-lattice"
+    });
+  }
 
   const { drafts, remainingIssues } = interpolateBoundedIssues({
     directMatches,
@@ -141,131 +185,6 @@ export function alignCaptionLattice(input: {
     })),
     issues: remainingIssues
   };
-}
-
-function selectGlobalPath(
-  scriptUnits: ScriptUnit[],
-  candidateGroups: Candidate[][]
-): DraftSegment[] {
-  let states: AlignmentState[] = [
-    {
-      score: 0,
-      lastEndTime: 0,
-      path: []
-    }
-  ];
-
-  for (const scriptUnit of scriptUnits) {
-    const candidates = candidateGroups[scriptUnit.index] ?? [];
-    const nextStates: AlignmentState[] = [];
-
-    for (const state of states) {
-      nextStates.push({
-        score: state.score - SKIP_PENALTY,
-        lastEndTime: state.lastEndTime,
-        lastBlockIndex: state.lastBlockIndex,
-        path: [...state.path, undefined]
-      });
-
-      for (const candidate of candidates) {
-        if (candidate.startTime < state.lastEndTime - MONOTONIC_TOLERANCE_SECONDS) {
-          continue;
-        }
-
-        const start = roundSeconds(Math.max(candidate.startTime, state.lastEndTime));
-        const end = roundSeconds(Math.max(candidate.endTime, start + 0.25));
-        const jumpPenalty = transitionJumpPenalty(state, candidate);
-        nextStates.push({
-          score: state.score + candidate.score + MATCH_REWARD - jumpPenalty,
-          lastEndTime: end,
-          lastBlockIndex: candidate.blockIndex,
-          path: [
-            ...state.path,
-            {
-              scriptIndex: scriptUnit.index,
-              start,
-              end,
-              text: scriptUnit.text,
-              confidence: roundConfidence(candidate.confidence),
-              timingSource: "youtube-caption-lattice"
-            }
-          ]
-        });
-      }
-    }
-
-    states = pruneStates(nextStates);
-  }
-
-  const bestState = states.sort((left, right) => right.score - left.score)[0];
-  return (bestState?.path ?? []).flatMap((draft) => (draft ? [draft] : []));
-}
-
-function transitionJumpPenalty(state: AlignmentState, candidate: Candidate): number {
-  if (state.lastBlockIndex === undefined) {
-    return 0;
-  }
-
-  const jumpSeconds = Math.max(0, candidate.startTime - state.lastEndTime);
-  const sameBlockPenalty =
-    state.lastBlockIndex === candidate.blockIndex && jumpSeconds > SAME_BLOCK_JUMP_SECONDS
-      ? SAME_BLOCK_JUMP_PENALTY
-      : 0;
-  const longJumpPenalty =
-    jumpSeconds > LONG_JUMP_SECONDS
-      ? Math.min(0.6, (jumpSeconds / LONG_JUMP_SECONDS) * LONG_JUMP_PENALTY)
-      : 0;
-
-  return sameBlockPenalty + longJumpPenalty;
-}
-
-function pruneStates(states: AlignmentState[]): AlignmentState[] {
-  const bestByTime = new Map<string, AlignmentState>();
-
-  for (const state of states) {
-    const timeBucket = Math.floor(state.lastEndTime / 8);
-    const key = `${state.lastBlockIndex ?? "none"}:${timeBucket}`;
-    const previous = bestByTime.get(key);
-    if (!previous || state.score > previous.score) {
-      bestByTime.set(key, state);
-    }
-  }
-
-  return [...bestByTime.values()]
-    .sort((left, right) => right.score - left.score)
-    .slice(0, MAX_GLOBAL_STATES);
-}
-
-function buildAlignmentIssues(input: {
-  scriptUnits: ScriptUnit[];
-  candidateGroups: Candidate[][];
-  directMatches: DraftSegment[];
-  emptyLattice: boolean;
-}): AlignmentIssue[] {
-  const matchedIndexes = new Set(input.directMatches.map((match) => match.scriptIndex));
-
-  return input.scriptUnits.flatMap((scriptUnit) => {
-    if (matchedIndexes.has(scriptUnit.index)) {
-      return [];
-    }
-
-    const candidates = input.candidateGroups[scriptUnit.index] ?? [];
-    const bestCandidate = candidates.sort((left, right) => right.confidence - left.confidence)[0];
-
-    return [
-      {
-        scriptIndex: scriptUnit.index,
-        text: scriptUnit.text,
-        normalizedText: scriptUnit.normalizedText,
-        reason: input.emptyLattice
-          ? "empty-caption-lattice"
-          : bestCandidate
-            ? "below-threshold"
-            : "no-candidate",
-        ...(bestCandidate ? { confidence: roundConfidence(bestCandidate.confidence) } : {})
-      } satisfies AlignmentIssue
-    ];
-  });
 }
 
 function interpolateBoundedIssues(input: {
@@ -386,24 +305,25 @@ function interpolateIssueBlock(input: {
   return drafts;
 }
 
-function collectCandidates(input: {
-  scriptIndex: number;
-  blockIndex: number;
+function findBestCandidate(input: {
   needle: string;
   lattice: CaptionLattice;
+  cursor: number;
+  previousEnd: number;
+  blockIndex: number;
   previousContext?: string;
   nextContext?: string;
-}): Candidate[] {
-  const { needle, lattice } = input;
+}): Candidate | undefined {
+  const { needle, lattice, cursor } = input;
   const haystack = lattice.text;
   if (!needle || !haystack) {
-    return [];
+    return undefined;
   }
 
-  const searchStart = 0;
-  const searchEnd = haystack.length;
+  const searchStart = Math.max(0, cursor - 25);
+  const searchEnd = Math.min(haystack.length, searchStart + SEARCH_WINDOW_CHARACTERS + needle.length);
   const candidateStarts = collectCandidateStarts(needle, haystack, searchStart, searchEnd);
-  const candidates: Candidate[] = [];
+  let best: Candidate | undefined;
 
   for (const start of candidateStarts) {
     const minLength = Math.max(3, Math.floor(needle.length * 0.55));
@@ -416,64 +336,69 @@ function collectCandidates(input: {
       const end = start + length;
       const candidateText = haystack.slice(start, end);
       const confidence = similarity(needle, candidateText);
-      if (confidence < GLOBAL_CANDIDATE_MIN_CONFIDENCE) {
-        continue;
-      }
       const score = scoreCandidate({
         lattice,
         start,
         end,
+        cursor,
         confidence,
+        previousEnd: input.previousEnd,
         previousContext: input.previousContext,
         nextContext: input.nextContext
       });
-      const startCharacter = lattice.characters[start];
-      const endCharacter = lattice.characters[Math.max(end - 1, start)];
-      if (!startCharacter || !endCharacter) {
-        continue;
-      }
-
-      candidates.push({
-          scriptIndex: input.scriptIndex,
-          blockIndex: input.blockIndex,
+      if (!best || score > best.score) {
+        best = {
           start,
           end,
-          startTime: startCharacter.start,
-          endTime: Math.max(endCharacter.end, startCharacter.start + 0.25),
           confidence,
           score,
           lattice,
           matchKind: "surface"
-        });
+        };
+      }
     }
   }
 
-  return mergeCandidates(candidates).slice(0, MAX_CANDIDATES_PER_UNIT);
+  return best;
 }
 
-function mergeCandidates(candidates: Candidate[]): Candidate[] {
-  const bestByTime = new Map<string, Candidate>();
-
-  for (const candidate of candidates) {
-    const key = `${Math.round(candidate.startTime * 4)}:${Math.round(candidate.endTime * 4)}`;
-    const previous = bestByTime.get(key);
-    if (!previous || candidate.score > previous.score) {
-      bestByTime.set(key, candidate);
-    }
+function chooseCandidate(
+  surfaceCandidate: Candidate | undefined,
+  readingCandidate: Candidate | undefined
+): Candidate | undefined {
+  if (surfaceCandidate && readingCandidate) {
+    readingCandidate.matchKind = "reading";
+    return readingCandidate.score > surfaceCandidate.score ? readingCandidate : surfaceCandidate;
   }
 
-  return [...bestByTime.values()]
-    .sort((left, right) => right.score - left.score || left.startTime - right.startTime);
+  if (readingCandidate) {
+    readingCandidate.matchKind = "reading";
+  }
+
+  return surfaceCandidate ?? readingCandidate;
+}
+
+function isAcceptedCandidate(candidate: Candidate): boolean {
+  return candidate.confidence >= MIN_CONFIDENCE || candidate.score >= MIN_CONFIDENCE + 0.05;
 }
 
 function scoreCandidate(input: {
   lattice: CaptionLattice;
   start: number;
   end: number;
+  cursor: number;
   confidence: number;
+  previousEnd: number;
   previousContext?: string;
   nextContext?: string;
 }): number {
+  const distance = Math.max(0, input.start - input.cursor);
+  const distancePenalty =
+    (Math.min(distance, SEARCH_WINDOW_CHARACTERS) / SEARCH_WINDOW_CHARACTERS) *
+    DISTANCE_PENALTY_WEIGHT;
+  const startTime = input.lattice.characters[input.start]?.start ?? input.previousEnd;
+  const jumpSeconds = Math.max(0, startTime - input.previousEnd);
+  const sameBlockJumpPenalty = jumpSeconds > SAME_BLOCK_JUMP_SECONDS ? SAME_BLOCK_JUMP_PENALTY : 0;
   const previousContextScore = contextSimilarity({
     haystack: input.lattice.text,
     context: input.previousContext,
@@ -490,7 +415,9 @@ function scoreCandidate(input: {
   return (
     input.confidence +
     PREVIOUS_CONTEXT_WEIGHT * previousContextScore +
-    CONTEXT_WEIGHT * nextContextScore
+    CONTEXT_WEIGHT * nextContextScore -
+    distancePenalty -
+    sameBlockJumpPenalty
   );
 }
 
