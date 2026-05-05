@@ -19,6 +19,7 @@
     "list-videos": "pnpm build && node ./dist/cli/list-videos.js",
     "discover-scripts": "pnpm build && node ./dist/cli/discover-scripts.js",
     "build-manifest": "pnpm build && node ./dist/cli/build-manifest.js",
+    "process-episode": "pnpm build && node ./dist/cli/process-episode.js",
     "clean": "rm -rf dist"
   },
   "dependencies": {

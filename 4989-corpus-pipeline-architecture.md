@@ -420,14 +420,13 @@ The web app can hydrate results by deriving the episode and local index from the
 3. Implement YouTube video enumeration.
 4. Implement official script discovery and parsing.
 5. Build the episode manifest.
-6. Process one episode, starting with `ep367`.
+6. Process one episode with Sudachi tokenization, starting with `ep367`.
 7. Generate one alignment JSON.
-8. Add Sudachi tokenization.
-9. Build static index JSON.
-10. Add a tiny CLI search to validate the corpus.
-11. Process recent 10 episodes.
-12. Build the web app.
-13. Backfill all script-covered episodes.
+8. Build static index JSON.
+9. Add a tiny CLI search to validate the corpus.
+10. Process recent 10 episodes.
+11. Build the web app.
+12. Backfill all script-covered episodes.
 
 ## Milestone Validation
 
@@ -559,7 +558,8 @@ Completeness:
   - `ja-orig` caption JSON
   - official script HTML/text
 - It writes `data/alignments/ep367.json`.
-- The alignment includes source hashes, pipeline version, generated timestamp, segments, timestamps, confidence scores, and tokens if tokenization is already wired in.
+- The alignment includes source hashes, pipeline version, generated timestamp, segments, timestamps, confidence scores, and Sudachi tokens.
+- Python dependency setup for SudachiPy and the Sudachi dictionary is documented and pinned.
 
 Correctness:
 
@@ -567,6 +567,13 @@ Correctness:
 - Segment timestamps are monotonic and non-overlapping except for intentional tiny boundary tolerance.
 - Segment text comes from the official script, not the noisy YouTube captions.
 - Segment start/end times fall inside the YouTube video duration.
+- Each emitted segment has token entries with surface, lemma, part of speech, and reading when available.
+- Known conjugation examples resolve correctly:
+  - `食べた -> 食べる`
+  - `食べない -> 食べる`
+  - `行った -> 行く`
+  - `良かった -> 良い`
+- Tokenization output validates against the segment schema and is stable on rerun.
 - Manually check about 20 randomly selected sentence timestamps in YouTube.
 - Low-confidence or unmatched script portions are reported rather than hidden.
 
@@ -584,7 +591,9 @@ Completeness:
   - end time
   - official script text
   - confidence
+  - tokens
 - Alignment summary metrics are emitted:
+  - script unit count
   - segment count
   - matched count
   - unmatched count
@@ -600,31 +609,7 @@ Correctness:
 - The first and last aligned segments are plausible relative to the video.
 - A short generated review report lists the lowest-confidence segments for manual inspection.
 
-### 8. Add Sudachi Tokenization
-
-Completeness:
-
-- Each segment has token entries with:
-  - surface
-  - lemma
-  - part of speech
-  - reading when available
-- Tokenization runs as part of `process-episode` or as a deterministic post-processing step.
-- Python dependency setup is documented and pinned.
-
-Correctness:
-
-- Known conjugation examples resolve correctly:
-  - `食べた -> 食べる`
-  - `食べない -> 食べる`
-  - `行った -> 行く`
-  - `良かった -> 良い`
-- Tokenization output validates against the segment schema.
-- Re-running tokenization produces stable output.
-- Empty punctuation-only tokens are either omitted or handled consistently.
-- Spot-check tokenization for 20 common Japanese words from `ep367`.
-
-### 9. Build Static Index JSON
+### 8. Build Static Index JSON
 
 Completeness:
 
@@ -647,7 +632,7 @@ Correctness:
 - Rebuilding from unchanged alignments produces stable output.
 - Very common terms are allowed to produce large result sets, but the output remains valid and deterministic.
 
-### 10. Add A Tiny CLI Search To Validate The Corpus
+### 9. Add A Tiny CLI Search To Validate The Corpus
 
 Completeness:
 
@@ -670,7 +655,7 @@ Correctness:
 - YouTube timestamp URLs point to the expected video and second.
 - Unknown queries fail gracefully with zero results, not an exception.
 
-### 11. Process Recent 10 Episodes
+### 10. Process Recent 10 Episodes
 
 Completeness:
 
@@ -686,7 +671,7 @@ Correctness:
 - `process-latest` does not redo successfully processed unchanged episodes.
 - Rebuilding the index after processing the 10 episodes produces valid searchable results across episode boundaries.
 
-### 12. Build The Web App
+### 11. Build The Web App
 
 Completeness:
 
@@ -708,7 +693,7 @@ Correctness:
 - Anki export rows include the expected fields and escape tabs/newlines correctly.
 - Basic browser validation passes on desktop and mobile widths.
 
-### 13. Backfill All Script-Covered Episodes
+### 12. Backfill All Script-Covered Episodes
 
 Completeness:
 

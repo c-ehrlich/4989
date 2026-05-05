@@ -299,6 +299,7 @@ export const AlignmentSourceSchema = z
 
 export const AlignmentSummarySchema = z
   .object({
+    scriptUnitCount: z.number().int().nonnegative().optional(),
     segmentCount: z.number().int().nonnegative(),
     matchedCount: z.number().int().nonnegative(),
     unmatchedCount: z.number().int().nonnegative(),
@@ -325,13 +326,12 @@ export const AlignmentSchema = z
       });
     }
 
-    if (
-      alignment.summary.matchedCount + alignment.summary.unmatchedCount !==
-      alignment.summary.segmentCount
-    ) {
+    const expectedUnitCount = alignment.summary.scriptUnitCount ?? alignment.summary.segmentCount;
+    if (alignment.summary.matchedCount + alignment.summary.unmatchedCount !== expectedUnitCount) {
       context.addIssue({
         code: "custom",
-        message: "Alignment matchedCount plus unmatchedCount must equal segmentCount",
+        message:
+          "Alignment matchedCount plus unmatchedCount must equal scriptUnitCount when present, otherwise segmentCount",
         path: ["summary"]
       });
     }

@@ -613,9 +613,8 @@ Mitigation:
 ### Milestone 1: Single Episode
 
 - Process `ep.367`.
-- Generate `alignment/ep367.json`.
+- Generate `alignment/ep367.json` with Sudachi token/lemma data.
 - Confirm 20 random sentence timestamps manually in YouTube.
-- Add Sudachi token/lemma data.
 - Build a tiny CLI search over the JSON.
 
 ### Milestone 2: Recent 10 Episodes

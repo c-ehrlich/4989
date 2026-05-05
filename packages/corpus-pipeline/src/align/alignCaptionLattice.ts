@@ -1,0 +1,298 @@
+import { makeSegmentId, makeSegmentKey, type CorpusSegment } from "@4989/corpus-types";
+
+import type { CaptionLattice } from "./parseJson3Captions.js";
+import type { ScriptUnit } from "./splitScriptSentences.js";
+
+export type AlignmentIssue = {
+  scriptIndex: number;
+  text: string;
+  normalizedText: string;
+  reason: "empty-caption-lattice" | "no-candidate" | "below-threshold";
+  confidence?: number;
+};
+
+export type CaptionAlignmentResult = {
+  segments: CorpusSegment[];
+  issues: AlignmentIssue[];
+};
+
+type Candidate = {
+  start: number;
+  end: number;
+  confidence: number;
+};
+
+const MIN_CONFIDENCE = 0.58;
+const LOW_CONFIDENCE = 0.68;
+const SEARCH_WINDOW_CHARACTERS = 2600;
+const MAX_CANDIDATE_OCCURRENCES = 40;
+
+export function alignCaptionLattice(input: {
+  episode: number;
+  youtubeId: string;
+  scriptUnits: ScriptUnit[];
+  lattice: CaptionLattice;
+  lowConfidenceThreshold?: number;
+}): CaptionAlignmentResult {
+  const issues: AlignmentIssue[] = [];
+  const segments: CorpusSegment[] = [];
+  let captionCursor = 0;
+  const lowConfidenceThreshold = input.lowConfidenceThreshold ?? LOW_CONFIDENCE;
+
+  for (const scriptUnit of input.scriptUnits) {
+    if (input.lattice.text.length === 0) {
+      issues.push({
+        scriptIndex: scriptUnit.index,
+        text: scriptUnit.text,
+        normalizedText: scriptUnit.normalizedText,
+        reason: "empty-caption-lattice"
+      });
+      continue;
+    }
+
+    const candidate = findBestCandidate(scriptUnit.normalizedText, input.lattice.text, captionCursor);
+    if (!candidate) {
+      issues.push({
+        scriptIndex: scriptUnit.index,
+        text: scriptUnit.text,
+        normalizedText: scriptUnit.normalizedText,
+        reason: "no-candidate"
+      });
+      continue;
+    }
+
+    if (candidate.confidence < MIN_CONFIDENCE) {
+      issues.push({
+        scriptIndex: scriptUnit.index,
+        text: scriptUnit.text,
+        normalizedText: scriptUnit.normalizedText,
+        reason: "below-threshold",
+        confidence: candidate.confidence
+      });
+      continue;
+    }
+
+    const emittedStartIndex = Math.max(candidate.start, captionCursor);
+    if (emittedStartIndex >= candidate.end) {
+      issues.push({
+        scriptIndex: scriptUnit.index,
+        text: scriptUnit.text,
+        normalizedText: scriptUnit.normalizedText,
+        reason: "no-candidate"
+      });
+      continue;
+    }
+
+    const startCharacter = input.lattice.characters[emittedStartIndex];
+    const endCharacter = input.lattice.characters[Math.max(candidate.end - 1, emittedStartIndex)];
+    if (!startCharacter || !endCharacter) {
+      issues.push({
+        scriptIndex: scriptUnit.index,
+        text: scriptUnit.text,
+        normalizedText: scriptUnit.normalizedText,
+        reason: "no-candidate"
+      });
+      continue;
+    }
+
+    const localIndex = segments.length;
+    const previousSegment = segments[segments.length - 1];
+    const previousEnd = previousSegment?.end ?? 0;
+    const start = roundSeconds(Math.max(startCharacter.start, previousEnd));
+    const end = roundSeconds(Math.max(endCharacter.end, start + 0.25));
+
+    segments.push({
+      id: makeSegmentId(input.episode, localIndex),
+      segmentKey: makeSegmentKey(input.episode, localIndex),
+      episode: input.episode,
+      localIndex,
+      youtubeId: input.youtubeId,
+      start,
+      end,
+      text: scriptUnit.text,
+      confidence: roundConfidence(
+        candidate.confidence < lowConfidenceThreshold
+          ? candidate.confidence
+          : candidate.confidence
+      ),
+      tokens: []
+    });
+
+    captionCursor = Math.max(candidate.end, captionCursor);
+  }
+
+  return { segments, issues };
+}
+
+function findBestCandidate(
+  needle: string,
+  haystack: string,
+  cursor: number
+): Candidate | undefined {
+  if (!needle || !haystack) {
+    return undefined;
+  }
+
+  const searchStart = Math.max(0, cursor - 25);
+  const searchEnd = Math.min(haystack.length, searchStart + SEARCH_WINDOW_CHARACTERS + needle.length);
+  const candidateStarts = collectCandidateStarts(needle, haystack, searchStart, searchEnd);
+  let best: Candidate | undefined;
+
+  for (const start of candidateStarts) {
+    const minLength = Math.max(3, Math.floor(needle.length * 0.55));
+    const maxLength = Math.min(
+      haystack.length - start,
+      Math.ceil(needle.length * 1.75) + 18
+    );
+
+    for (let length = minLength; length <= maxLength; length += lengthStep(needle.length)) {
+      const end = start + length;
+      const candidateText = haystack.slice(start, end);
+      const confidence = similarity(needle, candidateText);
+      if (!best || confidence > best.confidence) {
+        best = { start, end, confidence };
+      }
+    }
+  }
+
+  return best;
+}
+
+function collectCandidateStarts(
+  needle: string,
+  haystack: string,
+  searchStart: number,
+  searchEnd: number
+): number[] {
+  const starts = new Set<number>();
+  const anchors = buildAnchors(needle);
+
+  for (const anchor of anchors) {
+    let occurrence = haystack.indexOf(anchor.text, searchStart);
+    let count = 0;
+    while (occurrence >= 0 && occurrence < searchEnd && count < MAX_CANDIDATE_OCCURRENCES) {
+      starts.add(Math.max(0, occurrence - anchor.offset));
+      occurrence = haystack.indexOf(anchor.text, occurrence + 1);
+      count += 1;
+    }
+  }
+
+  if (starts.size === 0) {
+    const stride = Math.max(1, Math.floor(needle.length / 3));
+    for (let start = searchStart; start < searchEnd; start += stride) {
+      starts.add(start);
+    }
+  }
+
+  return [...starts].sort((left, right) => left - right);
+}
+
+function buildAnchors(needle: string): { text: string; offset: number }[] {
+  const anchorLength = Math.min(8, Math.max(3, Math.floor(needle.length / 3)));
+  const offsets = Array.from(
+    new Set([
+      0,
+      Math.max(0, Math.floor((needle.length - anchorLength) / 2)),
+      Math.max(0, needle.length - anchorLength)
+    ])
+  );
+
+  return offsets
+    .map((offset) => ({
+      text: needle.slice(offset, offset + anchorLength),
+      offset
+    }))
+    .filter((anchor) => anchor.text.length >= 3);
+}
+
+function lengthStep(needleLength: number): number {
+  if (needleLength < 18) {
+    return 1;
+  }
+
+  if (needleLength < 50) {
+    return 2;
+  }
+
+  return 4;
+}
+
+function similarity(left: string, right: string): number {
+  if (left === right) {
+    return 1;
+  }
+
+  return 0.65 * lcsSimilarity(left, right) + 0.35 * diceSimilarity(left, right);
+}
+
+function lcsSimilarity(left: string, right: string): number {
+  if (!left || !right) {
+    return 0;
+  }
+
+  const previous = new Array<number>(right.length + 1).fill(0);
+  const current = new Array<number>(right.length + 1).fill(0);
+
+  for (let leftIndex = 1; leftIndex <= left.length; leftIndex += 1) {
+    for (let rightIndex = 1; rightIndex <= right.length; rightIndex += 1) {
+      current[rightIndex] =
+        left[leftIndex - 1] === right[rightIndex - 1]
+          ? (previous[rightIndex - 1] as number) + 1
+          : Math.max(previous[rightIndex] as number, current[rightIndex - 1] as number);
+    }
+
+    for (let index = 0; index < current.length; index += 1) {
+      previous[index] = current[index] as number;
+      current[index] = 0;
+    }
+  }
+
+  const lcsLength = previous[right.length] as number;
+  return (2 * lcsLength) / (left.length + right.length);
+}
+
+function diceSimilarity(left: string, right: string): number {
+  const leftBigrams = countBigrams(left);
+  const rightBigrams = countBigrams(right);
+  let intersection = 0;
+  let leftCount = 0;
+  let rightCount = 0;
+
+  for (const count of leftBigrams.values()) {
+    leftCount += count;
+  }
+
+  for (const [bigram, count] of rightBigrams.entries()) {
+    rightCount += count;
+    intersection += Math.min(leftBigrams.get(bigram) ?? 0, count);
+  }
+
+  if (leftCount === 0 || rightCount === 0) {
+    return left === right ? 1 : 0;
+  }
+
+  return (2 * intersection) / (leftCount + rightCount);
+}
+
+function countBigrams(value: string): Map<string, number> {
+  const counts = new Map<string, number>();
+  if (value.length < 2) {
+    counts.set(value, 1);
+    return counts;
+  }
+
+  for (let index = 0; index < value.length - 1; index += 1) {
+    const bigram = value.slice(index, index + 2);
+    counts.set(bigram, (counts.get(bigram) ?? 0) + 1);
+  }
+
+  return counts;
+}
+
+function roundSeconds(value: number): number {
+  return Math.round(value * 1000) / 1000;
+}
+
+function roundConfidence(value: number): number {
+  return Math.round(value * 1000) / 1000;
+}
