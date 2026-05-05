@@ -1,5 +1,11 @@
 {
   "youtubeEpisodeOverrides": {
     "HHjZfpG1qao": 79
+  },
+  "scriptEpisodeOverrides": {
+    "https://www.4989americanlife.com/post/ep-278-アパート探しスタート": 279
+  },
+  "preferredScriptUrlsByEpisode": {
+    "134": "https://www.4989americanlife.com/post/ep-134--メール対応にイライラ"
   }
 }

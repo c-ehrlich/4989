@@ -184,6 +184,7 @@ Expected command shape:
 ```bash
 pnpm --filter @4989/corpus-pipeline process-episode -- --episode 367
 pnpm --filter @4989/corpus-pipeline process-latest
+pnpm --filter @4989/corpus-pipeline build-manifest
 pnpm --filter @4989/corpus-pipeline rebuild-index
 ```
 
@@ -215,6 +216,18 @@ Responsibilities:
 4. Compare discovered episodes with existing alignments.
 5. Process only new, stale, or explicitly requested episodes.
 6. Leave known missing or failed episodes alone unless `--retry-failed` is passed.
+
+### `build-manifest`
+
+Responsibilities:
+
+1. Read discovered `videos.json` and `scripts.json`.
+2. Apply source overrides for known numbering and duplicate-script edge cases.
+3. Build `data/manifest.json` from the union of discovered video and script episode numbers.
+4. Mark video-only episodes as `missing-script` and script-only episodes as `missing-video`.
+5. Mark episodes with validated alignment JSON as `processed`.
+
+TODO: `hasCaption` is currently provisional in this step. Until the caption-download step writes durable caption metadata, `build-manifest` should only set `hasCaption: true` when a validated alignment already proves that a usable caption timing source existed. When caption download/probing is implemented in `process-episode` or an earlier source-refresh command, update `build-manifest` to read that caption metadata instead.
 
 ### `rebuild-index`
 
@@ -289,6 +302,11 @@ Maintain a manifest that maps episode numbers to source and processing state:
 ```
 
 The manifest is the bridge between source discovery and processing. It should be generated or refreshed by pipeline commands, with room for manual overrides for duplicate or mismatched episodes.
+
+Known source overrides:
+
+- The script URL `ep-278-アパート探しスタート` is episode 279 even though the URL contains 278.
+- Duplicate script episode 134 should use the newer `ep.134/ メール対応にイライラ` page.
 
 ## Status Report
 
@@ -516,16 +534,18 @@ Completeness:
   - YouTube ID when available
   - video URL
   - script URL when available
-  - `hasScript`
-  - `hasCaption`
-  - processing status
-  - paths to source/cache/alignment artifacts when available
+	  - `hasScript`
+	  - `hasCaption`
+	  - processing status
+	  - alignment path when available
+- Script source/cache paths remain in `scripts.json`; the manifest should not duplicate local `.work` cache paths.
 - Missing, duplicate, and ambiguous matches are represented explicitly.
 
 Correctness:
 
 - Episode numbers are unique in the manifest unless represented through a deliberate duplicate/override structure.
 - For script-covered episodes, the YouTube ID and script URL refer to the same episode number.
+- Processed entries only point at alignment files whose `episode` and `youtubeId` match the selected manifest sources.
 - Known missing and duplicate cases from discovery are visible in the manifest or build report.
 - Manual overrides are applied deterministically and documented.
 - Manifest validation fails if an episode has contradictory state, such as `status: "processed"` without an alignment path.

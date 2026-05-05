@@ -458,6 +458,7 @@ For the first prototype, this can all live outside the current monorepo, for exa
 The desired workflow can be:
 
 ```bash
+pnpm build-manifest
 pnpm process-episode --episode 367
 pnpm rebuild-index
 ```
@@ -466,8 +467,25 @@ Or:
 
 ```bash
 pnpm process-latest
+pnpm build-manifest
 pnpm rebuild-index
 ```
+
+### `build-manifest`
+
+Responsibilities:
+
+1. Read discovered video and script source metadata.
+2. Apply known source overrides:
+   - script URL `ep-278-アパート探しスタート` maps to episode 279
+   - duplicate script episode 134 uses the newer `ep.134/ メール対応にイライラ` page
+3. Write `data/manifest.json` with one entry per episode in the union of video and script sources.
+4. Mark missing source sides as `missing-video` or `missing-script`.
+5. Mark entries as `processed` when a validated alignment file already exists.
+6. Treat unresolved duplicate scripts/videos as `ambiguous` until an override selects the intended source.
+7. Treat an alignment as valid for the manifest only when its `episode` and `youtubeId` match the selected episode/video.
+
+TODO: `hasCaption` should be treated as provisional until caption discovery/download writes durable caption metadata. For now, `build-manifest` should only infer captions from validated alignments; after caption download is implemented, update this step to read caption availability from the caption metadata instead.
 
 ### `process-episode`
 
