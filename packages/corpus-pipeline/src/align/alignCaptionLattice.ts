@@ -208,9 +208,9 @@ function interpolateBoundedIssues(input: {
   for (let index = 0; index < input.directMatches.length; index += 1) {
     const currentMatch = input.directMatches[index] as DraftSegment;
     const nextMatch = input.directMatches[index + 1];
-    drafts.push(currentMatch);
 
     if (!nextMatch) {
+      drafts.push(currentMatch);
       continue;
     }
 
@@ -227,6 +227,7 @@ function interpolateBoundedIssues(input: {
     }
 
     if (boundedIssues.length === 0) {
+      drafts.push(currentMatch);
       continue;
     }
 
@@ -235,10 +236,45 @@ function interpolateBoundedIssues(input: {
       gapStart: currentMatch.end,
       gapEnd: nextMatch.start
     });
+    const previousMatch = input.directMatches[index - 1];
+    const borrowedInterpolated =
+      interpolated.length === 0 && previousMatch
+        ? interpolateBorrowedIssueBlock({
+            currentMatch,
+            issues: boundedIssues,
+            gapStart: previousMatch.end,
+            gapEnd: nextMatch.start
+          })
+        : [];
+
+    if (borrowedInterpolated.length > 0) {
+      drafts.push(...borrowedInterpolated);
+      for (const draft of borrowedInterpolated) {
+        remainingIssues.delete(draft.scriptIndex);
+      }
+      continue;
+    }
+
+    drafts.push(currentMatch);
 
     for (const draft of interpolated) {
       drafts.push(draft);
       remainingIssues.delete(draft.scriptIndex);
+    }
+  }
+
+  const lastMatch = input.directMatches[input.directMatches.length - 1];
+  if (lastMatch) {
+    const trailingIssues = input.issues.filter((issue) => issue.scriptIndex > lastMatch.scriptIndex);
+    if (trailingIssues.length > 0 && trailingIssues.length <= 3) {
+      const interpolated = interpolateTrailingIssueBlock({
+        issues: trailingIssues,
+        gapStart: lastMatch.end
+      });
+      drafts.push(...interpolated);
+      for (const draft of interpolated) {
+        remainingIssues.delete(draft.scriptIndex);
+      }
     }
   }
 
@@ -303,6 +339,60 @@ function interpolateIssueBlock(input: {
   }
 
   return drafts;
+}
+
+function interpolateBorrowedIssueBlock(input: {
+  currentMatch: DraftSegment;
+  issues: AlignmentIssue[];
+  gapStart: number;
+  gapEnd: number;
+}): DraftSegment[] {
+  const allIssues: AlignmentIssue[] = [
+    {
+      scriptIndex: input.currentMatch.scriptIndex,
+      text: input.currentMatch.text,
+      normalizedText: input.currentMatch.text,
+      reason: "below-threshold",
+      confidence: input.currentMatch.confidence
+    },
+    ...input.issues
+  ];
+  const gap = input.gapEnd - input.gapStart;
+  const totalCharacters = allIssues.reduce(
+    (sum, issue) => sum + Math.max(1, issue.normalizedText.length),
+    0
+  );
+
+  if (
+    input.issues.length > 12 ||
+    gap < MIN_INTERPOLATED_SEGMENT_SECONDS * allIssues.length ||
+    gap > Math.max(18, totalCharacters * MAX_INTERPOLATED_SECONDS_PER_CHARACTER)
+  ) {
+    return [];
+  }
+
+  return interpolateIssueBlock({
+    issues: allIssues,
+    gapStart: input.gapStart,
+    gapEnd: input.gapEnd
+  });
+}
+
+function interpolateTrailingIssueBlock(input: {
+  issues: AlignmentIssue[];
+  gapStart: number;
+}): DraftSegment[] {
+  const totalCharacters = input.issues.reduce(
+    (sum, issue) => sum + Math.max(1, issue.normalizedText.length),
+    0
+  );
+  const duration = Math.min(10, Math.max(input.issues.length, totalCharacters * 0.08));
+
+  return interpolateIssueBlock({
+    issues: input.issues,
+    gapStart: input.gapStart,
+    gapEnd: input.gapStart + duration
+  });
 }
 
 function findBestCandidate(input: {
