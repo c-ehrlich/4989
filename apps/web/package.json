@@ -1,0 +1,16 @@
+{
+  "name": "@4989/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node ./scripts/build-placeholder.mjs",
+    "typecheck": "node ./scripts/placeholder.mjs",
+    "lint": "node ./scripts/placeholder.mjs",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@4989/corpus-data": "workspace:*",
+    "@4989/corpus-types": "workspace:*"
+  }
+}

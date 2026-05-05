@@ -1,0 +1,15 @@
+{
+  "name": "@4989/corpus-data",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./data/*": "./data/*"
+  },
+  "scripts": {
+    "build": "node ./scripts/build-placeholder.mjs",
+    "typecheck": "node ./scripts/check-data-package.mjs",
+    "lint": "node ./scripts/check-data-package.mjs",
+    "clean": "node ./scripts/clean-generated.mjs"
+  }
+}
