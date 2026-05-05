@@ -26,10 +26,10 @@ import { splitScriptSentences } from "../align/splitScriptSentences.js";
 import { findRepoRoot } from "../cli/paths.js";
 import { tokenizeJapaneseTexts } from "../tokenize/tokenizeJapanese.js";
 import { downloadEpisodeSources } from "../youtube/downloadEpisodeSources.js";
+import { LOW_CONFIDENCE_THRESHOLD, MAX_REVIEW_ITEMS } from "./alignmentConstants.js";
+import { AlignmentValidationError, validateAlignmentFile } from "./validateAlignment.js";
 
 const PIPELINE_VERSION = 4;
-const LOW_CONFIDENCE_THRESHOLD = 0.68;
-const MAX_REVIEW_ITEMS = 30;
 
 export type ProcessEpisodeOptions = {
   episode: number;
@@ -108,14 +108,43 @@ export async function processEpisode(
     existingAlignment.source.videoMetadataHash === source.videoMetadataHash &&
     existingAlignment.source.pipelineVersion === PIPELINE_VERSION
   ) {
-    return {
-      alignment: existingAlignment,
+    const cacheAction = await validateOrRepairCachedArtifacts({
+      dataDirectory,
+      episodeKey,
       alignmentPath,
       reportPath,
-      skipped: true,
-      scriptUnitCount: existingAlignment.summary.scriptUnitCount ?? existingAlignment.segments.length,
-      unmatchedIssues: []
-    };
+      alignment: existingAlignment,
+      video
+    });
+
+    if (cacheAction === "regenerate-alignment") {
+      // Source hashes match, but the cached alignment failed derived validation.
+      // Continue through the normal generation path to repair the canonical JSON.
+    } else {
+      const summary = existingAlignment.summary;
+      await updateBuildReport(dataDirectory, episodeKey, {
+        status: summary.lowConfidenceCount > 0 ? "low-confidence" : "processed",
+        segments: summary.segmentCount,
+        matchedCount: summary.matchedCount,
+        unmatchedCount: summary.unmatchedCount,
+        inferredCount: summary.inferredCount,
+        lowConfidenceCount: summary.lowConfidenceCount,
+        reportPath: `data/reports/${episodeKey}.json`,
+        ...(summary.averageConfidence === undefined
+          ? {}
+          : { averageConfidence: summary.averageConfidence })
+      });
+
+      return {
+        alignment: existingAlignment,
+        alignmentPath,
+        reportPath,
+        skipped: true,
+        scriptUnitCount:
+          existingAlignment.summary.scriptUnitCount ?? existingAlignment.segments.length,
+        unmatchedIssues: []
+      };
+    }
   }
 
   const scriptUnits = splitScriptSentences(scriptText);
@@ -202,6 +231,48 @@ export async function processEpisode(
     scriptUnitCount: scriptUnits.length,
     unmatchedIssues: alignmentResult.issues
   };
+}
+
+async function validateOrRepairCachedArtifacts(input: {
+  dataDirectory: string;
+  episodeKey: string;
+  alignmentPath: string;
+  reportPath: string;
+  alignment: Alignment;
+  video: Video;
+}): Promise<"reuse" | "regenerate-alignment"> {
+  try {
+    validateTimestamps(input.alignment, input.video.durationSeconds);
+    await validateAlignmentFile({
+      alignmentPath: input.alignmentPath,
+      dataDirectory: input.dataDirectory,
+      reportPath: input.reportPath
+    });
+    return "reuse";
+  } catch (error) {
+    if (!(error instanceof AlignmentValidationError)) {
+      throw error;
+    }
+
+    const reportOnlyIssues = error.issues.every((issue) => issue.startsWith("Review report "));
+    if (!reportOnlyIssues) {
+      return "regenerate-alignment";
+    }
+
+    await writeEpisodeReviewReport({
+      path: input.reportPath,
+      episodeKey: input.episodeKey,
+      alignment: input.alignment,
+      unmatchedIssues: [],
+      lowConfidenceThreshold: LOW_CONFIDENCE_THRESHOLD
+    });
+    await validateAlignmentFile({
+      alignmentPath: input.alignmentPath,
+      dataDirectory: input.dataDirectory,
+      reportPath: input.reportPath
+    });
+    return "reuse";
+  }
 }
 
 async function resolveEpisodeSources(
