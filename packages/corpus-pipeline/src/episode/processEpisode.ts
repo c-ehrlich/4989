@@ -21,15 +21,20 @@ import {
 } from "@4989/corpus-types";
 
 import { alignCaptionLattice, type AlignmentIssue } from "../align/alignCaptionLattice.js";
+import { buildReadingCaptionLattice } from "../align/buildReadingLattice.js";
+import { normalizeForAlignment } from "../align/normalizeText.js";
 import { parseJson3Captions } from "../align/parseJson3Captions.js";
 import { splitScriptSentences } from "../align/splitScriptSentences.js";
 import { findRepoRoot } from "../cli/paths.js";
-import { tokenizeJapaneseTexts } from "../tokenize/tokenizeJapanese.js";
+import {
+  normalizeJapaneseReadings,
+  tokenizeJapaneseTexts
+} from "../tokenize/tokenizeJapanese.js";
 import { downloadEpisodeSources } from "../youtube/downloadEpisodeSources.js";
 import { LOW_CONFIDENCE_THRESHOLD, MAX_REVIEW_ITEMS } from "./alignmentConstants.js";
 import { AlignmentValidationError, validateAlignmentFile } from "./validateAlignment.js";
 
-const PIPELINE_VERSION = 4;
+const PIPELINE_VERSION = 5;
 
 export type ProcessEpisodeOptions = {
   episode: number;
@@ -147,19 +152,31 @@ export async function processEpisode(
     }
   }
 
-  const scriptUnits = splitScriptSentences(scriptText);
   const lattice = parseJson3Captions(JSON.parse(captionJsonText) as unknown);
+  const rawScriptUnits = splitScriptSentences(scriptText);
+  const pythonPath = resolveOptionalPath(options.pythonPath, repoRoot);
+  const readingTexts = await normalizeJapaneseReadings(
+    [...rawScriptUnits.map((unit) => unit.text), ...lattice.cues.map((cue) => cue.text)],
+    { pythonPath }
+  );
+  const scriptUnits = rawScriptUnits.map((unit, index) => ({
+    ...unit,
+    normalizedReadingText: normalizeForAlignment(readingTexts[index] ?? "")
+  }));
+  const cueReadings = readingTexts.slice(rawScriptUnits.length);
+  const readingLattice = buildReadingCaptionLattice(lattice, cueReadings);
   const alignmentResult = alignCaptionLattice({
     episode: options.episode,
     youtubeId: manifestEntry.youtubeId,
     scriptUnits,
     lattice,
+    readingLattice,
     lowConfidenceThreshold: LOW_CONFIDENCE_THRESHOLD
   });
 
   const tokenized = await tokenizeJapaneseTexts(
     alignmentResult.segments.map((segment) => segment.text),
-    { pythonPath: resolveOptionalPath(options.pythonPath, repoRoot) }
+    { pythonPath }
   );
   const segments = alignmentResult.segments.map((segment, index): CorpusSegment => ({
     ...segment,

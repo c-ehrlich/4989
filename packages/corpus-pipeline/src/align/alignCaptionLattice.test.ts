@@ -95,4 +95,43 @@ describe("alignCaptionLattice", () => {
     expect(result.segments[1]?.start).toBeGreaterThanOrEqual(result.segments[0]?.end ?? 0);
     expect(result.segments[1]?.end).toBeLessThanOrEqual(result.segments[2]?.start ?? 0);
   });
+
+  it("can align against a reading lattice when surface text differs", () => {
+    const scriptUnits = splitScriptSentences("聞かれたときは、答えに困ります。").map((unit) => ({
+      ...unit,
+      normalizedReadingText: "キカレタトキハコタエニコマリマス"
+    }));
+    const surfaceLattice = parseJson3Captions({
+      events: [
+        {
+          tStartMs: 1000,
+          dDurationMs: 3000,
+          segs: [{ utf8: "まったく違う字幕です。" }]
+        }
+      ]
+    });
+    const readingLattice = parseJson3Captions({
+      events: [
+        {
+          tStartMs: 5000,
+          dDurationMs: 3000,
+          segs: [{ utf8: "キカレタトキハコタエニコマリマス" }]
+        }
+      ]
+    });
+
+    const result = alignCaptionLattice({
+      episode: 367,
+      youtubeId: "nNRz_Jh_wZI",
+      scriptUnits,
+      lattice: surfaceLattice,
+      readingLattice
+    });
+
+    expect(result.issues).toEqual([]);
+    expect(result.segments[0]).toMatchObject({
+      start: 5,
+      text: "聞かれたときは、答えに困ります。"
+    });
+  });
 });

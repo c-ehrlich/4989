@@ -20,6 +20,9 @@ type Candidate = {
   start: number;
   end: number;
   confidence: number;
+  score: number;
+  lattice: CaptionLattice;
+  matchKind: "surface" | "reading";
 };
 
 type DraftSegment = {
@@ -38,17 +41,22 @@ const MIN_INTERPOLATED_SEGMENT_SECONDS = 0.25;
 const MAX_INTERPOLATED_SECONDS_PER_CHARACTER = 0.55;
 const SEARCH_WINDOW_CHARACTERS = 2600;
 const MAX_CANDIDATE_OCCURRENCES = 40;
+const CONTEXT_WEIGHT = 0.18;
+const PREVIOUS_CONTEXT_WEIGHT = 0.05;
+const DISTANCE_PENALTY_WEIGHT = 0.18;
+const SAME_BLOCK_JUMP_SECONDS = 75;
+const SAME_BLOCK_JUMP_PENALTY = 0.2;
 
 export function alignCaptionLattice(input: {
   episode: number;
   youtubeId: string;
   scriptUnits: ScriptUnit[];
   lattice: CaptionLattice;
+  readingLattice?: CaptionLattice;
   lowConfidenceThreshold?: number;
 }): CaptionAlignmentResult {
   const issues: AlignmentIssue[] = [];
   const directMatches: DraftSegment[] = [];
-  let captionCursor = 0;
 
   for (const scriptUnit of input.scriptUnits) {
     if (input.lattice.text.length === 0) {
@@ -61,7 +69,44 @@ export function alignCaptionLattice(input: {
       continue;
     }
 
-    const candidate = findBestCandidate(scriptUnit.normalizedText, input.lattice.text, captionCursor);
+    const previousMatch = directMatches[directMatches.length - 1];
+    const previousEnd = previousMatch?.end ?? 0;
+    const previousScriptUnit = input.scriptUnits[scriptUnit.index - 1];
+    const nextScriptUnits = collectNextContextUnits(input.scriptUnits, scriptUnit);
+    const surfaceCursor = characterIndexAtOrAfterTime(input.lattice, Math.max(0, previousEnd - 1.5));
+    const surfaceCandidate = findBestCandidate({
+      needle: scriptUnit.normalizedText,
+      lattice: input.lattice,
+      cursor: surfaceCursor,
+      previousEnd,
+      blockIndex: scriptUnit.blockIndex,
+      previousContext:
+        previousScriptUnit?.blockIndex === scriptUnit.blockIndex
+          ? previousScriptUnit.normalizedText
+          : undefined,
+      nextContext: nextScriptUnits.map((unit) => unit.normalizedText).join("")
+    });
+    const readingCursor = input.readingLattice
+      ? characterIndexAtOrAfterTime(input.readingLattice, Math.max(0, previousEnd - 1.5))
+      : 0;
+    const readingCandidate =
+      input.readingLattice && scriptUnit.normalizedReadingText
+        ? findBestCandidate({
+            needle: scriptUnit.normalizedReadingText,
+            lattice: input.readingLattice,
+            cursor: readingCursor,
+            previousEnd,
+            blockIndex: scriptUnit.blockIndex,
+            previousContext:
+              previousScriptUnit?.blockIndex === scriptUnit.blockIndex
+                ? previousScriptUnit.normalizedReadingText
+                : undefined,
+            nextContext: nextScriptUnits
+              .flatMap((unit) => unit.normalizedReadingText ?? [])
+              .join("")
+          })
+        : undefined;
+    const candidate = chooseCandidate(surfaceCandidate, readingCandidate);
     if (!candidate) {
       issues.push({
         scriptIndex: scriptUnit.index,
@@ -72,7 +117,7 @@ export function alignCaptionLattice(input: {
       continue;
     }
 
-    if (candidate.confidence < MIN_CONFIDENCE) {
+    if (!isAcceptedCandidate(candidate)) {
       issues.push({
         scriptIndex: scriptUnit.index,
         text: scriptUnit.text,
@@ -83,7 +128,7 @@ export function alignCaptionLattice(input: {
       continue;
     }
 
-    const emittedStartIndex = Math.max(candidate.start, captionCursor);
+    const emittedStartIndex = candidate.start;
     if (emittedStartIndex >= candidate.end) {
       issues.push({
         scriptIndex: scriptUnit.index,
@@ -94,8 +139,8 @@ export function alignCaptionLattice(input: {
       continue;
     }
 
-    const startCharacter = input.lattice.characters[emittedStartIndex];
-    const endCharacter = input.lattice.characters[Math.max(candidate.end - 1, emittedStartIndex)];
+    const startCharacter = candidate.lattice.characters[emittedStartIndex];
+    const endCharacter = candidate.lattice.characters[Math.max(candidate.end - 1, emittedStartIndex)];
     if (!startCharacter || !endCharacter) {
       issues.push({
         scriptIndex: scriptUnit.index,
@@ -106,8 +151,6 @@ export function alignCaptionLattice(input: {
       continue;
     }
 
-    const previousMatch = directMatches[directMatches.length - 1];
-    const previousEnd = previousMatch?.end ?? 0;
     const start = roundSeconds(Math.max(startCharacter.start, previousEnd));
     const end = roundSeconds(Math.max(endCharacter.end, start + 0.25));
 
@@ -119,8 +162,6 @@ export function alignCaptionLattice(input: {
       confidence: roundConfidence(candidate.confidence),
       timingSource: "youtube-caption-lattice"
     });
-
-    captionCursor = Math.max(candidate.end, captionCursor);
   }
 
   const { drafts, remainingIssues } = interpolateBoundedIssues({
@@ -264,11 +305,17 @@ function interpolateIssueBlock(input: {
   return drafts;
 }
 
-function findBestCandidate(
-  needle: string,
-  haystack: string,
-  cursor: number
-): Candidate | undefined {
+function findBestCandidate(input: {
+  needle: string;
+  lattice: CaptionLattice;
+  cursor: number;
+  previousEnd: number;
+  blockIndex: number;
+  previousContext?: string;
+  nextContext?: string;
+}): Candidate | undefined {
+  const { needle, lattice, cursor } = input;
+  const haystack = lattice.text;
   if (!needle || !haystack) {
     return undefined;
   }
@@ -289,13 +336,131 @@ function findBestCandidate(
       const end = start + length;
       const candidateText = haystack.slice(start, end);
       const confidence = similarity(needle, candidateText);
-      if (!best || confidence > best.confidence) {
-        best = { start, end, confidence };
+      const score = scoreCandidate({
+        lattice,
+        start,
+        end,
+        cursor,
+        confidence,
+        previousEnd: input.previousEnd,
+        previousContext: input.previousContext,
+        nextContext: input.nextContext
+      });
+      if (!best || score > best.score) {
+        best = {
+          start,
+          end,
+          confidence,
+          score,
+          lattice,
+          matchKind: "surface"
+        };
       }
     }
   }
 
   return best;
+}
+
+function chooseCandidate(
+  surfaceCandidate: Candidate | undefined,
+  readingCandidate: Candidate | undefined
+): Candidate | undefined {
+  if (surfaceCandidate && readingCandidate) {
+    readingCandidate.matchKind = "reading";
+    return readingCandidate.score > surfaceCandidate.score ? readingCandidate : surfaceCandidate;
+  }
+
+  if (readingCandidate) {
+    readingCandidate.matchKind = "reading";
+  }
+
+  return surfaceCandidate ?? readingCandidate;
+}
+
+function isAcceptedCandidate(candidate: Candidate): boolean {
+  return candidate.confidence >= MIN_CONFIDENCE || candidate.score >= MIN_CONFIDENCE + 0.05;
+}
+
+function scoreCandidate(input: {
+  lattice: CaptionLattice;
+  start: number;
+  end: number;
+  cursor: number;
+  confidence: number;
+  previousEnd: number;
+  previousContext?: string;
+  nextContext?: string;
+}): number {
+  const distance = Math.max(0, input.start - input.cursor);
+  const distancePenalty =
+    (Math.min(distance, SEARCH_WINDOW_CHARACTERS) / SEARCH_WINDOW_CHARACTERS) *
+    DISTANCE_PENALTY_WEIGHT;
+  const startTime = input.lattice.characters[input.start]?.start ?? input.previousEnd;
+  const jumpSeconds = Math.max(0, startTime - input.previousEnd);
+  const sameBlockJumpPenalty = jumpSeconds > SAME_BLOCK_JUMP_SECONDS ? SAME_BLOCK_JUMP_PENALTY : 0;
+  const previousContextScore = contextSimilarity({
+    haystack: input.lattice.text,
+    context: input.previousContext,
+    start: Math.max(0, input.start - contextWindowLength(input.previousContext)),
+    end: input.start
+  });
+  const nextContextScore = contextSimilarity({
+    haystack: input.lattice.text,
+    context: input.nextContext,
+    start: input.end,
+    end: Math.min(input.lattice.text.length, input.end + contextWindowLength(input.nextContext))
+  });
+
+  return (
+    input.confidence +
+    PREVIOUS_CONTEXT_WEIGHT * previousContextScore +
+    CONTEXT_WEIGHT * nextContextScore -
+    distancePenalty -
+    sameBlockJumpPenalty
+  );
+}
+
+function contextSimilarity(input: {
+  haystack: string;
+  context: string | undefined;
+  start: number;
+  end: number;
+}): number {
+  if (!input.context || input.context.length < 6 || input.start >= input.end) {
+    return 0;
+  }
+
+  return similarity(
+    input.context.slice(0, Math.min(input.context.length, 120)),
+    input.haystack.slice(input.start, input.end)
+  );
+}
+
+function contextWindowLength(context: string | undefined): number {
+  return Math.max(30, Math.min(220, Math.ceil((context?.length ?? 0) * 1.8) + 24));
+}
+
+function characterIndexAtOrAfterTime(lattice: CaptionLattice, time: number): number {
+  const index = lattice.characters.findIndex((character) => character.end >= time);
+  return index < 0 ? Math.max(0, lattice.characters.length - 1) : index;
+}
+
+function collectNextContextUnits(scriptUnits: ScriptUnit[], scriptUnit: ScriptUnit): ScriptUnit[] {
+  const units: ScriptUnit[] = [];
+  for (let index = scriptUnit.index + 1; index < scriptUnits.length; index += 1) {
+    const candidate = scriptUnits[index];
+    if (!candidate || candidate.blockIndex !== scriptUnit.blockIndex) {
+      break;
+    }
+
+    units.push(candidate);
+    if (units.reduce((sum, unit) => sum + unit.normalizedText.length, 0) >= 80) {
+      break;
+    }
+  }
+
+  return units;
 }
 
 function collectCandidateStarts(

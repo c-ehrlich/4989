@@ -425,6 +425,7 @@ The web app can hydrate results by deriving the episode and local index from the
 8. Build static index JSON.
 9. Add a tiny CLI search to validate the corpus.
 10. Process recent 10 episodes.
+10.1. Add global monotonic sequence alignment if local scoring still leaves repeated-phrase drift.
 11. Build the web app.
 12. Backfill all script-covered episodes.
 
@@ -670,6 +671,22 @@ Correctness:
 - Compare failure patterns across episodes and document recurring issues.
 - `process-latest` does not redo successfully processed unchanged episodes.
 - Rebuilding the index after processing the 10 episodes produces valid searchable results across episode boundaries.
+
+### 10.1. Add Global Monotonic Sequence Alignment
+
+Completeness:
+
+- The aligner can build multiple candidate matches per script unit.
+- Candidate scoring supports surface-text similarity, reading-based similarity, local context, and distance penalties.
+- A dynamic-programming or Viterbi-style pass selects one globally monotonic path through candidates.
+- The command emits diagnostics for places where the global path disagrees with the current local best candidate.
+
+Correctness:
+
+- Repeated phrases such as section summaries do not pull earlier script units forward to later recap text.
+- The selected path keeps timestamps monotonic while minimizing large unexplained jumps.
+- Previously problematic episodes from the recent-10 batch, especially `ep360` and `ep362`, show lower unmatched counts without creating timestamp regressions.
+- Confidence metrics and manual timestamp samples improve or remain stable for episodes that were already good.
 
 ### 11. Build The Web App
 

@@ -1,6 +1,6 @@
 # Recent 10 Episode QA
 
-Generated: 2026-05-05T15:49:01.295Z
+Generated: 2026-05-05T16:14:00.000Z
 
 Scope: latest 10 script-covered episodes selected from the refreshed manifest. Timestamp links use the aligned segment start time.
 
@@ -8,16 +8,16 @@ Scope: latest 10 script-covered episodes selected from the refreshed manifest. T
 
 | Episode | YouTube | Segments | Avg confidence | Low confidence | Unmatched | Report |
 |---:|---|---:|---:|---:|---:|---|
-| 367 | [nNRz_Jh_wZI](https://www.youtube.com/watch?v=nNRz_Jh_wZI) | 248 | 0.897 | 12 | 0 | [report](packages/corpus-data/data/reports/ep367.json) |
-| 366 | [LdExzMxXu8k](https://www.youtube.com/watch?v=LdExzMxXu8k) | 286 | 0.923 | 6 | 1 | [report](packages/corpus-data/data/reports/ep366.json) |
-| 365 | [KZxGhCpHYGg](https://www.youtube.com/watch?v=KZxGhCpHYGg) | 137 | 0.923 | 1 | 0 | [report](packages/corpus-data/data/reports/ep365.json) |
-| 364 | [87j7o4Zyu94](https://www.youtube.com/watch?v=87j7o4Zyu94) | 151 | 0.919 | 5 | 0 | [report](packages/corpus-data/data/reports/ep364.json) |
-| 363 | [GQ1M4RelGv4](https://www.youtube.com/watch?v=GQ1M4RelGv4) | 164 | 0.920 | 3 | 0 | [report](packages/corpus-data/data/reports/ep363.json) |
-| 362 | [OUBUN0OqzFc](https://www.youtube.com/watch?v=OUBUN0OqzFc) | 245 | 0.801 | 51 | 45 | [report](packages/corpus-data/data/reports/ep362.json) |
-| 361 | [E4uaKDInViQ](https://www.youtube.com/watch?v=E4uaKDInViQ) | 254 | 0.933 | 0 | 0 | [report](packages/corpus-data/data/reports/ep361.json) |
-| 360 | [sv518nwEM-U](https://www.youtube.com/watch?v=sv518nwEM-U) | 145 | 0.919 | 6 | 121 | [report](packages/corpus-data/data/reports/ep360.json) |
-| 359 | [pNbRKBiyJhg](https://www.youtube.com/watch?v=pNbRKBiyJhg) | 224 | 0.929 | 7 | 0 | [report](packages/corpus-data/data/reports/ep359.json) |
-| 358 | [Hs2K09GieiY](https://www.youtube.com/watch?v=Hs2K09GieiY) | 248 | 0.932 | 2 | 0 | [report](packages/corpus-data/data/reports/ep358.json) |
+| 367 | [nNRz_Jh_wZI](https://www.youtube.com/watch?v=nNRz_Jh_wZI) | 248 | 0.936 | 4 | 0 | [report](packages/corpus-data/data/reports/ep367.json) |
+| 366 | [LdExzMxXu8k](https://www.youtube.com/watch?v=LdExzMxXu8k) | 286 | 0.952 | 4 | 1 | [report](packages/corpus-data/data/reports/ep366.json) |
+| 365 | [KZxGhCpHYGg](https://www.youtube.com/watch?v=KZxGhCpHYGg) | 137 | 0.958 | 0 | 0 | [report](packages/corpus-data/data/reports/ep365.json) |
+| 364 | [87j7o4Zyu94](https://www.youtube.com/watch?v=87j7o4Zyu94) | 151 | 0.960 | 2 | 0 | [report](packages/corpus-data/data/reports/ep364.json) |
+| 363 | [GQ1M4RelGv4](https://www.youtube.com/watch?v=GQ1M4RelGv4) | 164 | 0.960 | 0 | 0 | [report](packages/corpus-data/data/reports/ep363.json) |
+| 362 | [OUBUN0OqzFc](https://www.youtube.com/watch?v=OUBUN0OqzFc) | 282 | 0.952 | 6 | 8 | [report](packages/corpus-data/data/reports/ep362.json) |
+| 361 | [E4uaKDInViQ](https://www.youtube.com/watch?v=E4uaKDInViQ) | 254 | 0.966 | 0 | 0 | [report](packages/corpus-data/data/reports/ep361.json) |
+| 360 | [sv518nwEM-U](https://www.youtube.com/watch?v=sv518nwEM-U) | 263 | 0.960 | 1 | 3 | [report](packages/corpus-data/data/reports/ep360.json) |
+| 359 | [pNbRKBiyJhg](https://www.youtube.com/watch?v=pNbRKBiyJhg) | 224 | 0.965 | 0 | 0 | [report](packages/corpus-data/data/reports/ep359.json) |
+| 358 | [Hs2K09GieiY](https://www.youtube.com/watch?v=Hs2K09GieiY) | 248 | 0.960 | 0 | 0 | [report](packages/corpus-data/data/reports/ep358.json) |
 
 ## Timestamp Samples
 
@@ -127,51 +127,31 @@ Episodes with the most review risk based on current metrics:
 
 | Episode | Reason |
 |---:|---|
-| 367 | 12 low-confidence segments |
-| 366 | 1 unmatched script units; 6 low-confidence segments |
-| 365 | 1 low-confidence segments |
-| 364 | 5 low-confidence segments |
-| 363 | 3 low-confidence segments |
-| 362 | 45 unmatched script units; 51 low-confidence segments; average confidence 0.801 |
-| 360 | 121 unmatched script units; 6 low-confidence segments |
-| 359 | 7 low-confidence segments |
-| 358 | 2 low-confidence segments |
+| 367 | 4 low-confidence segments |
+| 366 | 1 unmatched script units; 4 low-confidence segments |
+| 364 | 2 low-confidence segments |
+| 362 | 8 unmatched script units; 6 low-confidence segments |
+| 360 | 3 unmatched script units; 1 low-confidence segments |
 
 ## Lowest Confidence Links
 
 | Episode | Segment | Time | Confidence | Link | Text |
 |---:|---:|---:|---:|---|---|
-| 367 | 73 | 9:33 | 0.250 | [open](https://www.youtube.com/watch?v=nNRz_Jh_wZI&t=573s) | わかってくれる方いますか？ |
-| 367 | 110 | 13:49 | 0.250 | [open](https://www.youtube.com/watch?v=nNRz_Jh_wZI&t=829s) | 時々私がどきっとするのが、 |
 | 367 | 180 | 21:30 | 0.250 | [open](https://www.youtube.com/watch?v=nNRz_Jh_wZI&t=1290s) | sushiをsushiとして楽しむのであれば、 |
-| 366 | 283 | 30:26 | 0.250 | [open](https://www.youtube.com/watch?v=LdExzMxXu8k&t=1826s) | 十分に張り切ってきゃぴきゃぴ楽しみたいと思います。いやーたのしみ。そうなんですよ。 |
-| 366 | 41 | 6:02 | 0.618 | [open](https://www.youtube.com/watch?v=LdExzMxXu8k&t=362s) | そう、だからこの週はギリギリpodcast録れたんですけど、録って編集してってできたんですけど、 |
-| 366 | 256 | 27:54 | 0.630 | [open](https://www.youtube.com/watch?v=LdExzMxXu8k&t=1674s) | このpodcastで「最近HANAにはまってて」って話をしたんですよ。 |
-| 365 | 123 | 15:35 | 0.250 | [open](https://www.youtube.com/watch?v=KZxGhCpHYGg&t=935s) | ・終わってひとまずホッとしたり、落ち込んだりする、 |
-| 365 | 117 | 14:50 | 0.689 | [open](https://www.youtube.com/watch?v=KZxGhCpHYGg&t=890s) | そういうのに気を遣うというか、精神的に疲れる。 |
-| 365 | 136 | 16:50 | 0.689 | [open](https://www.youtube.com/watch?v=KZxGhCpHYGg&t=1010s) | いつの日か良いご報告がみなさんに出来ますように。 |
-| 364 | 89 | 11:46 | 0.250 | [open](https://www.youtube.com/watch?v=87j7o4Zyu94&t=706s) | 「よくそのbrewery行ってたんですー。 |
-| 364 | 97 | 12:35 | 0.250 | [open](https://www.youtube.com/watch?v=87j7o4Zyu94&t=755s) | ある日カレッジのLibrary で向かいに座ってた人が「ビール好きなのー？ |
-| 364 | 138 | 17:11 | 0.643 | [open](https://www.youtube.com/watch?v=87j7o4Zyu94&t=1031s) | そしてもちろん、このPodcastもですよね。 |
-| 363 | 35 | 5:27 | 0.250 | [open](https://www.youtube.com/watch?v=GQ1M4RelGv4&t=327s) | あー、絶対言ったほうがいい事を言い忘れたぁぁぁぁ。 |
-| 363 | 60 | 7:57 | 0.250 | [open](https://www.youtube.com/watch?v=GQ1M4RelGv4&t=477s) | DAISOの仕事とは別で、 |
-| 363 | 121 | 15:49 | 0.661 | [open](https://www.youtube.com/watch?v=GQ1M4RelGv4&t=949s) | お店の仕事なんでね、週末って基本availableで働けます！ |
-| 362 | 31 | 7:34 | 0.250 | [open](https://www.youtube.com/watch?v=OUBUN0OqzFc&t=454s) | という、Holly Jackson の作品です。 |
-| 362 | 32 | 7:40 | 0.250 | [open](https://www.youtube.com/watch?v=OUBUN0OqzFc&t=460s) | この本についての話、具体的な内容とか感想や考察とか、それらを今日話そうかっていうのはまだ迷ってるんです。 |
-| 362 | 33 | 7:54 | 0.250 | [open](https://www.youtube.com/watch?v=OUBUN0OqzFc&t=474s) | というのも、実は今日私が話したいのは、この本の内容そのものというよりは、 |
-| 361 | 75 | 9:25 | 0.692 | [open](https://www.youtube.com/watch?v=E4uaKDInViQ&t=565s) | 小売業にもいろいろな種類のお店がありますし、 |
-| 361 | 68 | 8:50 | 0.696 | [open](https://www.youtube.com/watch?v=E4uaKDInViQ&t=530s) | もともといたスタッフが何人か辞めたり、 |
-| 360 | 62 | 17:06 | 0.250 | [open](https://www.youtube.com/watch?v=sv518nwEM-U&t=1026s) | たいていのケースでは、好きなケーキの味を聞かれてます。 |
-| 360 | 63 | 17:08 | 0.250 | [open](https://www.youtube.com/watch?v=sv518nwEM-U&t=1028s) | What's your favorite flavor of cake？ |
-| 360 | 64 | 17:09 | 0.250 | [open](https://www.youtube.com/watch?v=sv518nwEM-U&t=1029s) | ってflavor って言葉が入ってなくても、 |
-| 359 | 144 | 15:33 | 0.250 | [open](https://www.youtube.com/watch?v=pNbRKBiyJhg&t=933s) | 1st interview, 2nd interviewって呼んでる可能性もありますよね。 |
-| 359 | 146 | 15:50 | 0.250 | [open](https://www.youtube.com/watch?v=pNbRKBiyJhg&t=950s) | 普通のinterviewと面接試験って何が違うかというと、 |
-| 359 | 160 | 17:17 | 0.582 | [open](https://www.youtube.com/watch?v=pNbRKBiyJhg&t=1037s) | よくあるこの面接試験、Oral Examの質問の形として、 |
-| 358 | 151 | 18:48 | 0.605 | [open](https://www.youtube.com/watch?v=Hs2K09GieiY&t=1128s) | トンカツ＆アジフライ定食は松のやってお店。 |
-| 358 | 131 | 16:04 | 0.654 | [open](https://www.youtube.com/watch?v=Hs2K09GieiY&t=964s) | 天丼、イタリアン、トンカツ＆アジフライ定食、ラーメン、回転寿司、焼き鳥、最後に天丼again、こんな感じかな。 |
+| 367 | 204 | 24:04 | 0.250 | [open](https://www.youtube.com/watch?v=nNRz_Jh_wZI&t=1444s) | Naomi Watanabenのライブをね。 |
+| 367 | 171 | 20:38 | 0.581 | [open](https://www.youtube.com/watch?v=nNRz_Jh_wZI&t=1238s) | SUSHIって人気なんですよね。。SUSHIは人気。 |
+| 366 | 256 | 27:55 | 0.630 | [open](https://www.youtube.com/watch?v=LdExzMxXu8k&t=1675s) | このpodcastで「最近HANAにはまってて」って話をしたんですよ。 |
+| 366 | 41 | 6:02 | 0.645 | [open](https://www.youtube.com/watch?v=LdExzMxXu8k&t=362s) | そう、だからこの週はギリギリpodcast録れたんですけど、録って編集してってできたんですけど、 |
+| 366 | 240 | 26:09 | 0.671 | [open](https://www.youtube.com/watch?v=LdExzMxXu8k&t=1569s) | 1つは、Naomi Watanabeの北米ツアー、サンディエゴ公演に行くんです。 |
+| 364 | 138 | 17:12 | 0.643 | [open](https://www.youtube.com/watch?v=87j7o4Zyu94&t=1032s) | そしてもちろん、このPodcastもですよね。 |
+| 364 | 89 | 11:47 | 0.658 | [open](https://www.youtube.com/watch?v=87j7o4Zyu94&t=707s) | 「よくそのbrewery行ってたんですー。 |
+| 362 | 160 | 19:01 | 0.590 | [open](https://www.youtube.com/watch?v=OUBUN0OqzFc&t=1141s) | 普段のポッドキャストエピソードとは別で、A Good Girl’s Guide to Murderの解説エピソード。どうですか笑。 |
+| 362 | 71 | 9:47 | 0.629 | [open](https://www.youtube.com/watch?v=OUBUN0OqzFc&t=587s) | Podcast、普段聴いているそういうクライム系のpodcastも、 |
+| 362 | 269 | 31:06 | 0.637 | [open](https://www.youtube.com/watch?v=OUBUN0OqzFc&t=1866s) | なんていうんですっけ、Certifiedか。 |
+| 360 | 65 | 9:44 | 0.672 | [open](https://www.youtube.com/watch?v=sv518nwEM-U&t=584s) | What's your favorite cake?と聞かれた場合でも、 |
 
 ## Notes
 
-- `ep362` and `ep360` should be prioritized for manual playback review because their unmatched counts are much higher than the rest of the batch.
-- `ep367` was already current and was skipped by `process-latest`, which validates the unchanged skip path for this batch.
-- After processing, the global static index contains 10 alignments and 2,102 segments.
+- Pipeline version 5 added reading-based matching plus local context scoring. This reduced `ep362` from 45 unmatched units to 8 and `ep360` from 121 unmatched units to 3.
+- `ep362` and `ep360` still deserve manual playback review because they retain the most unmatched units in this batch.
+- After processing, the global static index contains 10 alignments and 2,257 segments.

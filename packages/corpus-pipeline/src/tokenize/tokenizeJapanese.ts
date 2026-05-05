@@ -47,6 +47,36 @@ for text in texts:
 json.dump(output, sys.stdout, ensure_ascii=False)
 `;
 
+const PYTHON_READING_NORMALIZER = String.raw`
+import json
+import sys
+
+try:
+    from sudachipy import dictionary
+    from sudachipy import tokenizer
+except Exception as error:
+    raise SystemExit(f"SudachiPy is required for reading normalization: {error}")
+
+texts = json.load(sys.stdin)
+tokenizer_obj = dictionary.Dictionary().create()
+mode = tokenizer.Tokenizer.SplitMode.C
+output = []
+
+for text in texts:
+    parts = []
+    for morph in tokenizer_obj.tokenize(text, mode):
+        surface = morph.surface()
+        if not surface or not surface.strip():
+            continue
+        reading = morph.reading_form()
+        if not reading or reading == "*":
+            reading = surface
+        parts.append(reading)
+    output.append("".join(parts))
+
+json.dump(output, sys.stdout, ensure_ascii=False)
+`;
+
 export async function tokenizeJapaneseTexts(
   texts: string[],
   options: TokenizeJapaneseOptions = {}
@@ -72,9 +102,38 @@ export async function tokenizeJapaneseTexts(
   });
 }
 
+export async function normalizeJapaneseReadings(
+  texts: string[],
+  options: TokenizeJapaneseOptions = {}
+): Promise<string[]> {
+  if (texts.length === 0) {
+    return [];
+  }
+
+  const pythonPath = options.pythonPath ?? process.env.SUDACHI_PYTHON ?? "python3";
+  const stdout = await runPythonScript(pythonPath, PYTHON_READING_NORMALIZER, texts);
+  const parsed = JSON.parse(stdout) as unknown;
+
+  if (!Array.isArray(parsed) || parsed.length !== texts.length) {
+    throw new Error("Sudachi reading normalizer returned an invalid array");
+  }
+
+  return parsed.map((value) => {
+    if (typeof value !== "string") {
+      throw new Error("Sudachi reading normalizer returned a non-string entry");
+    }
+
+    return value;
+  });
+}
+
 function runPythonTokenizer(pythonPath: string, texts: string[]): Promise<string> {
+  return runPythonScript(pythonPath, PYTHON_TOKENIZER, texts);
+}
+
+function runPythonScript(pythonPath: string, script: string, texts: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
-    const child = spawn(pythonPath, ["-c", PYTHON_TOKENIZER], {
+    const child = spawn(pythonPath, ["-c", script], {
       env: {
         ...process.env,
         PYTHONIOENCODING: "utf-8"
@@ -153,4 +212,3 @@ function readString(value: unknown, field: string): string {
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
-
