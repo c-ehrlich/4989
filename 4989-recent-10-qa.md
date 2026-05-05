@@ -8,14 +8,14 @@ Scope: latest 10 script-covered episodes selected from the refreshed manifest. T
 
 | Episode | YouTube | Segments | Avg confidence | Low confidence | Unmatched | Report |
 |---:|---|---:|---:|---:|---:|---|
-| 367 | [nNRz_Jh_wZI](https://www.youtube.com/watch?v=nNRz_Jh_wZI) | 248 | 0.936 | 4 | 0 | [report](packages/corpus-data/data/reports/ep367.json) |
-| 366 | [LdExzMxXu8k](https://www.youtube.com/watch?v=LdExzMxXu8k) | 286 | 0.952 | 4 | 1 | [report](packages/corpus-data/data/reports/ep366.json) |
+| 367 | [nNRz_Jh_wZI](https://www.youtube.com/watch?v=nNRz_Jh_wZI) | 248 | 0.935 | 4 | 0 | [report](packages/corpus-data/data/reports/ep367.json) |
+| 366 | [LdExzMxXu8k](https://www.youtube.com/watch?v=LdExzMxXu8k) | 287 | 0.949 | 5 | 0 | [report](packages/corpus-data/data/reports/ep366.json) |
 | 365 | [KZxGhCpHYGg](https://www.youtube.com/watch?v=KZxGhCpHYGg) | 137 | 0.958 | 0 | 0 | [report](packages/corpus-data/data/reports/ep365.json) |
 | 364 | [87j7o4Zyu94](https://www.youtube.com/watch?v=87j7o4Zyu94) | 151 | 0.960 | 2 | 0 | [report](packages/corpus-data/data/reports/ep364.json) |
 | 363 | [GQ1M4RelGv4](https://www.youtube.com/watch?v=GQ1M4RelGv4) | 164 | 0.960 | 0 | 0 | [report](packages/corpus-data/data/reports/ep363.json) |
-| 362 | [OUBUN0OqzFc](https://www.youtube.com/watch?v=OUBUN0OqzFc) | 282 | 0.952 | 6 | 8 | [report](packages/corpus-data/data/reports/ep362.json) |
+| 362 | [OUBUN0OqzFc](https://www.youtube.com/watch?v=OUBUN0OqzFc) | 290 | 0.931 | 14 | 0 | [report](packages/corpus-data/data/reports/ep362.json) |
 | 361 | [E4uaKDInViQ](https://www.youtube.com/watch?v=E4uaKDInViQ) | 254 | 0.966 | 0 | 0 | [report](packages/corpus-data/data/reports/ep361.json) |
-| 360 | [sv518nwEM-U](https://www.youtube.com/watch?v=sv518nwEM-U) | 263 | 0.960 | 1 | 3 | [report](packages/corpus-data/data/reports/ep360.json) |
+| 360 | [sv518nwEM-U](https://www.youtube.com/watch?v=sv518nwEM-U) | 266 | 0.950 | 5 | 0 | [report](packages/corpus-data/data/reports/ep360.json) |
 | 359 | [pNbRKBiyJhg](https://www.youtube.com/watch?v=pNbRKBiyJhg) | 224 | 0.965 | 0 | 0 | [report](packages/corpus-data/data/reports/ep359.json) |
 | 358 | [Hs2K09GieiY](https://www.youtube.com/watch?v=Hs2K09GieiY) | 248 | 0.960 | 0 | 0 | [report](packages/corpus-data/data/reports/ep358.json) |
 
@@ -128,10 +128,10 @@ Episodes with the most review risk based on current metrics:
 | Episode | Reason |
 |---:|---|
 | 367 | 4 low-confidence segments |
-| 366 | 1 unmatched script units; 4 low-confidence segments |
+| 366 | 5 low-confidence segments |
 | 364 | 2 low-confidence segments |
-| 362 | 8 unmatched script units; 6 low-confidence segments |
-| 360 | 3 unmatched script units; 1 low-confidence segments |
+| 362 | 14 low-confidence segments |
+| 360 | 5 low-confidence segments |
 
 ## Lowest Confidence Links
 
@@ -140,18 +140,20 @@ Episodes with the most review risk based on current metrics:
 | 367 | 180 | 21:30 | 0.250 | [open](https://www.youtube.com/watch?v=nNRz_Jh_wZI&t=1290s) | sushiをsushiとして楽しむのであれば、 |
 | 367 | 204 | 24:04 | 0.250 | [open](https://www.youtube.com/watch?v=nNRz_Jh_wZI&t=1444s) | Naomi Watanabenのライブをね。 |
 | 367 | 171 | 20:38 | 0.581 | [open](https://www.youtube.com/watch?v=nNRz_Jh_wZI&t=1238s) | SUSHIって人気なんですよね。。SUSHIは人気。 |
+| 366 | 286 | 30:45 | 0.250 | [open](https://www.youtube.com/watch?v=LdExzMxXu8k&t=1845s) | はぁ、NaomiとHANA、楽しみすぎますぅ。 |
 | 366 | 256 | 27:55 | 0.630 | [open](https://www.youtube.com/watch?v=LdExzMxXu8k&t=1675s) | このpodcastで「最近HANAにはまってて」って話をしたんですよ。 |
 | 366 | 41 | 6:02 | 0.645 | [open](https://www.youtube.com/watch?v=LdExzMxXu8k&t=362s) | そう、だからこの週はギリギリpodcast録れたんですけど、録って編集してってできたんですけど、 |
-| 366 | 240 | 26:09 | 0.671 | [open](https://www.youtube.com/watch?v=LdExzMxXu8k&t=1569s) | 1つは、Naomi Watanabeの北米ツアー、サンディエゴ公演に行くんです。 |
 | 364 | 138 | 17:12 | 0.643 | [open](https://www.youtube.com/watch?v=87j7o4Zyu94&t=1032s) | そしてもちろん、このPodcastもですよね。 |
 | 364 | 89 | 11:47 | 0.658 | [open](https://www.youtube.com/watch?v=87j7o4Zyu94&t=707s) | 「よくそのbrewery行ってたんですー。 |
-| 362 | 160 | 19:01 | 0.590 | [open](https://www.youtube.com/watch?v=OUBUN0OqzFc&t=1141s) | 普段のポッドキャストエピソードとは別で、A Good Girl’s Guide to Murderの解説エピソード。どうですか笑。 |
-| 362 | 71 | 9:47 | 0.629 | [open](https://www.youtube.com/watch?v=OUBUN0OqzFc&t=587s) | Podcast、普段聴いているそういうクライム系のpodcastも、 |
-| 362 | 269 | 31:06 | 0.637 | [open](https://www.youtube.com/watch?v=OUBUN0OqzFc&t=1866s) | なんていうんですっけ、Certifiedか。 |
-| 360 | 65 | 9:44 | 0.672 | [open](https://www.youtube.com/watch?v=sv518nwEM-U&t=584s) | What's your favorite cake?と聞かれた場合でも、 |
+| 362 | 30 | 4:53 | 0.250 | [open](https://www.youtube.com/watch?v=OUBUN0OqzFc&t=293s) | A Good Girl’s Guide to Murder |
+| 362 | 31 | 4:58 | 0.250 | [open](https://www.youtube.com/watch?v=OUBUN0OqzFc&t=298s) | という、Holly Jackson の作品です。 |
+| 362 | 32 | 5:02 | 0.250 | [open](https://www.youtube.com/watch?v=OUBUN0OqzFc&t=302s) | この本についての話、具体的な内容とか感想や考察とか、それらを今日話そうかっていうのはまだ迷ってるんです。 |
+| 360 | 60 | 9:06 | 0.250 | [open](https://www.youtube.com/watch?v=sv518nwEM-U&t=546s) | Favorite flavor of cakeなの。 |
+| 360 | 61 | 9:13 | 0.250 | [open](https://www.youtube.com/watch?v=sv518nwEM-U&t=553s) | 例えば、日本で好きなケーキ何？って聞かれたときは、 |
+| 360 | 62 | 9:18 | 0.250 | [open](https://www.youtube.com/watch?v=sv518nwEM-U&t=558s) | ショートケーキ、チョコレートケーキ、チーズケーキ、モンブラン、ティラミス、タルト、まぁタルトは厳密にはケーキじゃないのかもしれませんけど、 |
 
 ## Notes
 
-- Pipeline version 5 added reading-based matching plus local context scoring. This reduced `ep362` from 45 unmatched units to 8 and `ep360` from 121 unmatched units to 3.
-- `ep362` and `ep360` still deserve manual playback review because they retain the most unmatched units in this batch.
-- After processing, the global static index contains 10 alignments and 2,257 segments.
+- Pipeline version 5 added reading-based matching plus local context scoring. A later orphaned-block interpolation pass reduced unmatched units to zero for this batch.
+- `ep362` and `ep360` still deserve manual playback review because their recovered blocks are intentionally marked low-confidence/interpolated.
+- After processing, the global static index contains 10 alignments and 2,269 segments.
