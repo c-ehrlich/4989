@@ -111,8 +111,7 @@ export function alignCaptionLattice(input: {
 
     return mergeCandidates([...surfaceCandidates, ...readingCandidates]);
   });
-  const localMatches = selectLocalPath(input.scriptUnits, candidateGroups);
-  const directMatches = rescueUnmatchedWindows(input.scriptUnits, candidateGroups, localMatches);
+  const directMatches = selectGlobalPath(input.scriptUnits, candidateGroups);
   const issues = buildAlignmentIssues({
     scriptUnits: input.scriptUnits,
     candidateGroups,
@@ -146,16 +145,12 @@ export function alignCaptionLattice(input: {
 
 function selectGlobalPath(
   scriptUnits: ScriptUnit[],
-  candidateGroups: Candidate[][],
-  options: {
-    initialEndTime?: number;
-    maxEndTime?: number;
-  } = {}
+  candidateGroups: Candidate[][]
 ): DraftSegment[] {
   let states: AlignmentState[] = [
     {
       score: 0,
-      lastEndTime: options.initialEndTime ?? 0,
+      lastEndTime: 0,
       path: []
     }
   ];
@@ -174,9 +169,6 @@ function selectGlobalPath(
 
       for (const candidate of candidates) {
         if (candidate.startTime < state.lastEndTime - MONOTONIC_TOLERANCE_SECONDS) {
-          continue;
-        }
-        if (options.maxEndTime !== undefined && candidate.endTime > options.maxEndTime + 0.25) {
           continue;
         }
 
@@ -209,122 +201,6 @@ function selectGlobalPath(
   return (bestState?.path ?? []).flatMap((draft) => (draft ? [draft] : []));
 }
 
-function selectLocalPath(scriptUnits: ScriptUnit[], candidateGroups: Candidate[][]): DraftSegment[] {
-  const drafts: DraftSegment[] = [];
-
-  for (const scriptUnit of scriptUnits) {
-    const previousEnd = drafts[drafts.length - 1]?.end ?? 0;
-    const candidate = (candidateGroups[scriptUnit.index] ?? [])
-      .filter((candidate) => candidate.startTime >= previousEnd - MONOTONIC_TOLERANCE_SECONDS)
-      .map((candidate) => ({
-        candidate,
-        transitionScore:
-          candidate.score -
-          transitionJumpPenalty(
-            {
-              score: 0,
-              lastEndTime: previousEnd,
-              lastBlockIndex: drafts[drafts.length - 1]?.scriptIndex === scriptUnit.index - 1
-                ? scriptUnit.blockIndex
-                : undefined,
-              path: []
-            },
-            candidate
-          )
-      }))
-      .sort(
-        (left, right) =>
-          right.transitionScore - left.transitionScore ||
-          right.candidate.confidence - left.candidate.confidence
-      )[0]?.candidate;
-
-    if (!candidate || !isAcceptedLocalCandidate(candidate)) {
-      continue;
-    }
-
-    const start = roundSeconds(Math.max(candidate.startTime, previousEnd));
-    const end = roundSeconds(Math.max(candidate.endTime, start + 0.25));
-    drafts.push({
-      scriptIndex: scriptUnit.index,
-      start,
-      end,
-      text: scriptUnit.text,
-      confidence: roundConfidence(candidate.confidence),
-      timingSource: "youtube-caption-lattice"
-    });
-  }
-
-  return drafts;
-}
-
-function rescueUnmatchedWindows(
-  scriptUnits: ScriptUnit[],
-  candidateGroups: Candidate[][],
-  localMatches: DraftSegment[]
-): DraftSegment[] {
-  let matches = localMatches;
-  const unmatchedGroups = collectUnmatchedGroups(scriptUnits, matches);
-
-  for (const group of unmatchedGroups) {
-    const windowStart = Math.max(0, group.start - 1);
-    const windowEnd = Math.min(scriptUnits.length - 1, group.end + 1);
-    const anchorBefore = [...matches].reverse().find((match) => match.scriptIndex < windowStart);
-    const anchorAfter = matches.find((match) => match.scriptIndex > windowEnd);
-    const currentWindowMatches = matches.filter(
-      (match) => match.scriptIndex >= windowStart && match.scriptIndex <= windowEnd
-    );
-    const windowUnits = scriptUnits.slice(windowStart, windowEnd + 1);
-    const rescuedWindowMatches = selectGlobalPath(windowUnits, candidateGroups, {
-      initialEndTime: anchorBefore?.end ?? 0,
-      maxEndTime: anchorAfter?.start
-    });
-
-    if (rescuedWindowMatches.length <= currentWindowMatches.length) {
-      continue;
-    }
-
-    matches = [
-      ...matches.filter(
-        (match) => match.scriptIndex < windowStart || match.scriptIndex > windowEnd
-      ),
-      ...rescuedWindowMatches
-    ].sort((left, right) => left.scriptIndex - right.scriptIndex);
-  }
-
-  return matches;
-}
-
-function collectUnmatchedGroups(
-  scriptUnits: ScriptUnit[],
-  matches: DraftSegment[]
-): Array<{ start: number; end: number }> {
-  const matchedIndexes = new Set(matches.map((match) => match.scriptIndex));
-  const groups: Array<{ start: number; end: number }> = [];
-  let current: { start: number; end: number } | undefined;
-
-  for (const scriptUnit of scriptUnits) {
-    if (matchedIndexes.has(scriptUnit.index)) {
-      if (current) {
-        groups.push(current);
-        current = undefined;
-      }
-      continue;
-    }
-
-    if (!current) {
-      current = { start: scriptUnit.index, end: scriptUnit.index };
-    } else {
-      current.end = scriptUnit.index;
-    }
-  }
-
-  if (current) {
-    groups.push(current);
-  }
-
-  return groups;
-}
-
 function transitionJumpPenalty(state: AlignmentState, candidate: Candidate): number {
   if (state.lastBlockIndex === undefined) {
     return 0;
@@ -341,10 +217,6 @@ function transitionJumpPenalty(state: AlignmentState, candidate: Candidate): num
       : 0;
 
   return sameBlockPenalty + longJumpPenalty;
-}
-
-function isAcceptedLocalCandidate(candidate: Candidate): boolean {
-  return candidate.confidence >= MIN_CONFIDENCE || candidate.score >= MIN_CONFIDENCE + 0.05;
 }
 
 function pruneStates(states: AlignmentState[]): AlignmentState[] {
