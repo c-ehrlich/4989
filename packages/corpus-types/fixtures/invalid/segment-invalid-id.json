@@ -1,0 +1,18 @@
+{
+  "id": 36700041,
+  "segmentKey": "ep367-s00042",
+  "episode": 367,
+  "localIndex": 42,
+  "youtubeId": "nNRz_Jh_wZI",
+  "start": 12.34,
+  "end": 16.78,
+  "text": "今日はいい天気です。",
+  "confidence": 0.94,
+  "tokens": [
+    {
+      "surface": "今日",
+      "lemma": "今日",
+      "pos": ["名詞"]
+    }
+  ]
+}
