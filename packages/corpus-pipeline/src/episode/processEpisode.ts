@@ -26,7 +26,7 @@ import { findRepoRoot } from "../cli/paths.js";
 import { tokenizeJapaneseTexts } from "../tokenize/tokenizeJapanese.js";
 import { downloadEpisodeSources } from "../youtube/downloadEpisodeSources.js";
 
-const PIPELINE_VERSION = 3;
+const PIPELINE_VERSION = 4;
 const LOW_CONFIDENCE_THRESHOLD = 0.68;
 
 export type ProcessEpisodeOptions = {
@@ -129,6 +129,9 @@ export async function processEpisode(
   const lowConfidenceCount = segments.filter(
     (segment) => (segment.confidence ?? 0) < LOW_CONFIDENCE_THRESHOLD
   ).length;
+  const inferredCount = segments.filter(
+    (segment) => segment.timingSource === "interpolated-between-caption-matches"
+  ).length;
   const confidenceValues = segments.flatMap((segment) =>
     segment.confidence === undefined ? [] : [segment.confidence]
   );
@@ -149,6 +152,7 @@ export async function processEpisode(
       segmentCount: segments.length,
       matchedCount: segments.length,
       unmatchedCount: alignmentResult.issues.length,
+      inferredCount,
       lowConfidenceCount
     },
     segments
@@ -167,6 +171,7 @@ export async function processEpisode(
     segments: segments.length,
     matchedCount: segments.length,
     unmatchedCount: alignmentResult.issues.length,
+    inferredCount,
     lowConfidenceCount,
     ...(averageConfidence === undefined ? {} : { averageConfidence })
   });

@@ -58,5 +58,41 @@ describe("alignCaptionLattice", () => {
     });
     expect(result.segments[1]?.start).toBeGreaterThanOrEqual(result.segments[0]?.end ?? 0);
   });
-});
 
+  it("interpolates unmatched script units bounded by direct caption matches", () => {
+    const lattice = parseJson3Captions({
+      events: [
+        {
+          tStartMs: 1000,
+          dDurationMs: 1200,
+          segs: [{ utf8: "今日はとても晴れていて散歩日和ですね。" }]
+        },
+        {
+          tStartMs: 6200,
+          dDurationMs: 1300,
+          segs: [{ utf8: "明日は強い雨が降るかもしれません。" }]
+        }
+      ]
+    });
+    const scriptUnits = splitScriptSentences(
+      "今日はとても晴れていて散歩日和ですね。\nここだけ字幕にはない短い話をします。\n明日は強い雨が降るかもしれません。"
+    );
+
+    const result = alignCaptionLattice({
+      episode: 367,
+      youtubeId: "nNRz_Jh_wZI",
+      scriptUnits,
+      lattice
+    });
+
+    expect(result.issues).toEqual([]);
+    expect(result.segments).toHaveLength(3);
+    expect(result.segments[1]).toMatchObject({
+      text: "ここだけ字幕にはない短い話をします。",
+      confidence: 0.25,
+      timingSource: "interpolated-between-caption-matches"
+    });
+    expect(result.segments[1]?.start).toBeGreaterThanOrEqual(result.segments[0]?.end ?? 0);
+    expect(result.segments[1]?.end).toBeLessThanOrEqual(result.segments[2]?.start ?? 0);
+  });
+});

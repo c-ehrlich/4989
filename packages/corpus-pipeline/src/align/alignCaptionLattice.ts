@@ -22,8 +22,20 @@ type Candidate = {
   confidence: number;
 };
 
+type DraftSegment = {
+  scriptIndex: number;
+  text: string;
+  start: number;
+  end: number;
+  confidence: number;
+  timingSource: "youtube-caption-lattice" | "interpolated-between-caption-matches";
+};
+
 const MIN_CONFIDENCE = 0.58;
 const LOW_CONFIDENCE = 0.68;
+const INTERPOLATED_CONFIDENCE = 0.25;
+const MIN_INTERPOLATED_SEGMENT_SECONDS = 0.25;
+const MAX_INTERPOLATED_SECONDS_PER_CHARACTER = 0.55;
 const SEARCH_WINDOW_CHARACTERS = 2600;
 const MAX_CANDIDATE_OCCURRENCES = 40;
 
@@ -35,7 +47,7 @@ export function alignCaptionLattice(input: {
   lowConfidenceThreshold?: number;
 }): CaptionAlignmentResult {
   const issues: AlignmentIssue[] = [];
-  const segments: CorpusSegment[] = [];
+  const directMatches: DraftSegment[] = [];
   let captionCursor = 0;
   const lowConfidenceThreshold = input.lowConfidenceThreshold ?? LOW_CONFIDENCE;
 
@@ -95,18 +107,13 @@ export function alignCaptionLattice(input: {
       continue;
     }
 
-    const localIndex = segments.length;
-    const previousSegment = segments[segments.length - 1];
-    const previousEnd = previousSegment?.end ?? 0;
+    const previousMatch = directMatches[directMatches.length - 1];
+    const previousEnd = previousMatch?.end ?? 0;
     const start = roundSeconds(Math.max(startCharacter.start, previousEnd));
     const end = roundSeconds(Math.max(endCharacter.end, start + 0.25));
 
-    segments.push({
-      id: makeSegmentId(input.episode, localIndex),
-      segmentKey: makeSegmentKey(input.episode, localIndex),
-      episode: input.episode,
-      localIndex,
-      youtubeId: input.youtubeId,
+    directMatches.push({
+      scriptIndex: scriptUnit.index,
       start,
       end,
       text: scriptUnit.text,
@@ -115,13 +122,151 @@ export function alignCaptionLattice(input: {
           ? candidate.confidence
           : candidate.confidence
       ),
-      tokens: []
+      timingSource: "youtube-caption-lattice"
     });
 
     captionCursor = Math.max(candidate.end, captionCursor);
   }
 
-  return { segments, issues };
+  const { drafts, remainingIssues } = interpolateBoundedIssues({
+    directMatches,
+    issues
+  });
+
+  return {
+    segments: drafts.map((draft, localIndex): CorpusSegment => ({
+      id: makeSegmentId(input.episode, localIndex),
+      segmentKey: makeSegmentKey(input.episode, localIndex),
+      episode: input.episode,
+      localIndex,
+      youtubeId: input.youtubeId,
+      start: draft.start,
+      end: draft.end,
+      text: draft.text,
+      confidence: draft.confidence,
+      timingSource: draft.timingSource,
+      tokens: []
+    })),
+    issues: remainingIssues
+  };
+}
+
+function interpolateBoundedIssues(input: {
+  directMatches: DraftSegment[];
+  issues: AlignmentIssue[];
+}): {
+  drafts: DraftSegment[];
+  remainingIssues: AlignmentIssue[];
+} {
+  if (input.directMatches.length === 0) {
+    return {
+      drafts: [],
+      remainingIssues: input.issues
+    };
+  }
+
+  const issuesByScriptIndex = new Map(input.issues.map((issue) => [issue.scriptIndex, issue]));
+  const remainingIssues = new Set(input.issues.map((issue) => issue.scriptIndex));
+  const drafts: DraftSegment[] = [];
+
+  for (let index = 0; index < input.directMatches.length; index += 1) {
+    const currentMatch = input.directMatches[index] as DraftSegment;
+    const nextMatch = input.directMatches[index + 1];
+    drafts.push(currentMatch);
+
+    if (!nextMatch) {
+      continue;
+    }
+
+    const boundedIssues: AlignmentIssue[] = [];
+    for (
+      let scriptIndex = currentMatch.scriptIndex + 1;
+      scriptIndex < nextMatch.scriptIndex;
+      scriptIndex += 1
+    ) {
+      const issue = issuesByScriptIndex.get(scriptIndex);
+      if (issue) {
+        boundedIssues.push(issue);
+      }
+    }
+
+    if (boundedIssues.length === 0) {
+      continue;
+    }
+
+    const interpolated = interpolateIssueBlock({
+      issues: boundedIssues,
+      gapStart: currentMatch.end,
+      gapEnd: nextMatch.start
+    });
+
+    for (const draft of interpolated) {
+      drafts.push(draft);
+      remainingIssues.delete(draft.scriptIndex);
+    }
+  }
+
+  return {
+    drafts,
+    remainingIssues: input.issues.filter((issue) => remainingIssues.has(issue.scriptIndex))
+  };
+}
+
+function interpolateIssueBlock(input: {
+  issues: AlignmentIssue[];
+  gapStart: number;
+  gapEnd: number;
+}): DraftSegment[] {
+  const gap = input.gapEnd - input.gapStart;
+  const totalCharacters = input.issues.reduce(
+    (sum, issue) => sum + Math.max(1, issue.normalizedText.length),
+    0
+  );
+
+  if (
+    gap < MIN_INTERPOLATED_SEGMENT_SECONDS * input.issues.length ||
+    gap > Math.max(12, totalCharacters * MAX_INTERPOLATED_SECONDS_PER_CHARACTER)
+  ) {
+    return [];
+  }
+
+  const drafts: DraftSegment[] = [];
+  let cursor = input.gapStart;
+
+  for (const [index, issue] of input.issues.entries()) {
+    const remainingIssues = input.issues.length - index;
+    const remainingCharacters = input.issues
+      .slice(index)
+      .reduce((sum, remainingIssue) => sum + Math.max(1, remainingIssue.normalizedText.length), 0);
+    const availableGap = input.gapEnd - cursor;
+    const duration =
+      index === input.issues.length - 1
+        ? availableGap
+        : Math.max(
+            MIN_INTERPOLATED_SEGMENT_SECONDS,
+            availableGap * (Math.max(1, issue.normalizedText.length) / remainingCharacters)
+          );
+    const start = roundSeconds(cursor);
+    const end = roundSeconds(
+      Math.min(
+        input.gapEnd - MIN_INTERPOLATED_SEGMENT_SECONDS * (remainingIssues - 1),
+        cursor + duration
+      )
+    );
+
+    drafts.push({
+      scriptIndex: issue.scriptIndex,
+      text: issue.text,
+      start,
+      end: Math.max(roundSeconds(start + MIN_INTERPOLATED_SEGMENT_SECONDS), end),
+      confidence: INTERPOLATED_CONFIDENCE,
+      timingSource: "interpolated-between-caption-matches"
+    });
+
+    cursor = drafts[drafts.length - 1]?.end ?? cursor;
+  }
+
+  return drafts;
 }
 
 function findBestCandidate(
@@ -145,7 +290,7 @@ function findBestCandidate(
       Math.ceil(needle.length * 1.75) + 18
     );
 
-    for (let length = minLength; length <= maxLength; length += lengthStep(needle.length)) {
+    for (const length of candidateLengths(minLength, maxLength, needle.length)) {
       const end = start + length;
       const candidateText = haystack.slice(start, end);
       const confidence = similarity(needle, candidateText);
@@ -215,6 +360,21 @@ function lengthStep(needleLength: number): number {
   }
 
   return 4;
+}
+
+function candidateLengths(minLength: number, maxLength: number, targetLength: number): number[] {
+  const lengths = new Set<number>();
+  const step = lengthStep(targetLength);
+
+  for (let length = minLength; length <= maxLength; length += step) {
+    lengths.add(length);
+  }
+
+  if (targetLength >= minLength && targetLength <= maxLength) {
+    lengths.add(targetLength);
+  }
+
+  return [...lengths].sort((left, right) => left - right);
 }
 
 function similarity(left: string, right: string): number {

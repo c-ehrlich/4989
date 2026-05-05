@@ -118,6 +118,9 @@ export const CorpusSegmentSchema = z
     end: secondsSchema,
     text: nonEmptyStringSchema,
     confidence: z.number().finite().min(0).max(1).optional(),
+    timingSource: z
+      .enum(["youtube-caption-lattice", "interpolated-between-caption-matches"])
+      .optional(),
     tokens: z.array(CorpusTokenSchema)
   })
   .strict()
@@ -303,6 +306,7 @@ export const AlignmentSummarySchema = z
     segmentCount: z.number().int().nonnegative(),
     matchedCount: z.number().int().nonnegative(),
     unmatchedCount: z.number().int().nonnegative(),
+    inferredCount: z.number().int().nonnegative().optional(),
     averageConfidence: z.number().finite().min(0).max(1).optional(),
     lowConfidenceCount: z.number().int().nonnegative()
   })
@@ -341,6 +345,17 @@ export const AlignmentSchema = z
         code: "custom",
         message: "Alignment lowConfidenceCount cannot exceed segmentCount",
         path: ["summary", "lowConfidenceCount"]
+      });
+    }
+
+    if (
+      alignment.summary.inferredCount !== undefined &&
+      alignment.summary.inferredCount > alignment.summary.segmentCount
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "Alignment inferredCount cannot exceed segmentCount",
+        path: ["summary", "inferredCount"]
       });
     }
 
@@ -477,6 +492,7 @@ export const BuildReportEntrySchema = z
     segments: z.number().int().nonnegative().optional(),
     matchedCount: z.number().int().nonnegative().optional(),
     unmatchedCount: z.number().int().nonnegative().optional(),
+    inferredCount: z.number().int().nonnegative().optional(),
     averageConfidence: z.number().finite().min(0).max(1).optional(),
     lowConfidenceCount: z.number().int().nonnegative().optional(),
     message: nonEmptyStringSchema.optional()
