@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { parseSegmentId } from "@4989/corpus-types";
-import { Clock3, ExternalLink, RotateCcw, Search } from "lucide-react";
+import { Clock3, ExternalLink, Play, RotateCcw, Search } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Panel, PanelBody, PanelHeader } from "@/components/ui/panel";
 import { RangeSlider, type RangeSliderValue } from "@/components/ui/slider";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { YouTubePlayer } from "@/components/youtube-player";
 import { hydrateSegmentIds, type HydratedSegment } from "@/corpus/hydrate";
 import {
   searchCorpus,
@@ -30,6 +31,7 @@ function HomePage() {
   const [query, setQuery] = useState("食べる");
   const [searchMode, setSearchMode] = useState<SearchMode>("loose");
   const [searchState, setSearchState] = useState<SearchLoadState>({ status: "idle" });
+  const [selectedHit, setSelectedHit] = useState<HydratedSegment | null>(null);
   const [episodeRange, setEpisodeRange] = useState<EpisodeRange>({
     min: 0,
     max: Number.MAX_SAFE_INTEGER
@@ -110,6 +112,7 @@ function HomePage() {
 
   async function runSearch(nextMode: SearchMode = searchMode) {
     setSearchState({ status: "loading" });
+    setSelectedHit(null);
 
     try {
       const result = await searchCorpus({
@@ -142,7 +145,7 @@ function HomePage() {
 
   return (
     <main className="min-h-screen px-5 py-8 text-foreground sm:px-8">
-      <section className="mx-auto grid max-w-6xl gap-6">
+      <section className="mx-auto grid max-w-[1440px] gap-6">
         <div className="flex flex-col gap-5 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-xs font-bold uppercase text-secondary">4989 American Life</p>
@@ -182,23 +185,35 @@ function HomePage() {
           </PanelHeader>
           <PanelBody>
             {corpusStatus.status === "error" ? <CorpusStatusError state={corpusStatus} /> : null}
-            {corpusStatus.status === "ready" ? (
-              <EpisodeRangeFilter
-                bounds={{
-                  min: corpusStatus.result.minEpisodeNumber,
-                  max: corpusStatus.result.maxEpisodeNumber
-                }}
-                range={episodeRange}
-                onChange={setEpisodeRange}
-                onReset={() =>
-                  setEpisodeRange({
-                    min: corpusStatus.result.minEpisodeNumber,
-                    max: corpusStatus.result.maxEpisodeNumber
-                  })
-                }
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,440px)] xl:items-start">
+              <div className="grid gap-5">
+                {corpusStatus.status === "ready" ? (
+                  <EpisodeRangeFilter
+                    bounds={{
+                      min: corpusStatus.result.minEpisodeNumber,
+                      max: corpusStatus.result.maxEpisodeNumber
+                    }}
+                    range={episodeRange}
+                    onChange={setEpisodeRange}
+                    onReset={() =>
+                      setEpisodeRange({
+                        min: corpusStatus.result.minEpisodeNumber,
+                        max: corpusStatus.result.maxEpisodeNumber
+                      })
+                    }
+                  />
+                ) : null}
+                <SearchResults
+                  onSelectHit={setSelectedHit}
+                  selectedHit={selectedHit}
+                  state={searchState}
+                />
+              </div>
+              <YouTubePlayer
+                className="xl:sticky xl:top-6"
+                selectedHit={selectedHit}
               />
-            ) : null}
-            <SearchResults state={searchState} />
+            </div>
           </PanelBody>
         </Panel>
       </section>
@@ -276,7 +291,15 @@ function EpisodeRangeFilter({
   );
 }
 
-function SearchResults({ state }: Readonly<{ state: SearchLoadState }>) {
+function SearchResults({
+  onSelectHit,
+  selectedHit,
+  state
+}: Readonly<{
+  onSelectHit: (hit: HydratedSegment) => void;
+  selectedHit: HydratedSegment | null;
+  state: SearchLoadState;
+}>) {
   if (state.status === "idle") {
     return (
       <div className="rounded-md border border-dashed border-border bg-muted/40 px-4 py-8 text-center text-sm text-muted-foreground">
@@ -336,9 +359,14 @@ function SearchResults({ state }: Readonly<{ state: SearchLoadState }>) {
           No matches in the selected episode range.
         </div>
       ) : (
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-2">
           {state.hits.map((hit) => (
-            <ResultRow hit={hit} key={hit.segmentId} />
+            <ResultRow
+              hit={hit}
+              isSelected={selectedHit?.segmentId === hit.segmentId}
+              key={hit.segmentId}
+              onSelect={() => onSelectHit(hit)}
+            />
           ))}
         </div>
       )}
@@ -346,9 +374,22 @@ function SearchResults({ state }: Readonly<{ state: SearchLoadState }>) {
   );
 }
 
-function ResultRow({ hit }: Readonly<{ hit: HydratedSegment }>) {
+function ResultRow({
+  hit,
+  isSelected,
+  onSelect
+}: Readonly<{
+  hit: HydratedSegment;
+  isSelected: boolean;
+  onSelect: () => void;
+}>) {
   return (
-    <article className="grid gap-3 rounded-md border border-border bg-card p-4 text-sm shadow-sm sm:col-span-2 lg:col-span-3">
+    <article
+      className={[
+        "grid gap-3 rounded-md border bg-card p-4 text-sm shadow-sm transition-colors",
+        isSelected ? "border-primary" : "border-border"
+      ].join(" ")}
+    >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-semibold text-muted-foreground">
         <span>ep{hit.episode}</span>
         <a
@@ -368,26 +409,32 @@ function ResultRow({ hit }: Readonly<{ hit: HydratedSegment }>) {
       <p className="m-0 text-base leading-8 text-foreground">{hit.text}</p>
       <div className="flex flex-col gap-2 border-t border-border pt-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
         <span className="line-clamp-1">{hit.title}</span>
-        <a
-          className="inline-flex items-center gap-1 font-semibold text-secondary transition-colors hover:text-primary"
-          href={hit.youtubeTimestampUrl}
-          rel="noreferrer"
-          target="_blank"
-        >
-          YouTube
-          <ExternalLink className="size-3.5" />
-        </a>
-        {hit.scriptUrl ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <Button onClick={onSelect} size="sm" type="button" variant={isSelected ? "default" : "outline"}>
+            <Play />
+            {isSelected ? "Loaded" : "Load clip"}
+          </Button>
           <a
             className="inline-flex items-center gap-1 font-semibold text-secondary transition-colors hover:text-primary"
-            href={hit.scriptUrl}
+            href={hit.youtubeTimestampUrl}
             rel="noreferrer"
             target="_blank"
           >
-            Script
+            YouTube
             <ExternalLink className="size-3.5" />
           </a>
-        ) : null}
+          {hit.scriptUrl ? (
+            <a
+              className="inline-flex items-center gap-1 font-semibold text-secondary transition-colors hover:text-primary"
+              href={hit.scriptUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Script
+              <ExternalLink className="size-3.5" />
+            </a>
+          ) : null}
+        </div>
       </div>
     </article>
   );
