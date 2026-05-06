@@ -358,11 +358,28 @@ function CaptionPanel({
   selectedHit: HydratedSegment | null;
 }>) {
   const activeCaptionRef = useRef<HTMLButtonElement | null>(null);
+  const transcriptScrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    activeCaptionRef.current?.scrollIntoView({
+    const activeCaptionElement = activeCaptionRef.current;
+    const transcriptScrollElement = transcriptScrollRef.current;
+
+    if (!activeCaptionElement || !transcriptScrollElement) {
+      return;
+    }
+
+    const activeCaptionRect = activeCaptionElement.getBoundingClientRect();
+    const transcriptScrollRect = transcriptScrollElement.getBoundingClientRect();
+    const nextScrollTop =
+      transcriptScrollElement.scrollTop +
+      activeCaptionRect.top -
+      transcriptScrollRect.top -
+      transcriptScrollElement.clientHeight / 2 +
+      activeCaptionElement.clientHeight / 2;
+
+    transcriptScrollElement.scrollTo({
       behavior: "smooth",
-      block: "center"
+      top: Math.max(0, nextScrollTop)
     });
   }, [activeCaption?.segmentKey]);
 
@@ -415,7 +432,10 @@ function CaptionPanel({
           {formatTimestamp(currentSeconds)}
         </span>
       </div>
-      <div className="max-h-[min(52vh,560px)] overflow-y-auto px-2 py-3">
+      <div
+        className="max-h-[min(52vh,560px)] overflow-y-auto px-2 py-3"
+        ref={transcriptScrollRef}
+      >
         <div className="grid gap-1">
           {episodeSegmentsState.episodeSegments.segments.map((segment, index) => (
             <TranscriptRow
