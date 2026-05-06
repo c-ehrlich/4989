@@ -19,7 +19,7 @@ import {
   type CorpusStaticStatus
 } from "@/corpus/smoke";
 
-const RESULT_PAGE_SIZE = 25;
+const MAX_RENDERED_RESULTS = 10_000;
 
 export const Route = createFileRoute("/")({
   component: HomePage
@@ -108,15 +108,14 @@ function HomePage() {
     };
   }, [readySearchResult, episodeRange]);
 
-  async function handleSearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function runSearch(nextMode: SearchMode = searchMode) {
     setSearchState({ status: "loading" });
 
     try {
       const result = await searchCorpus({
         query,
-        mode: searchMode,
-        limit: RESULT_PAGE_SIZE
+        mode: nextMode,
+        limit: MAX_RENDERED_RESULTS
       });
       setSearchState({ status: "ready", result, hits: [], filteredTotal: 0, isFiltering: true });
     } catch (error: unknown) {
@@ -124,6 +123,20 @@ function HomePage() {
         status: "error",
         message: error instanceof Error ? error.message : "Unknown search error"
       });
+    }
+  }
+
+  function handleSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    void runSearch();
+  }
+
+  function handleSearchModeChange(value: string) {
+    const nextMode = value as SearchMode;
+    setSearchMode(nextMode);
+
+    if (query.trim()) {
+      void runSearch(nextMode);
     }
   }
 
@@ -139,7 +152,7 @@ function HomePage() {
           </div>
           <Tabs
             value={searchMode}
-            onValueChange={(value) => setSearchMode(value as SearchMode)}
+            onValueChange={handleSearchModeChange}
           >
             <TabsList aria-label="Search mode">
               <TabsTrigger value="exact">Exact</TabsTrigger>
@@ -354,6 +367,11 @@ function SearchResults({ state }: Readonly<{ state: SearchLoadState }>) {
         <span className="font-semibold text-secondary">
           {state.filteredTotal.toLocaleString()} in range
         </span>
+        {state.filteredTotal > state.hits.length ? (
+          <span className="text-muted-foreground">
+            showing first {state.hits.length.toLocaleString()}
+          </span>
+        ) : null}
         <span className="text-muted-foreground">
           {state.result.mode} search for {state.result.query}
         </span>
@@ -415,7 +433,7 @@ async function hydrateVisibleSearchHits(result: SearchCorpusResult, range: Episo
     const { episode } = parseSegmentId(segmentId);
     return episode >= range.min && episode <= range.max;
   });
-  const visibleSegmentIds = filteredSegmentIds.slice(0, RESULT_PAGE_SIZE);
+  const visibleSegmentIds = filteredSegmentIds.slice(0, MAX_RENDERED_RESULTS);
 
   return {
     filteredTotal: filteredSegmentIds.length,
