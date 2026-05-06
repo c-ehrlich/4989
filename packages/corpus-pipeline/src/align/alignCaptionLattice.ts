@@ -493,11 +493,7 @@ function anchorIssueBlockToCues(input: {
 }
 
 function cueAnchorWindowEnd(input: { issues: AlignmentIssue[]; gapStart: number; gapEnd: number }): number {
-  const totalCharacters = input.issues.reduce(
-    (sum, issue) => sum + Math.max(1, issue.normalizedText.length),
-    0
-  );
-  return Math.min(input.gapEnd, input.gapStart + Math.max(18, totalCharacters * 0.18));
+  return input.gapEnd;
 }
 
 function interpolateMissingCueAnchor(input: {

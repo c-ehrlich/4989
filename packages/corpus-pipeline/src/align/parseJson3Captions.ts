@@ -57,9 +57,10 @@ export function parseJson3Captions(value: unknown): CaptionLattice {
     const durationMs = readFiniteNumber((rawEvent as Json3Event).dDurationMs);
     const nextEventStartMs = findNextEventStartMs(events, eventIndex);
     const fallbackEndMs = nextEventStartMs ?? startMs + 3000;
-    const endMs = durationMs !== undefined ? startMs + durationMs : fallbackEndMs;
+    const visualEndMs = durationMs !== undefined ? startMs + durationMs : fallbackEndMs;
+    const spokenEndMs = Math.min(visualEndMs, fallbackEndMs);
     const eventStart = startMs / 1000;
-    const eventEnd = Math.max(endMs / 1000, eventStart + 0.1);
+    const eventEnd = Math.max(spokenEndMs / 1000, eventStart + 0.1);
     const segments = ((rawEvent as Json3Event).segs as unknown[]).filter(isRecord);
     const cueText = segments
       .map((segment) => (typeof (segment as Json3Segment).utf8 === "string" ? (segment as Json3Segment).utf8 : ""))
@@ -88,7 +89,7 @@ export function parseJson3Captions(value: unknown): CaptionLattice {
       const nextSegment = segments[segmentIndex + 1] as Json3Segment | undefined;
       const nextOffsetMs = readFiniteNumber(nextSegment?.tOffsetMs);
       const segmentEndMs =
-        nextOffsetMs !== undefined ? startMs + nextOffsetMs : endMs;
+        nextOffsetMs !== undefined ? startMs + nextOffsetMs : spokenEndMs;
       appendCaptionCharacters(characters, rawText, segmentStartMs / 1000, segmentEndMs / 1000);
     }
   }
