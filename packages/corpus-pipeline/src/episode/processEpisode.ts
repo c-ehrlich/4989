@@ -40,7 +40,7 @@ import {
 import { LOW_CONFIDENCE_THRESHOLD, MAX_REVIEW_ITEMS } from "./alignmentConstants.js";
 import { AlignmentValidationError, validateAlignmentFile } from "./validateAlignment.js";
 
-const PIPELINE_VERSION = 5;
+const PIPELINE_VERSION = 6;
 
 export type ProcessEpisodeOptions = {
   episode: number;

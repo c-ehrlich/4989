@@ -8,6 +8,7 @@ describe("splitScriptSentences", () => {
   it("splits spoken script text and skips structural headings", () => {
     const units = splitScriptSentences(`★答えて！うたこさん
 ------------
+What I miss about Japan
 4月ももう終わりますね。はや。
 皆さまいかがお過ごしでしょうか。`);
 

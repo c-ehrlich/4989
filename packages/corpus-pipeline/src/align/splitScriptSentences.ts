@@ -53,7 +53,8 @@ function isStructuralLine(text: string): boolean {
   return (
     /^[\-=ー―\s]+$/u.test(text) ||
     /^★/u.test(text) ||
-    /^【.+】$/u.test(text)
+    /^【.+】$/u.test(text) ||
+    text === "What I miss about Japan"
   );
 }
 
