@@ -5,7 +5,14 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { parseSegmentId } from "@4989/corpus-types";
-import { Clock3, ExternalLink, Play, RotateCcw, Search } from "lucide-react";
+import {
+  Clock3,
+  ExternalLink,
+  Play,
+  RotateCcw,
+  Search,
+  Sparkles,
+} from "lucide-react";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +20,11 @@ import { Input } from "@/components/ui/input";
 import { Panel, PanelBody, PanelHeader } from "@/components/ui/panel";
 import { RangeSlider, type RangeSliderValue } from "@/components/ui/slider";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { YouTubePlayer } from "@/components/youtube-player";
 import { hydrateSegmentIds, type HydratedSegment } from "@/corpus/hydrate";
 import {
@@ -151,16 +163,7 @@ function HomePage() {
   return (
     <main className="min-h-screen px-5 py-8 text-foreground sm:px-8">
       <section className="mx-auto grid max-w-[1440px] gap-6">
-        <div className="border-b border-border pb-6">
-          <div>
-            <p className="text-xs font-bold uppercase text-secondary">
-              4989 American Life
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-normal sm:text-4xl">
-              Corpus Search
-            </h1>
-          </div>
-        </div>
+        <TitleSection />
 
         <Panel>
           <PanelHeader>
@@ -180,12 +183,30 @@ function HomePage() {
               </div>
               <Tabs value={searchMode} onValueChange={handleSearchModeChange}>
                 <TabsList aria-label="Search mode" className="h-11">
-                  <TabsTrigger className="h-9" value="loose">
-                    Loose
-                  </TabsTrigger>
-                  <TabsTrigger className="h-9" value="exact">
-                    Exact
-                  </TabsTrigger>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <TabsTrigger className="h-9" value="loose">
+                          Loose
+                        </TabsTrigger>
+                      }
+                    />
+                    <TooltipContent>
+                      Finds matching forms of the same word, like 食べる and 食べた.
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <TabsTrigger className="h-9" value="exact">
+                          Exact
+                        </TabsTrigger>
+                      }
+                    />
+                    <TooltipContent>
+                      Finds only the exact text you typed.
+                    </TooltipContent>
+                  </Tooltip>
                 </TabsList>
               </Tabs>
               <Button
@@ -239,6 +260,60 @@ function HomePage() {
         </Panel>
       </section>
     </main>
+  );
+}
+
+function TitleSection() {
+  return (
+    <header
+      className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      style={{ fontFamily: '"Courier New", Courier, monospace' }}
+    >
+      <div className="flex items-center gap-4">
+        <div className="relative grid size-20 shrink-0 place-items-center sm:size-24">
+          <div className="absolute inset-2 rounded-full border-[7px] border-[#f35a1c]" />
+          <Sparkles
+            aria-hidden="true"
+            className="absolute left-0 top-1 size-5 rotate-[-18deg] fill-[#f0b516] text-[#f0b516]"
+          />
+          <Sparkles
+            aria-hidden="true"
+            className="absolute right-1 top-0 size-6 rotate-12 fill-[#f35a1c] text-[#f35a1c]"
+          />
+          <Sparkles
+            aria-hidden="true"
+            className="absolute bottom-1 right-0 size-5 rotate-[20deg] fill-[#f0b516] text-[#f0b516]"
+          />
+          <div className="relative grid grid-cols-2 text-center text-[2rem] font-black leading-none tracking-normal">
+            <span className="text-[#8a8d90]">4</span>
+            <span className="text-[#202321]">9</span>
+            <span className="text-[#202321]">8</span>
+            <span className="text-[#8a8d90]">9</span>
+          </div>
+        </div>
+        <div>
+          <p className="m-0 text-2xl font-black tracking-wide">
+            <span className="text-[#202321]">A</span>
+            <span className="text-[#4a91cf]">m</span>
+            <span className="text-[#202321]">e</span>
+            <span className="text-[#4a91cf]">r</span>
+            <span className="text-[#f35a1c]">i</span>
+            <span className="text-[#4a91cf]">c</span>
+            <span className="text-[#202321]">a</span>
+            <span className="text-[#4a91cf]">n</span>
+            <span> </span>
+            <span className="text-[#202321]">L</span>
+            <span className="text-[#f0b516]">i</span>
+            <span className="text-[#202321]">f</span>
+            <span className="text-[#f0b516]">e</span>
+          </p>
+          <h1 className="m-0 mt-1 text-4xl font-black tracking-normal text-foreground sm:text-5xl">
+            <span className="text-[#4a91cf]">単語</span>
+            <span className="text-[#f0b516]">調べ</span>
+          </h1>
+        </div>
+      </div>
+    </header>
   );
 }
 

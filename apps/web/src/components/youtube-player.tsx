@@ -480,7 +480,7 @@ function TranscriptRow({
       >
         {formatTimestamp(segment.start)}
       </span>
-      <span className={cn("leading-7", isActive ? "text-lg font-semibold" : "text-sm")}>
+      <span className="text-sm font-medium leading-7">
         {segment.text}
       </span>
     </button>
