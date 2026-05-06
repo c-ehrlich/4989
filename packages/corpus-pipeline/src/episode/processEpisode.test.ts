@@ -115,7 +115,7 @@ function makeCachedAlignment(input: {
       scriptHash: input.scriptHash,
       captionHash: input.captionHash,
       videoMetadataHash: input.videoMetadataHash,
-      pipelineVersion: 6,
+      pipelineVersion: 9,
       generatedAt: "2026-05-05T00:00:00.000Z"
     },
     summary: {

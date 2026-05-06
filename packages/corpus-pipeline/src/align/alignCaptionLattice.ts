@@ -1,5 +1,6 @@
 import { makeSegmentId, makeSegmentKey, type CorpusSegment } from "@4989/corpus-types";
 
+import { normalizeAlignmentCharacter } from "./normalizeText.js";
 import type { CaptionLattice } from "./parseJson3Captions.js";
 import type { ScriptUnit } from "./splitScriptSentences.js";
 
@@ -9,6 +10,7 @@ export type AlignmentIssue = {
   normalizedText: string;
   reason: "empty-caption-lattice" | "no-candidate" | "below-threshold";
   confidence?: number;
+  candidateTiming?: CandidateTiming;
 };
 
 export type CaptionAlignmentResult = {
@@ -34,6 +36,20 @@ type DraftSegment = {
   timingSource: "youtube-caption-lattice" | "interpolated-between-caption-matches";
 };
 
+type CandidateTiming = {
+  start: number;
+  end: number;
+  confidence: number;
+};
+
+type TimedCueCharacter = {
+  value: string;
+  start: number;
+  end: number;
+  cueStart: number;
+  cueEnd: number;
+};
+
 const MIN_CONFIDENCE = 0.58;
 const LOW_CONFIDENCE = 0.68;
 const INTERPOLATED_CONFIDENCE = 0.25;
@@ -44,8 +60,10 @@ const MAX_CANDIDATE_OCCURRENCES = 40;
 const CONTEXT_WEIGHT = 0.45;
 const PREVIOUS_CONTEXT_WEIGHT = 0.08;
 const DISTANCE_PENALTY_WEIGHT = 0.18;
-const SAME_BLOCK_JUMP_SECONDS = 75;
-const SAME_BLOCK_JUMP_PENALTY = 0.2;
+const SAME_BLOCK_JUMP_SECONDS = 20;
+const SAME_BLOCK_JUMP_PENALTY = 0.8;
+const MAX_CAPTION_OVERLAP_SECONDS = 5;
+const MIN_CUE_ANCHOR_SCORE = 0.12;
 
 export function alignCaptionLattice(input: {
   episode: number;
@@ -117,19 +135,21 @@ export function alignCaptionLattice(input: {
       continue;
     }
 
+    const candidateTiming = toCandidateTiming(candidate);
+
     if (!isAcceptedCandidate(candidate)) {
       issues.push({
         scriptIndex: scriptUnit.index,
         text: scriptUnit.text,
         normalizedText: scriptUnit.normalizedText,
         reason: "below-threshold",
-        confidence: candidate.confidence
+        confidence: candidate.confidence,
+        candidateTiming
       });
       continue;
     }
 
-    const emittedStartIndex = candidate.start;
-    if (emittedStartIndex >= candidate.end) {
+    if (!candidateTiming) {
       issues.push({
         scriptIndex: scriptUnit.index,
         text: scriptUnit.text,
@@ -139,20 +159,8 @@ export function alignCaptionLattice(input: {
       continue;
     }
 
-    const startCharacter = candidate.lattice.characters[emittedStartIndex];
-    const endCharacter = candidate.lattice.characters[Math.max(candidate.end - 1, emittedStartIndex)];
-    if (!startCharacter || !endCharacter) {
-      issues.push({
-        scriptIndex: scriptUnit.index,
-        text: scriptUnit.text,
-        normalizedText: scriptUnit.normalizedText,
-        reason: "no-candidate"
-      });
-      continue;
-    }
-
-    const start = roundSeconds(Math.max(startCharacter.start, previousEnd));
-    const end = roundSeconds(Math.max(endCharacter.end, start + 0.25));
+    const start = roundSeconds(Math.max(candidateTiming.start, previousEnd));
+    const end = roundSeconds(Math.max(candidateTiming.end, start + 0.25));
 
     directMatches.push({
       scriptIndex: scriptUnit.index,
@@ -166,7 +174,8 @@ export function alignCaptionLattice(input: {
 
   const { drafts, remainingIssues } = interpolateBoundedIssues({
     directMatches,
-    issues
+    issues,
+    lattice: input.lattice
   });
   const monotonicDrafts = enforceMonotonicDrafts(drafts);
 
@@ -189,24 +198,42 @@ export function alignCaptionLattice(input: {
 }
 
 function enforceMonotonicDrafts(drafts: DraftSegment[]): DraftSegment[] {
-  let previousEnd = 0;
+  const output: DraftSegment[] = [];
 
-  return drafts.map((draft) => {
-    const start = roundSeconds(Math.max(draft.start, previousEnd));
-    const end = roundSeconds(Math.max(draft.end, start + MIN_INTERPOLATED_SEGMENT_SECONDS));
-    previousEnd = end;
+  for (const draft of drafts) {
+    const previous = output[output.length - 1];
+    let start = roundSeconds(draft.start);
+    let end = roundSeconds(Math.max(draft.end, start + MIN_INTERPOLATED_SEGMENT_SECONDS));
 
-    return {
+    if (previous && start < previous.end) {
+      const overlap = previous.end - start;
+      if (
+        draft.timingSource === "youtube-caption-lattice" &&
+        overlap <= MAX_CAPTION_OVERLAP_SECONDS &&
+        start >= previous.start + MIN_INTERPOLATED_SEGMENT_SECONDS
+      ) {
+        previous.end = roundSeconds(Math.max(previous.start + MIN_INTERPOLATED_SEGMENT_SECONDS, start));
+      } else {
+        start = previous.end;
+      }
+    }
+
+    end = roundSeconds(Math.max(end, start + MIN_INTERPOLATED_SEGMENT_SECONDS));
+
+    output.push({
       ...draft,
       start,
       end
-    };
-  });
+    });
+  }
+
+  return output;
 }
 
 function interpolateBoundedIssues(input: {
   directMatches: DraftSegment[];
   issues: AlignmentIssue[];
+  lattice: CaptionLattice;
 }): {
   drafts: DraftSegment[];
   remainingIssues: AlignmentIssue[];
@@ -253,9 +280,26 @@ function interpolateBoundedIssues(input: {
       gapStart: currentMatch.end,
       gapEnd: nextMatch.start
     });
+    const cueAnchored = anchorIssueBlockToCues({
+      issues: boundedIssues,
+      gapStart: currentMatch.end,
+      gapEnd: nextMatch.start,
+      lattice: input.lattice
+    });
+    const rescuedCandidates =
+      cueAnchored.length === 0
+        ? rescueCandidateTimingBlock({
+            issues: boundedIssues,
+            gapStart: currentMatch.end,
+            gapEnd: nextMatch.start
+          })
+        : [];
     const previousMatch = input.directMatches[index - 1];
     const borrowedInterpolated =
-      interpolated.length === 0 && previousMatch
+      interpolated.length === 0 &&
+      rescuedCandidates.length === 0 &&
+      cueAnchored.length === 0 &&
+      previousMatch
         ? interpolateBorrowedIssueBlock({
             currentMatch,
             issues: boundedIssues,
@@ -274,7 +318,14 @@ function interpolateBoundedIssues(input: {
 
     drafts.push(currentMatch);
 
-    for (const draft of interpolated) {
+    const issueDrafts =
+      cueAnchored.length > 0
+        ? cueAnchored
+        : rescuedCandidates.length > 0
+          ? rescuedCandidates
+          : interpolated;
+
+    for (const draft of issueDrafts) {
       drafts.push(draft);
       remainingIssues.delete(draft.scriptIndex);
     }
@@ -301,6 +352,323 @@ function interpolateBoundedIssues(input: {
   };
 }
 
+function rescueCandidateTimingBlock(input: {
+  issues: AlignmentIssue[];
+  gapStart: number;
+  gapEnd: number;
+}): DraftSegment[] {
+  const drafts: DraftSegment[] = [];
+  let previousStart = Math.max(0, input.gapStart - MAX_CAPTION_OVERLAP_SECONDS);
+  let previousEnd = input.gapStart;
+
+  for (const issue of input.issues) {
+    const timing = issue.candidateTiming;
+    if (!timing || timing.confidence < 0.45) {
+      return [];
+    }
+
+    const start = roundSeconds(timing.start);
+    const end = roundSeconds(timing.end);
+    if (
+      start < previousStart ||
+      start < previousEnd - MAX_CAPTION_OVERLAP_SECONDS ||
+      end <= start ||
+      end > input.gapEnd ||
+      end - start < minimumCandidateRescueSeconds(issue)
+    ) {
+      return [];
+    }
+
+    drafts.push({
+      scriptIndex: issue.scriptIndex,
+      text: issue.text,
+      start,
+      end,
+      confidence: timing.confidence,
+      timingSource: "youtube-caption-lattice"
+    });
+    previousStart = start;
+    previousEnd = end;
+  }
+
+  return drafts;
+}
+
+function anchorIssueBlockToCues(input: {
+  issues: AlignmentIssue[];
+  gapStart: number;
+  gapEnd: number;
+  lattice: CaptionLattice;
+}): DraftSegment[] {
+  const cueCharacters = input.lattice.cues
+    .filter((cue) => cue.start <= cueAnchorWindowEnd(input))
+    .filter(
+      (cue) =>
+        cue.end >= input.gapStart - MAX_CAPTION_OVERLAP_SECONDS &&
+        cue.start <= cueAnchorWindowEnd(input)
+    )
+    .flatMap((cue) => timedNormalizedCueCharacters(cue.text, cue.start, cue.end));
+  if (cueCharacters.length === 0) {
+    return [];
+  }
+
+  const cueText = cueCharacters.map((character) => character.value).join("");
+  const anchors = input.issues.map((issue) => {
+    const anchor = findCueAnchor({
+      needle: issue.normalizedText,
+      cueText,
+      cueCharacters,
+      minimumTime: Math.max(0, input.gapStart - MAX_CAPTION_OVERLAP_SECONDS),
+      maximumTime: input.gapEnd
+    });
+
+    if (anchor && anchor.score >= MIN_CUE_ANCHOR_SCORE) {
+      return anchor;
+    }
+
+    return issue.candidateTiming && issue.candidateTiming.confidence >= MIN_CONFIDENCE
+      ? {
+          start: issue.candidateTiming.start,
+          score: issue.candidateTiming.confidence
+        }
+      : undefined;
+  });
+  if (!anchors.some(Boolean)) {
+    return [];
+  }
+
+  const drafts: DraftSegment[] = [];
+  let previousStart = Math.max(0, input.gapStart - MAX_CAPTION_OVERLAP_SECONDS);
+  let previousEnd = input.gapStart;
+
+  for (const [issueIndex, issue] of input.issues.entries()) {
+    const anchor = anchors[issueIndex];
+    const remainingIssues = input.issues.length - issueIndex;
+    const nextAnchor = anchors.slice(issueIndex + 1).find(Boolean);
+    const start = roundSeconds(
+      anchor?.start ??
+        interpolateMissingCueAnchor({
+          issueIndex,
+          issues: input.issues,
+          anchors,
+          gapStart: input.gapStart,
+          gapEnd: input.gapEnd
+        })
+    );
+    const fallbackEnd =
+      issueIndex === input.issues.length - 1
+        ? input.gapEnd
+        : Math.min(
+            input.gapEnd - MIN_INTERPOLATED_SEGMENT_SECONDS * (remainingIssues - 1),
+            start + Math.max(1, issue.normalizedText.length * 0.08)
+          );
+    const end = roundSeconds(
+      Math.max(
+        start + MIN_INTERPOLATED_SEGMENT_SECONDS,
+        Math.min(nextAnchor?.start ?? fallbackEnd, input.gapEnd)
+      )
+    );
+
+    const safeStart =
+      start < previousStart || start < previousEnd - MAX_CAPTION_OVERLAP_SECONDS
+        ? previousEnd
+        : start;
+    const safeEnd = roundSeconds(
+      Math.min(input.gapEnd, Math.max(end, safeStart + MIN_INTERPOLATED_SEGMENT_SECONDS))
+    );
+
+    drafts.push({
+      scriptIndex: issue.scriptIndex,
+      text: issue.text,
+      start: safeStart,
+      end: safeEnd,
+      confidence: INTERPOLATED_CONFIDENCE,
+      timingSource: anchor ? "youtube-caption-lattice" : "interpolated-between-caption-matches"
+    });
+    previousStart = safeStart;
+    previousEnd = safeEnd;
+  }
+
+  return drafts;
+}
+
+function cueAnchorWindowEnd(input: { issues: AlignmentIssue[]; gapStart: number; gapEnd: number }): number {
+  const totalCharacters = input.issues.reduce(
+    (sum, issue) => sum + Math.max(1, issue.normalizedText.length),
+    0
+  );
+  return Math.min(input.gapEnd, input.gapStart + Math.max(18, totalCharacters * 0.18));
+}
+
+function interpolateMissingCueAnchor(input: {
+  issueIndex: number;
+  issues: AlignmentIssue[];
+  anchors: ({ start: number; score: number } | undefined)[];
+  gapStart: number;
+  gapEnd: number;
+}): number {
+  let previousAnchorIndex = -1;
+  for (let index = input.issueIndex - 1; index >= 0; index -= 1) {
+    if (input.anchors[index]) {
+      previousAnchorIndex = index;
+      break;
+    }
+  }
+  const nextRelativeAnchorIndex = input.anchors
+    .slice(input.issueIndex + 1)
+    .findIndex((anchor) => anchor !== undefined);
+  const nextAnchorIndex =
+    nextRelativeAnchorIndex >= 0 ? input.issueIndex + 1 + nextRelativeAnchorIndex : -1;
+  const blockStart =
+    previousAnchorIndex >= 0
+      ? input.anchors[previousAnchorIndex]?.start ?? input.gapStart
+      : input.gapStart;
+  const blockEnd =
+    nextAnchorIndex >= 0 ? input.anchors[nextAnchorIndex]?.start ?? input.gapEnd : input.gapEnd;
+  const firstIndex = previousAnchorIndex >= 0 ? previousAnchorIndex + 1 : 0;
+  const lastIndex = nextAnchorIndex >= 0 ? nextAnchorIndex - 1 : input.issues.length - 1;
+  const totalCharacters = input.issues
+    .slice(firstIndex, lastIndex + 1)
+    .reduce((sum, issue) => sum + Math.max(1, issue.normalizedText.length), 0);
+  const precedingCharacters = input.issues
+    .slice(firstIndex, input.issueIndex)
+    .reduce((sum, issue) => sum + Math.max(1, issue.normalizedText.length), 0);
+
+  return blockStart + (blockEnd - blockStart) * (precedingCharacters / Math.max(1, totalCharacters));
+}
+
+function timedNormalizedCueCharacters(text: string, start: number, end: number): TimedCueCharacter[] {
+  const values = Array.from(text)
+    .flatMap((character) => Array.from(normalizeAlignmentCharacter(character).toLowerCase()))
+    .filter((character) => character.length > 0);
+  if (values.length === 0) {
+    return [];
+  }
+
+  const safeEnd = Math.max(end, start + 0.05);
+  const characterDuration = (safeEnd - start) / values.length;
+  return values.map((value, index) => ({
+    value,
+    start: start + characterDuration * index,
+    end: start + characterDuration * (index + 1),
+    cueStart: start,
+    cueEnd: safeEnd
+  }));
+}
+
+function findCueAnchor(input: {
+  needle: string;
+  cueText: string;
+  cueCharacters: TimedCueCharacter[];
+  minimumTime: number;
+  maximumTime: number;
+}): { start: number; score: number } | undefined {
+  if (!input.needle || !input.cueText) {
+    return undefined;
+  }
+
+  let best: { start: number; score: number } | undefined;
+  for (const anchor of buildCueAnchors(input.needle)) {
+    let occurrence = input.cueText.indexOf(anchor.text);
+    while (occurrence >= 0) {
+      const character = input.cueCharacters[occurrence];
+      if (
+        character &&
+        character.end >= input.minimumTime &&
+        character.start <= input.maximumTime
+      ) {
+        const windowEnd = Math.min(
+          input.cueText.length,
+          occurrence + Math.max(input.needle.length - anchor.offset, anchor.text.length + 16)
+        );
+        const localSecondsPerCharacter = Math.max(0.04, Math.min(0.25, character.end - character.start));
+        const rawStart = character.start - anchor.offset * localSecondsPerCharacter;
+        const start =
+          anchor.offset === 0 &&
+          !/^[a-z0-9]/i.test(anchor.text) &&
+          character.start - character.cueStart > 2.5
+            ? character.cueStart + (character.start - character.cueStart) * 0.45
+            : rawStart;
+        const score =
+          0.7 *
+            similarity(
+              input.needle.slice(anchor.offset),
+              input.cueText.slice(occurrence, windowEnd)
+            ) +
+          0.3 * (anchor.text.length / Math.min(8, Math.max(1, input.needle.length)));
+        if (!best || score > best.score) {
+          best = {
+            start: Math.max(0, start),
+            score
+          };
+        }
+      }
+      occurrence = input.cueText.indexOf(anchor.text, occurrence + 1);
+    }
+  }
+
+  if (best) {
+    return best;
+  }
+
+  if (/^[a-z0-9]+$/i.test(input.needle)) {
+    const latinCharacter = input.cueCharacters.find(
+      (character) =>
+        /[a-z0-9]/i.test(character.value) &&
+        character.start >= input.minimumTime &&
+        character.start <= input.maximumTime
+    );
+    if (latinCharacter) {
+      return {
+        start: Math.max(input.minimumTime, latinCharacter.start - 1.5),
+        score: MIN_CUE_ANCHOR_SCORE
+      };
+    }
+  }
+
+  return undefined;
+}
+
+function buildCueAnchors(needle: string): { text: string; offset: number }[] {
+  const anchors = new Map<string, { text: string; offset: number }>();
+  for (const length of [8, 6, 4, 3, 2]) {
+    if (needle.length >= length) {
+      const text = needle.slice(0, length);
+      anchors.set(`${text}:0`, { text, offset: 0 });
+    }
+  }
+
+  for (const offset of [1, 2, 3, 4]) {
+    if (needle.length >= offset + 4) {
+      const text = needle.slice(offset, offset + Math.min(8, needle.length - offset));
+      anchors.set(`${text}:${offset}`, { text, offset });
+    }
+  }
+
+  for (const anchor of buildAnchors(needle)) {
+    if (anchor.text.length >= 2 && anchor.offset <= needle.length * 0.35) {
+      anchors.set(`${anchor.text}:${anchor.offset}`, anchor);
+    }
+  }
+
+  if (/^[a-z0-9]/i.test(needle)) {
+    const word = needle.match(/^[a-z0-9]+/i)?.[0];
+    if (word && word.length >= 2) {
+      const text = word.slice(0, Math.min(8, word.length));
+      anchors.set(`${text}:0`, { text, offset: 0 });
+    }
+  }
+
+  return [...anchors.values()].sort((left, right) => right.text.length - left.text.length);
+}
+
+function minimumCandidateRescueSeconds(issue: AlignmentIssue): number {
+  return Math.max(
+    MIN_INTERPOLATED_SEGMENT_SECONDS,
+    Math.min(2.5, Math.max(0.75, issue.normalizedText.length * 0.05))
+  );
+}
+
 function interpolateIssueBlock(input: {
   issues: AlignmentIssue[];
   gapStart: number;
@@ -320,7 +688,10 @@ function interpolateIssueBlock(input: {
   }
 
   const drafts: DraftSegment[] = [];
-  let cursor = input.gapStart;
+  let cursor =
+    input.issues.length > 1 && gap > 6
+      ? input.gapStart + Math.min(3, gap * 0.2)
+      : input.gapStart;
 
   for (const [index, issue] of input.issues.entries()) {
     const remainingIssues = input.issues.length - index;
@@ -485,6 +856,27 @@ function chooseCandidate(
   return surfaceCandidate ?? readingCandidate;
 }
 
+function toCandidateTiming(candidate: Candidate): CandidateTiming | undefined {
+  if (candidate.start >= candidate.end) {
+    return undefined;
+  }
+
+  const startCharacter = candidate.lattice.characters[candidate.start];
+  const endCharacter = candidate.lattice.characters[Math.max(candidate.end - 1, candidate.start)];
+  if (!startCharacter || !endCharacter) {
+    return undefined;
+  }
+
+  const start = roundSeconds(startCharacter.start);
+  const end = roundSeconds(Math.max(endCharacter.end, start + MIN_INTERPOLATED_SEGMENT_SECONDS));
+
+  return {
+    start,
+    end,
+    confidence: roundConfidence(candidate.confidence)
+  };
+}
+
 function isAcceptedCandidate(candidate: Candidate): boolean {
   return candidate.confidence >= MIN_CONFIDENCE || candidate.score >= MIN_CONFIDENCE + 0.05;
 }
@@ -505,7 +897,8 @@ function scoreCandidate(input: {
     DISTANCE_PENALTY_WEIGHT;
   const startTime = input.lattice.characters[input.start]?.start ?? input.previousEnd;
   const jumpSeconds = Math.max(0, startTime - input.previousEnd);
-  const sameBlockJumpPenalty = jumpSeconds > SAME_BLOCK_JUMP_SECONDS ? SAME_BLOCK_JUMP_PENALTY : 0;
+  const sameBlockJumpPenalty =
+    input.previousEnd > 0 && jumpSeconds > SAME_BLOCK_JUMP_SECONDS ? SAME_BLOCK_JUMP_PENALTY : 0;
   const previousContextScore = contextSimilarity({
     haystack: input.lattice.text,
     context: input.previousContext,

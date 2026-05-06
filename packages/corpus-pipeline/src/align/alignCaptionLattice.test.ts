@@ -97,6 +97,63 @@ describe("alignCaptionLattice", () => {
     expect(result.segments[1]?.end).toBeLessThanOrEqual(result.segments[2]?.start ?? 0);
   });
 
+  it("uses bounded low-confidence candidate timing before falling back to interpolation", () => {
+    const lattice = parseJson3Captions({
+      events: [
+        {
+          tStartMs: 1000,
+          dDurationMs: 1000,
+          segs: [{ utf8: "firstanchor" }]
+        },
+        {
+          tStartMs: 4000,
+          dDurationMs: 1000,
+          segs: [{ utf8: "abc12345def" }]
+        },
+        {
+          tStartMs: 9000,
+          dDurationMs: 1000,
+          segs: [{ utf8: "lastanchor" }]
+        }
+      ]
+    });
+
+    const result = alignCaptionLattice({
+      episode: 367,
+      youtubeId: "nNRz_Jh_wZI",
+      scriptUnits: [
+        {
+          index: 0,
+          blockIndex: 0,
+          text: "First anchor.",
+          normalizedText: "firstanchor"
+        },
+        {
+          index: 1,
+          blockIndex: 0,
+          text: "Middle low-confidence candidate.",
+          normalizedText: "abcxyzpqdef"
+        },
+        {
+          index: 2,
+          blockIndex: 0,
+          text: "Last anchor.",
+          normalizedText: "lastanchor"
+        }
+      ],
+      lattice
+    });
+
+    expect(result.issues).toEqual([]);
+    expect(result.segments[1]).toMatchObject({
+      start: 4,
+      end: 5,
+      text: "Middle low-confidence candidate.",
+      timingSource: "youtube-caption-lattice"
+    });
+    expect(result.segments[1]?.confidence).toBeLessThan(0.58);
+  });
+
   it("can align against a reading lattice when surface text differs", () => {
     const scriptUnits = splitScriptSentences("聞かれたときは、答えに困ります。").map((unit) => ({
       ...unit,
