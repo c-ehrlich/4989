@@ -8,6 +8,7 @@ export type SourceOverrides = {
   youtubeEpisodeOverrides: EpisodeOverrides;
   scriptEpisodeOverrides: ScriptEpisodeOverrides;
   preferredScriptUrlsByEpisode: PreferredScriptUrlsByEpisode;
+  preferredAsrEpisodes: number[];
 };
 
 export async function readSourceOverrides(path: string): Promise<SourceOverrides> {
@@ -43,11 +44,13 @@ export function parseSourceOverrides(value: unknown): SourceOverrides {
   const preferredScriptUrlsByEpisode = parsePreferredScriptUrlsByEpisode(
     value.preferredScriptUrlsByEpisode
   );
+  const preferredAsrEpisodes = parsePreferredAsrEpisodes(value.preferredAsrEpisodes);
 
   return {
     youtubeEpisodeOverrides,
     scriptEpisodeOverrides,
-    preferredScriptUrlsByEpisode
+    preferredScriptUrlsByEpisode,
+    preferredAsrEpisodes
   };
 }
 
@@ -102,6 +105,27 @@ function parsePreferredScriptUrlsByEpisode(value: unknown): PreferredScriptUrlsB
   }
 
   return preferences;
+}
+
+function parsePreferredAsrEpisodes(value: unknown): number[] {
+  if (value === undefined) {
+    return [];
+  }
+
+  if (!Array.isArray(value)) {
+    throw new Error("sourceOverrides.preferredAsrEpisodes must be an array");
+  }
+
+  const episodes = new Set<number>();
+  for (const rawEpisode of value) {
+    if (typeof rawEpisode !== "number" || !Number.isSafeInteger(rawEpisode) || rawEpisode <= 0) {
+      throw new Error(`Invalid preferred ASR episode: ${String(rawEpisode)}`);
+    }
+
+    episodes.add(rawEpisode);
+  }
+
+  return Array.from(episodes).sort((left, right) => left - right);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

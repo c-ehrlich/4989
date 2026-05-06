@@ -6,6 +6,7 @@
     "https://www.4989americanlife.com/post/ep-278-アパート探しスタート": 279
   },
   "preferredScriptUrlsByEpisode": {
-    "134": "https://www.4989americanlife.com/post/ep-134--メール対応にイライラ"
-  }
+    "134": "https://www.4989americanlife.com/post/ep-134--コロナ自粛californiaの現在の様子"
+  },
+  "preferredAsrEpisodes": [98, 102, 118, 178, 244, 271, 277]
 }

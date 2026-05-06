@@ -10,6 +10,7 @@ type ProcessEpisodeCliOptions = {
   pythonPath?: string;
   asrPythonPath?: string;
   asrModel?: string;
+  preferAsr: boolean;
 };
 
 async function main(): Promise<void> {
@@ -32,7 +33,8 @@ async function main(): Promise<void> {
     ytDlpPath: options.ytDlpPath,
     pythonPath: options.pythonPath,
     asrPythonPath: options.asrPythonPath,
-    asrModel: options.asrModel
+    asrModel: options.asrModel,
+    preferAsr: options.preferAsr
   });
 
   console.log(
@@ -55,7 +57,8 @@ async function main(): Promise<void> {
 
 function parseArgs(args: string[]): ProcessEpisodeCliOptions | "help" {
   const options: ProcessEpisodeCliOptions = {
-    force: false
+    force: false,
+    preferAsr: false
   };
 
   for (let index = 0; index < args.length; index += 1) {
@@ -111,6 +114,11 @@ function parseArgs(args: string[]): ProcessEpisodeCliOptions | "help" {
       continue;
     }
 
+    if (arg === "--prefer-asr") {
+      options.preferAsr = true;
+      continue;
+    }
+
     if (arg === "--force") {
       options.force = true;
       continue;
@@ -151,6 +159,7 @@ Options:
   --python <path>   Python executable with SudachiPy and a Sudachi dictionary installed.
   --asr-python <path> Python executable with faster-whisper installed.
   --asr-model <name>  Faster Whisper model for captionless episodes. Default: base.
+  --prefer-asr     Use ASR even when a YouTube caption track is present.
   --force           Redownload and regenerate even if cached sources are unchanged.
   -h, --help        Show this help.
 `);

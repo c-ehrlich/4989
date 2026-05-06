@@ -19,6 +19,7 @@ type ProcessLatestCliOptions = {
   pythonPath?: string;
   asrPythonPath?: string;
   asrModel?: string;
+  preferAsr: boolean;
 };
 
 async function main(): Promise<void> {
@@ -42,7 +43,8 @@ async function main(): Promise<void> {
     ytDlpPath: options.ytDlpPath,
     pythonPath: options.pythonPath,
     asrPythonPath: options.asrPythonPath,
-    asrModel: options.asrModel
+    asrModel: options.asrModel,
+    preferAsr: options.preferAsr
   });
 
   console.log(
@@ -67,7 +69,8 @@ function parseArgs(args: string[]): ProcessLatestCliOptions | "help" {
     refreshSources: true,
     retryFailed: false,
     force: false,
-    forceScriptRefresh: false
+    forceScriptRefresh: false,
+    preferAsr: false
   };
 
   for (let index = 0; index < args.length; index += 1) {
@@ -129,6 +132,11 @@ function parseArgs(args: string[]): ProcessLatestCliOptions | "help" {
       continue;
     }
 
+    if (arg === "--prefer-asr") {
+      options.preferAsr = true;
+      continue;
+    }
+
     if (arg === "--no-refresh-sources") {
       options.refreshSources = false;
       continue;
@@ -185,6 +193,7 @@ Options:
   --python <path>          Python executable with SudachiPy and a Sudachi dictionary installed.
   --asr-python <path>      Python executable with faster-whisper installed.
   --asr-model <name>       Faster Whisper model for captionless episodes. Default: base.
+  --prefer-asr             Use ASR even when a YouTube caption track is present.
   --no-refresh-sources     Use the existing manifest instead of refreshing sources first.
   --retry-failed           Include failed manifest entries in the latest processable set.
   --force                  Redownload per-episode sources and regenerate alignments.

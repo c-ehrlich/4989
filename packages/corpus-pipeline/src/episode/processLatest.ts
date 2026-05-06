@@ -42,6 +42,7 @@ export type ProcessLatestOptions = {
   pythonPath?: string;
   asrPythonPath?: string;
   asrModel?: string;
+  preferAsr?: boolean;
 };
 
 export type ProcessLatestEpisodeResult = {
@@ -100,7 +101,10 @@ export async function processLatest(options: ProcessLatestOptions): Promise<Proc
         ytDlpPath: options.ytDlpPath,
         pythonPath: options.pythonPath,
         asrPythonPath: options.asrPythonPath,
-        asrModel: options.asrModel
+        asrModel: options.asrModel,
+        preferAsr:
+          Boolean(options.preferAsr) ||
+          Boolean(options.sourceOverrides?.preferredAsrEpisodes.includes(entry.episode))
       })
     );
   }
@@ -185,6 +189,7 @@ async function processLatestEpisode(input: {
   pythonPath?: string;
   asrPythonPath?: string;
   asrModel?: string;
+  preferAsr?: boolean;
 }): Promise<ProcessLatestEpisodeResult> {
   try {
     const result = await processEpisode({
@@ -195,7 +200,8 @@ async function processLatestEpisode(input: {
       ytDlpPath: input.ytDlpPath,
       pythonPath: input.pythonPath,
       asrPythonPath: input.asrPythonPath,
-      asrModel: input.asrModel
+      asrModel: input.asrModel,
+      preferAsr: input.preferAsr
     });
 
     return toLatestEpisodeResult(result);
@@ -221,7 +227,7 @@ function toLatestEpisodeResult(result: ProcessEpisodeResult): ProcessLatestEpiso
     episode: result.alignment.episode,
     status: result.skipped
       ? "skipped"
-      : summary.lowConfidenceCount > 0
+      : summary.lowConfidenceCount > 0 || summary.unmatchedCount > 0
         ? "low-confidence"
         : "processed",
     skipped: result.skipped,

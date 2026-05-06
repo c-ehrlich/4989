@@ -51,6 +51,7 @@ export type ProcessEpisodeOptions = {
   pythonPath?: string;
   asrPythonPath?: string;
   asrModel?: string;
+  preferAsr?: boolean;
 };
 
 export type ProcessEpisodeResult = {
@@ -115,7 +116,8 @@ export async function processEpisode(
     force: options.force,
     ytDlpPath: options.ytDlpPath,
     asrPythonPath: resolveOptionalPath(options.asrPythonPath, repoRoot),
-    asrModel: options.asrModel
+    asrModel: options.asrModel,
+    preferAsr: options.preferAsr
   });
   const source = {
     captionTrack: captionSource.captionTrack,
@@ -153,7 +155,10 @@ export async function processEpisode(
     } else {
       const summary = existingAlignment.summary;
       await updateBuildReport(dataDirectory, episodeKey, {
-        status: summary.lowConfidenceCount > 0 ? "low-confidence" : "processed",
+        status:
+          summary.lowConfidenceCount > 0 || summary.unmatchedCount > 0
+            ? "low-confidence"
+            : "processed",
         segments: summary.segmentCount,
         matchedCount: summary.matchedCount,
         unmatchedCount: summary.unmatchedCount,
@@ -255,7 +260,10 @@ export async function processEpisode(
     lowConfidenceThreshold: LOW_CONFIDENCE_THRESHOLD
   });
   await updateBuildReport(dataDirectory, episodeKey, {
-    status: lowConfidenceCount > 0 ? "low-confidence" : "processed",
+    status:
+      lowConfidenceCount > 0 || alignmentResult.issues.length > 0
+        ? "low-confidence"
+        : "processed",
     segments: segments.length,
     matchedCount: segments.length,
     unmatchedCount: alignmentResult.issues.length,
@@ -284,19 +292,45 @@ async function resolveCaptionSource(input: {
   ytDlpPath?: string;
   asrPythonPath?: string;
   asrModel?: string;
+  preferAsr?: boolean;
 }): Promise<ResolvedCaptionSource> {
+  if (input.preferAsr && input.asrPythonPath) {
+    return resolveAsrCaptionSource(input);
+  }
+
   if (input.sourcePaths.captionPath) {
     const sourceText = await readFile(input.sourcePaths.captionPath, "utf8");
+    const lattice = parseJson3Captions(JSON.parse(sourceText) as unknown);
+    if (lattice.text.length === 0 && input.asrPythonPath) {
+      return resolveAsrCaptionSource(input);
+    }
+
     return {
       captionTrack: "ja-orig",
       alignmentMethod: "youtube-caption-lattice",
       sourceText,
-      lattice: parseJson3Captions(JSON.parse(sourceText) as unknown)
+      lattice
     };
   }
 
   if (!input.asrPythonPath) {
     throw new Error(`Episode ${input.episode} has no ja-orig captions and no ASR fallback enabled`);
+  }
+
+  return resolveAsrCaptionSource(input);
+}
+
+async function resolveAsrCaptionSource(input: {
+  episode: number;
+  videoUrl: string;
+  workDirectory: string;
+  force?: boolean;
+  ytDlpPath?: string;
+  asrPythonPath?: string;
+  asrModel?: string;
+}): Promise<ResolvedCaptionSource> {
+  if (!input.asrPythonPath) {
+    throw new Error(`Episode ${input.episode} has no usable captions and no ASR fallback enabled`);
   }
 
   const audioPath = await downloadEpisodeAudio({

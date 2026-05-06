@@ -90,7 +90,8 @@ describe("buildManifest", () => {
         },
         preferredScriptUrlsByEpisode: {
           134: "https://example.com/post/ep-134-new"
-        }
+        },
+        preferredAsrEpisodes: []
       }
     });
 
