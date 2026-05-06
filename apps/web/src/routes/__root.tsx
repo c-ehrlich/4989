@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import appStyles from "../styles/app.css?url";
@@ -17,11 +19,25 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+            staleTime: 5 * 60 * 1000
+          }
+        }
+      })
+  );
+
   return (
     <RootDocument>
-      <TooltipProvider delay={250}>
-        <Outlet />
-      </TooltipProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider delay={250}>
+          <Outlet />
+        </TooltipProvider>
+      </QueryClientProvider>
     </RootDocument>
   );
 }

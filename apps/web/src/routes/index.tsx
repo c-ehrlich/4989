@@ -1,7 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  keepPreviousData,
+  useQuery,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 import { parseSegmentId } from "@4989/corpus-types";
 import { Clock3, ExternalLink, Play, RotateCcw, Search } from "lucide-react";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,120 +18,120 @@ import { hydrateSegmentIds, type HydratedSegment } from "@/corpus/hydrate";
 import {
   searchCorpus,
   type SearchCorpusResult,
-  type SearchMode
+  type SearchMode,
 } from "@/corpus/search";
 import {
   loadCorpusStaticStatus,
-  type CorpusStaticStatus
+  type CorpusStaticStatus,
 } from "@/corpus/smoke";
 
 const MAX_RENDERED_RESULTS = 10_000;
 
 export const Route = createFileRoute("/")({
-  component: HomePage
+  component: HomePage,
 });
 
 function HomePage() {
-  const [corpusStatus, setCorpusStatus] = useState<CorpusLoadState>({ status: "loading" });
   const [query, setQuery] = useState("食べる");
   const [searchMode, setSearchMode] = useState<SearchMode>("loose");
-  const [searchState, setSearchState] = useState<SearchLoadState>({ status: "idle" });
+  const [submittedSearch, setSubmittedSearch] =
+    useState<SubmittedSearch | null>(null);
   const [selectedHit, setSelectedHit] = useState<HydratedSegment | null>(null);
   const [episodeRange, setEpisodeRange] = useState<EpisodeRange>({
     min: 0,
-    max: Number.MAX_SAFE_INTEGER
+    max: Number.MAX_SAFE_INTEGER,
+  });
+  const corpusStatusQuery = useQuery({
+    queryKey: ["corpus-status"],
+    queryFn: () => loadCorpusStaticStatus(),
+  });
+  const searchQuery = useQuery({
+    queryKey: ["corpus-search", submittedSearch],
+    queryFn: () => {
+      if (!submittedSearch) {
+        throw new Error(
+          "Search query was requested before a query was submitted.",
+        );
+      }
+
+      return searchCorpus({
+        query: submittedSearch.query,
+        mode: submittedSearch.mode,
+        limit: MAX_RENDERED_RESULTS,
+      });
+    },
+    enabled: submittedSearch !== null,
+    placeholderData: keepPreviousData,
+  });
+  const hydratedHitsInput = useMemo(
+    () =>
+      searchQuery.data
+        ? getVisibleSearchHitInput(searchQuery.data, episodeRange)
+        : null,
+    [episodeRange, searchQuery.data],
+  );
+  const hydratedHitsQuery = useQuery({
+    queryKey: [
+      "hydrated-search-hits",
+      searchQuery.dataUpdatedAt,
+      searchQuery.data?.query,
+      searchQuery.data?.mode,
+      episodeRange.min,
+      episodeRange.max,
+    ],
+    queryFn: async () => {
+      if (!hydratedHitsInput) {
+        throw new Error(
+          "Hydration was requested before search results were ready.",
+        );
+      }
+
+      return {
+        filteredTotal: hydratedHitsInput.filteredTotal,
+        hits:
+          hydratedHitsInput.visibleSegmentIds.length > 0
+            ? await hydrateSegmentIds({
+                segmentIds: hydratedHitsInput.visibleSegmentIds,
+              })
+            : [],
+      };
+    },
+    enabled: hydratedHitsInput !== null,
+    placeholderData: keepPreviousData,
+  });
+
+  const corpusStatusState = getCorpusStatusState(corpusStatusQuery);
+  const searchState = getSearchState({
+    hydratedHitsInput,
+    hydratedHitsQuery,
+    searchQuery,
+    submittedSearch,
   });
 
   useEffect(() => {
-    let isCurrent = true;
-
-    void loadCorpusStaticStatus()
-      .then((result) => {
-        if (isCurrent) {
-          setCorpusStatus({ status: "ready", result });
-          setEpisodeRange({
-            min: result.minEpisodeNumber,
-            max: result.maxEpisodeNumber
-          });
-        }
-      })
-      .catch((error: unknown) => {
-        if (isCurrent) {
-          setCorpusStatus({
-            status: "error",
-            message: error instanceof Error ? error.message : "Unknown corpus load error"
-          });
-        }
-      });
-
-    return () => {
-      isCurrent = false;
-    };
-  }, []);
-
-  const readySearchResult = searchState.status === "ready" ? searchState.result : null;
-
-  useEffect(() => {
-    if (!readySearchResult) {
+    const corpusStatus = corpusStatusQuery.data;
+    if (!corpusStatus || episodeRange.max !== Number.MAX_SAFE_INTEGER) {
       return;
     }
 
-    let isCurrent = true;
-    setSearchState((current) =>
-      current.status === "ready" && current.result === readySearchResult
-        ? { ...current, isFiltering: true }
-        : current
-    );
+    setEpisodeRange({
+      min: corpusStatus.minEpisodeNumber,
+      max: corpusStatus.maxEpisodeNumber,
+    });
+  }, [corpusStatusQuery.data, episodeRange.max]);
 
-    void hydrateVisibleSearchHits(readySearchResult, episodeRange).then(
-      ({ filteredTotal, hits }) => {
-        if (!isCurrent) {
-          return;
-        }
-
-        setSearchState((current) =>
-          current.status === "ready" && current.result === readySearchResult
-            ? {
-                ...current,
-                filteredTotal,
-                hits,
-                isFiltering: false
-              }
-            : current
-        );
-      },
-      (error: unknown) => {
-        if (isCurrent) {
-          setSearchState({
-            status: "error",
-            message: error instanceof Error ? error.message : "Unknown hydration error"
-          });
-        }
-      }
-    );
-
-    return () => {
-      isCurrent = false;
-    };
-  }, [readySearchResult, episodeRange]);
-
-  async function runSearch(nextMode: SearchMode = searchMode) {
-    setSearchState({ status: "loading" });
-    setSelectedHit(null);
-
-    try {
-      const result = await searchCorpus({
-        query,
-        mode: nextMode,
-        limit: MAX_RENDERED_RESULTS
-      });
-      setSearchState({ status: "ready", result, hits: [], filteredTotal: 0, isFiltering: true });
-    } catch (error: unknown) {
-      setSearchState({
-        status: "error",
-        message: error instanceof Error ? error.message : "Unknown search error"
-      });
+  function runSearch(nextMode: SearchMode = searchMode) {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      return;
     }
+
+    setSelectedHit(null);
+    setSubmittedSearch((current) => ({
+      query: trimmedQuery,
+      mode: nextMode,
+      requestId: (current?.requestId ?? 0) + 1,
+    }));
   }
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
@@ -139,7 +144,7 @@ function HomePage() {
     setSearchMode(nextMode);
 
     if (query.trim()) {
-      void runSearch(nextMode);
+      runSearch(nextMode);
     }
   }
 
@@ -148,7 +153,9 @@ function HomePage() {
       <section className="mx-auto grid max-w-[1440px] gap-6">
         <div className="border-b border-border pb-6">
           <div>
-            <p className="text-xs font-bold uppercase text-secondary">4989 American Life</p>
+            <p className="text-xs font-bold uppercase text-secondary">
+              4989 American Life
+            </p>
             <h1 className="mt-2 text-3xl font-semibold tracking-normal sm:text-4xl">
               Corpus Search
             </h1>
@@ -157,7 +164,10 @@ function HomePage() {
 
         <Panel>
           <PanelHeader>
-            <form className="flex flex-col gap-3 md:flex-row" onSubmit={handleSearch}>
+            <form
+              className="flex flex-col gap-3 md:flex-row"
+              onSubmit={handleSearch}
+            >
               <div className="relative flex-1">
                 <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -168,6 +178,12 @@ function HomePage() {
                   onChange={(event) => setQuery(event.target.value)}
                 />
               </div>
+              <Tabs value={searchMode} onValueChange={handleSearchModeChange}>
+                <TabsList aria-label="Search mode" className="h-11">
+                  <TabsTrigger value="loose">Loose</TabsTrigger>
+                  <TabsTrigger value="exact">Exact</TabsTrigger>
+                </TabsList>
+              </Tabs>
               <Button disabled={searchState.status === "loading"} type="submit">
                 <Search />
                 {searchState.status === "loading" ? "Searching" : "Search"}
@@ -175,30 +191,30 @@ function HomePage() {
             </form>
           </PanelHeader>
           <PanelBody>
-            {corpusStatus.status === "error" ? <CorpusStatusError state={corpusStatus} /> : null}
+            {corpusStatusState.status === "error" ? (
+              <CorpusStatusError state={corpusStatusState} />
+            ) : null}
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,440px)] xl:items-start">
               <div className="grid gap-5">
                 <SearchFilterBar
                   episodeBounds={
-                    corpusStatus.status === "ready"
+                    corpusStatusState.status === "ready"
                       ? {
-                          min: corpusStatus.result.minEpisodeNumber,
-                          max: corpusStatus.result.maxEpisodeNumber
+                          min: corpusStatusState.result.minEpisodeNumber,
+                          max: corpusStatusState.result.maxEpisodeNumber,
                         }
                       : null
                   }
                   episodeRange={episodeRange}
                   onEpisodeRangeChange={setEpisodeRange}
                   onEpisodeRangeReset={() => {
-                    if (corpusStatus.status === "ready") {
+                    if (corpusStatusState.status === "ready") {
                       setEpisodeRange({
-                        min: corpusStatus.result.minEpisodeNumber,
-                        max: corpusStatus.result.maxEpisodeNumber
+                        min: corpusStatusState.result.minEpisodeNumber,
+                        max: corpusStatusState.result.maxEpisodeNumber,
                       });
                     }
                   }}
-                  onSearchModeChange={handleSearchModeChange}
-                  searchMode={searchMode}
                 />
                 <SearchResults
                   onSelectHit={setSelectedHit}
@@ -230,6 +246,22 @@ type SearchLoadState =
     }
   | { status: "error"; message: string };
 
+type SubmittedSearch = {
+  mode: SearchMode;
+  query: string;
+  requestId: number;
+};
+
+type HydratedSearchHits = {
+  filteredTotal: number;
+  hits: HydratedSegment[];
+};
+
+type HydratedHitsInput = {
+  filteredTotal: number;
+  visibleSegmentIds: number[];
+};
+
 type EpisodeRange = {
   min: number;
   max: number;
@@ -240,7 +272,9 @@ type CorpusLoadState =
   | { status: "ready"; result: CorpusStaticStatus }
   | { status: "error"; message: string };
 
-function CorpusStatusError({ state }: Readonly<{ state: Extract<CorpusLoadState, { status: "error" }> }>) {
+function CorpusStatusError({
+  state,
+}: Readonly<{ state: Extract<CorpusLoadState, { status: "error" }> }>) {
   return (
     <div className="mb-5 rounded-md border border-primary/40 bg-primary/10 px-4 py-3 text-sm text-primary">
       Corpus assets failed to load: {state.message}
@@ -254,7 +288,7 @@ function SearchFilterBar({
   onEpisodeRangeChange,
   onEpisodeRangeReset,
   onSearchModeChange,
-  searchMode
+  searchMode,
 }: Readonly<{
   episodeBounds: EpisodeRange | null;
   episodeRange: EpisodeRange;
@@ -263,8 +297,12 @@ function SearchFilterBar({
   onSearchModeChange: (value: string) => void;
   searchMode: SearchMode;
 }>) {
-  const minValue = episodeBounds ? clampEpisode(episodeRange.min, episodeBounds) : 0;
-  const maxValue = episodeBounds ? clampEpisode(episodeRange.max, episodeBounds) : 0;
+  const minValue = episodeBounds
+    ? clampEpisode(episodeRange.min, episodeBounds)
+    : 0;
+  const maxValue = episodeBounds
+    ? clampEpisode(episodeRange.max, episodeBounds)
+    : 0;
   const isFiltered = episodeBounds
     ? minValue !== episodeBounds.min || maxValue !== episodeBounds.max
     : false;
@@ -272,11 +310,10 @@ function SearchFilterBar({
   return (
     <div className="grid gap-4 rounded-md border border-border bg-background px-4 py-3 text-sm lg:grid-cols-[auto_auto_minmax(14rem,1fr)_auto] lg:items-center">
       <div className="min-w-32">
-        <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">Mode</p>
-        <Tabs
-          value={searchMode}
-          onValueChange={onSearchModeChange}
-        >
+        <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">
+          Mode
+        </p>
+        <Tabs value={searchMode} onValueChange={onSearchModeChange}>
           <TabsList aria-label="Search mode" className="mt-1">
             <TabsTrigger value="exact">Exact</TabsTrigger>
             <TabsTrigger value="loose">Loose</TabsTrigger>
@@ -284,25 +321,36 @@ function SearchFilterBar({
         </Tabs>
       </div>
       <div className="min-w-32">
-        <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">Episodes</p>
+        <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">
+          Episodes
+        </p>
         <p className="m-0 mt-1 font-semibold">
           {episodeBounds ? `ep${minValue}-ep${maxValue}` : "Loading"}
         </p>
       </div>
       {episodeBounds ? (
         <RangeSlider
-          getAriaLabel={(index) => (index === 0 ? "Minimum episode" : "Maximum episode")}
+          getAriaLabel={(index) =>
+            index === 0 ? "Minimum episode" : "Maximum episode"
+          }
           max={episodeBounds.max}
           min={episodeBounds.min}
           minStepsBetweenValues={0}
-          onValueChange={(value) => onEpisodeRangeChange(rangeSliderValueToEpisodeRange(value))}
+          onValueChange={(value) =>
+            onEpisodeRangeChange(rangeSliderValueToEpisodeRange(value))
+          }
           step={1}
           value={[minValue, maxValue]}
         />
       ) : (
         <div className="h-6 rounded-full bg-muted" />
       )}
-      <Button disabled={!isFiltered} onClick={onEpisodeRangeReset} size="sm" variant="outline">
+      <Button
+        disabled={!isFiltered}
+        onClick={onEpisodeRangeReset}
+        size="sm"
+        variant="outline"
+      >
         <RotateCcw />
         Reset
       </Button>
@@ -313,7 +361,7 @@ function SearchFilterBar({
 function SearchResults({
   onSelectHit,
   selectedHit,
-  state
+  state,
 }: Readonly<{
   onSelectHit: (hit: HydratedSegment) => void;
   selectedHit: HydratedSegment | null;
@@ -354,7 +402,9 @@ function SearchResults({
   return (
     <div className="grid gap-3">
       <div className="flex flex-wrap items-center gap-3 rounded-md border border-border bg-background px-4 py-3 text-sm">
-        <span className="font-semibold">{state.result.total.toLocaleString()} matches</span>
+        <span className="font-semibold">
+          {state.result.total.toLocaleString()} matches
+        </span>
         <span className="font-semibold text-secondary">
           {state.filteredTotal.toLocaleString()} in range
         </span>
@@ -371,7 +421,9 @@ function SearchResults({
             terms: {state.result.matchedTerms.join(", ")}
           </span>
         ) : null}
-        {state.isFiltering ? <span className="text-muted-foreground">updating...</span> : null}
+        {state.isFiltering ? (
+          <span className="text-muted-foreground">updating...</span>
+        ) : null}
       </div>
       {state.filteredTotal === 0 ? (
         <div className="rounded-md border border-border bg-background px-4 py-8 text-center text-sm text-muted-foreground">
@@ -396,7 +448,7 @@ function SearchResults({
 function ResultRow({
   hit,
   isSelected,
-  onSelect
+  onSelect,
 }: Readonly<{
   hit: HydratedSegment;
   isSelected: boolean;
@@ -406,7 +458,7 @@ function ResultRow({
     <article
       className={[
         "grid gap-3 rounded-md border bg-card p-4 text-sm shadow-sm transition-colors",
-        isSelected ? "border-primary" : "border-border"
+        isSelected ? "border-primary" : "border-border",
       ].join(" ")}
     >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-semibold text-muted-foreground">
@@ -420,16 +472,17 @@ function ResultRow({
           <Clock3 className="size-3.5" />
           {hit.timestamp}-{hit.endTimestamp}
         </a>
-        {hit.confidence === undefined ? null : (
-          <span>{Math.round(hit.confidence * 100)}% confidence</span>
-        )}
-        <span>{hit.segment.segmentKey}</span>
       </div>
       <p className="m-0 text-base leading-8 text-foreground">{hit.text}</p>
       <div className="flex flex-col gap-2 border-t border-border pt-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
         <span className="line-clamp-1">{hit.title}</span>
         <div className="flex flex-wrap items-center gap-3">
-          <Button onClick={onSelect} size="sm" type="button" variant={isSelected ? "default" : "outline"}>
+          <Button
+            onClick={onSelect}
+            size="sm"
+            type="button"
+            variant={isSelected ? "default" : "outline"}
+          >
             <Play />
             {isSelected ? "Loaded" : "Load clip"}
           </Button>
@@ -459,7 +512,84 @@ function ResultRow({
   );
 }
 
-async function hydrateVisibleSearchHits(result: SearchCorpusResult, range: EpisodeRange) {
+function getCorpusStatusState(
+  query: UseQueryResult<CorpusStaticStatus>,
+): CorpusLoadState {
+  if (query.isError) {
+    return {
+      status: "error",
+      message:
+        query.error instanceof Error
+          ? query.error.message
+          : "Unknown corpus load error",
+    };
+  }
+
+  if (query.data) {
+    return {
+      status: "ready",
+      result: query.data,
+    };
+  }
+
+  return { status: "loading" };
+}
+
+function getSearchState({
+  hydratedHitsInput,
+  hydratedHitsQuery,
+  searchQuery,
+  submittedSearch,
+}: Readonly<{
+  hydratedHitsInput: HydratedHitsInput | null;
+  hydratedHitsQuery: UseQueryResult<HydratedSearchHits>;
+  searchQuery: UseQueryResult<SearchCorpusResult>;
+  submittedSearch: SubmittedSearch | null;
+}>): SearchLoadState {
+  if (!submittedSearch) {
+    return { status: "idle" };
+  }
+
+  if (searchQuery.isError && !searchQuery.data) {
+    return {
+      status: "error",
+      message:
+        searchQuery.error instanceof Error
+          ? searchQuery.error.message
+          : "Unknown search error",
+    };
+  }
+
+  if (!searchQuery.data) {
+    return { status: "loading" };
+  }
+
+  if (hydratedHitsQuery.isError && !hydratedHitsQuery.data) {
+    return {
+      status: "error",
+      message:
+        hydratedHitsQuery.error instanceof Error
+          ? hydratedHitsQuery.error.message
+          : "Unknown hydration error",
+    };
+  }
+
+  return {
+    status: "ready",
+    result: searchQuery.data,
+    filteredTotal:
+      hydratedHitsQuery.data?.filteredTotal ??
+      hydratedHitsInput?.filteredTotal ??
+      0,
+    hits: hydratedHitsQuery.data?.hits ?? [],
+    isFiltering: searchQuery.isFetching || hydratedHitsQuery.isFetching,
+  };
+}
+
+function getVisibleSearchHitInput(
+  result: SearchCorpusResult,
+  range: EpisodeRange,
+): HydratedHitsInput {
   const filteredSegmentIds = result.allSegmentIds.filter((segmentId) => {
     const { episode } = parseSegmentId(segmentId);
     return episode >= range.min && episode <= range.max;
@@ -468,10 +598,7 @@ async function hydrateVisibleSearchHits(result: SearchCorpusResult, range: Episo
 
   return {
     filteredTotal: filteredSegmentIds.length,
-    hits:
-      visibleSegmentIds.length > 0
-        ? await hydrateSegmentIds({ segmentIds: visibleSegmentIds })
-        : []
+    visibleSegmentIds,
   };
 }
 
@@ -482,6 +609,6 @@ function clampEpisode(value: number, bounds: EpisodeRange) {
 function rangeSliderValueToEpisodeRange(value: RangeSliderValue): EpisodeRange {
   return {
     min: Math.min(value[0], value[1]),
-    max: Math.max(value[0], value[1])
+    max: Math.max(value[0], value[1]),
   };
 }

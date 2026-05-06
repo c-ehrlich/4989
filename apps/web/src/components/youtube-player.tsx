@@ -1,3 +1,4 @@
+import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { AlertCircle, Clock3, ExternalLink, RotateCcw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -59,10 +60,19 @@ export function YouTubePlayer({ className, selectedHit }: Readonly<YouTubePlayer
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [playerError, setPlayerError] = useState<string | null>(null);
   const [currentSeconds, setCurrentSeconds] = useState(0);
-  const [episodeSegmentsState, setEpisodeSegmentsState] = useState<EpisodeSegmentsLoadState>({
-    status: "idle"
+  const episodeSegmentsQuery = useQuery({
+    queryKey: ["episode-segments", selectedHit?.episode],
+    queryFn: () => {
+      if (!selectedHit) {
+        throw new Error("Episode segments were requested before a clip was selected.");
+      }
+
+      return corpusClient.loadEpisodeSegments(selectedHit.episode);
+    },
+    enabled: selectedHit !== null
   });
   const seekSeconds = selectedHit ? getClipSeekSeconds(selectedHit) : 0;
+  const episodeSegmentsState = getEpisodeSegmentsState(selectedHit, episodeSegmentsQuery);
   const activeCaption = useMemo(
     () => getActiveCaption(episodeSegmentsState, currentSeconds),
     [currentSeconds, episodeSegmentsState]
@@ -72,33 +82,8 @@ export function YouTubePlayer({ className, selectedHit }: Readonly<YouTubePlayer
     if (!selectedHit) {
       playerRef.current?.stopVideo();
       setCurrentSeconds(0);
-      setEpisodeSegmentsState({ status: "idle" });
       lastLoadedClipRef.current = null;
-      return;
     }
-
-    let isCurrent = true;
-    setEpisodeSegmentsState({ status: "loading" });
-
-    void corpusClient.loadEpisodeSegments(selectedHit.episode).then(
-      (episodeSegments) => {
-        if (isCurrent) {
-          setEpisodeSegmentsState({ status: "ready", episodeSegments });
-        }
-      },
-      (error: unknown) => {
-        if (isCurrent) {
-          setEpisodeSegmentsState({
-            status: "error",
-            message: error instanceof Error ? error.message : "Unknown episode load error"
-          });
-        }
-      }
-    );
-
-    return () => {
-      isCurrent = false;
-    };
   }, [selectedHit]);
 
   useEffect(() => {
@@ -333,6 +318,31 @@ type ActiveCaption = {
 };
 
 type TranscriptSegment = EpisodeSegments["segments"][number];
+
+function getEpisodeSegmentsState(
+  selectedHit: HydratedSegment | null,
+  query: UseQueryResult<EpisodeSegments>
+): EpisodeSegmentsLoadState {
+  if (!selectedHit) {
+    return { status: "idle" };
+  }
+
+  if (query.isError && !query.data) {
+    return {
+      status: "error",
+      message: query.error instanceof Error ? query.error.message : "Unknown episode load error"
+    };
+  }
+
+  if (query.data) {
+    return {
+      status: "ready",
+      episodeSegments: query.data
+    };
+  }
+
+  return { status: "loading" };
+}
 
 function CaptionPanel({
   activeCaption,
