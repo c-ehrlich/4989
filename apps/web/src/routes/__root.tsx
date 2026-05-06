@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
 
+import { TooltipProvider } from "@/components/ui/tooltip";
 import appStyles from "../styles/app.css?url";
 
 export const Route = createRootRoute({
@@ -18,7 +19,9 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <RootDocument>
-      <Outlet />
+      <TooltipProvider delay={250}>
+        <Outlet />
+      </TooltipProvider>
     </RootDocument>
   );
 }
