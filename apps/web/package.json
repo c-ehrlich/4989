@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "node ./scripts/prepare-corpus-assets.mjs --mode=link",
     "dev": "vite dev --host 127.0.0.1 --port 4989",
+    "prebuild": "node ./scripts/prepare-corpus-assets.mjs --mode=copy",
     "build": "vite build",
     "preview": "vite preview",
     "start": "vite preview",

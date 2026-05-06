@@ -1,17 +1,47 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Clock3, Play, Search } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Panel, PanelBody, PanelHeader } from "@/components/ui/panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  loadCorpusStaticStatus,
+  type CorpusStaticStatus
+} from "@/corpus/smoke";
 
 export const Route = createFileRoute("/")({
   component: HomePage
 });
 
 function HomePage() {
+  const [corpusStatus, setCorpusStatus] = useState<CorpusLoadState>({ status: "loading" });
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    void loadCorpusStaticStatus()
+      .then((result) => {
+        if (isCurrent) {
+          setCorpusStatus({ status: "ready", result });
+        }
+      })
+      .catch((error: unknown) => {
+        if (isCurrent) {
+          setCorpusStatus({
+            status: "error",
+            message: error instanceof Error ? error.message : "Unknown corpus load error"
+          });
+        }
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+
   return (
     <main className="min-h-screen px-5 py-8 text-foreground sm:px-8">
       <section className="mx-auto grid max-w-6xl gap-6">
@@ -44,6 +74,7 @@ function HomePage() {
             </div>
           </PanelHeader>
           <PanelBody>
+            <CorpusStatusPanel state={corpusStatus} />
             <Tabs defaultValue="results">
               <TabsList aria-label="Preview sections">
                 <TabsTrigger value="results">Results</TabsTrigger>
@@ -73,6 +104,70 @@ function HomePage() {
         </Panel>
       </section>
     </main>
+  );
+}
+
+type CorpusLoadState =
+  | { status: "loading" }
+  | { status: "ready"; result: CorpusStaticStatus }
+  | { status: "error"; message: string };
+
+function CorpusStatusPanel({ state }: Readonly<{ state: CorpusLoadState }>) {
+  if (state.status === "loading") {
+    return (
+      <div className="mb-5 rounded-md border border-border bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
+        Loading corpus assets...
+      </div>
+    );
+  }
+
+  if (state.status === "error") {
+    return (
+      <div className="mb-5 rounded-md border border-primary/40 bg-primary/10 px-4 py-3 text-sm text-primary">
+        Corpus assets failed to load: {state.message}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-5 grid gap-3 rounded-md border border-border bg-card px-4 py-3 text-sm md:grid-cols-[1.25fr_1fr_1fr]">
+      <StatusMetric label="Episodes" value={state.result.episodeCount.toLocaleString()} />
+      <StatusMetric
+        label={`ep${state.result.sampleEpisodeNumber} segments`}
+        value={state.result.sampleSegmentCount.toLocaleString()}
+      />
+      <StatusMetric
+        label={`Lemma bucket ${state.result.sampleLemmaBucketName}`}
+        value={`${state.result.sampleLemmaHitCount.toLocaleString()} hits`}
+      />
+      <div className="md:col-span-2">
+        <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">
+          {state.result.sampleEpisodeTitle}
+        </p>
+        <p className="m-0 mt-1 line-clamp-2 leading-6">
+          {state.result.sampleFirstSegmentKey}: {state.result.sampleFirstSegmentText}
+        </p>
+      </div>
+      <StatusMetric
+        label={`Surface ${state.result.sampleSurface}`}
+        value={`${state.result.sampleSurfaceLemmaCount.toLocaleString()} lemmas`}
+      />
+    </div>
+  );
+}
+
+function StatusMetric({
+  label,
+  value
+}: Readonly<{
+  label: string;
+  value: string;
+}>) {
+  return (
+    <div>
+      <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">{label}</p>
+      <p className="m-0 mt-1 text-lg font-semibold">{value}</p>
+    </div>
   );
 }
 

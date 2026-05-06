@@ -3,6 +3,7 @@ node_modules/
 dist/
 .output/
 .tanstack/
+apps/web/public/data/
 
 .DS_Store
 
