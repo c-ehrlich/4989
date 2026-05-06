@@ -12,6 +12,7 @@ Scope at start: 270 manifest entries with YouTube video and official script, ran
 | 3 | `29eb20e` | Add Faster Whisper ASR fallback for captionless episodes | 66 | 0 | 15916 | 0 | 168 | Processed `ep344` from cached ASR transcript (`faster-whisper-base`): 217 segments, 0 unmatched, 1 low-confidence, average confidence 0.948. `ep301`-`ep367` now has 66 aligned episodes; only `ep314` is absent because it is missing an official script. |
 | 4 | `6649a71` | Make source/ASR choices reproducible for full corpus | 270 | 0 | 65297 | 0 | 1072 | Completed all selected script-covered episodes `ep89`-`ep367`. Fixed `ep134` script/video pairing and persisted ASR-preferred episodes `98`, `102`, `118`, `178`, `244`, `271`, `277`; `ep344` still uses ASR because YouTube has no captions. Mean episode average confidence: 0.935. |
 | 5 | `a5a4abd` | Filter recurring `What I miss about Japan` section heading | 270 | 0 | 65296 | 0 | 1049 | Removed `ep178` from ASR preference after identifying the only remaining non-ASR unmatched unit as an unspoken structural heading. Full corpus is still zero-unmatched, `ep178` is back on YouTube captions, and mean episode average confidence remains 0.935. |
+| 6 | `439b1d7` | Refine caption timing for rolling cues | 270 | 0 | 65296 | 0 | 999 | Regenerated all script-covered episodes at pipeline v9. Preserved zero unmatched while reducing low-confidence from 1049 to 999 and inferred from 518 to 272. All eight user-checked timing examples are within 1s. Mean episode average confidence: 0.936. |
 
 Loop 4 notes:
 - The first all-video run after loop 3 produced 270 alignments, 64,960 segments, 320 unmatched, and 1,056 low-confidence segments.
@@ -22,3 +23,8 @@ Loop 5 notes:
 - `ep178` ASR fixed an unmatched count but made timestamp quality worse around the user-checked `10:25` section. Regenerating from YouTube captions produced 1 unmatched item: the standalone heading `What I miss about Japan`.
 - Treating that heading as structural script text produced `ep178` with 237 segments, 0 unmatched, 4 low-confidence, 1 inferred, and average confidence 0.931.
 - The user-checked line now appears at `10:25.60-10:37.52` with confidence `1`, instead of the stale ASR-derived `10:30.20-10:36.20` low-confidence timing.
+
+Loop 6 notes:
+- The first v8 full run exposed 7 unmatched regressions, all from first script units being penalized as long same-block jumps. The jump penalty is now disabled until a previous anchor exists.
+- The final v9 pass uses cue-local anchors, bounded candidate timing rescue, bounded previous-segment trimming for rolling captions, and a small leading buffer for pure multi-issue interpolation blocks.
+- Final checked offsets: `ep178` +0.00s, `ep91` +0.00s, `ep300` +0.77s, `ep284` +0.00s, `ep108` -0.07s, `ep150` -0.48s, `ep137` +0.43s, `ep362` +0.82s.
