@@ -168,9 +168,10 @@ export function alignCaptionLattice(input: {
     directMatches,
     issues
   });
+  const monotonicDrafts = enforceMonotonicDrafts(drafts);
 
   return {
-    segments: drafts.map((draft, localIndex): CorpusSegment => ({
+    segments: monotonicDrafts.map((draft, localIndex): CorpusSegment => ({
       id: makeSegmentId(input.episode, localIndex),
       segmentKey: makeSegmentKey(input.episode, localIndex),
       episode: input.episode,
@@ -185,6 +186,22 @@ export function alignCaptionLattice(input: {
     })),
     issues: remainingIssues
   };
+}
+
+function enforceMonotonicDrafts(drafts: DraftSegment[]): DraftSegment[] {
+  let previousEnd = 0;
+
+  return drafts.map((draft) => {
+    const start = roundSeconds(Math.max(draft.start, previousEnd));
+    const end = roundSeconds(Math.max(draft.end, start + MIN_INTERPOLATED_SEGMENT_SECONDS));
+    previousEnd = end;
+
+    return {
+      ...draft,
+      start,
+      end
+    };
+  });
 }
 
 function interpolateBoundedIssues(input: {
