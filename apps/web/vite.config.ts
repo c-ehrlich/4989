@@ -1,6 +1,7 @@
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
+import { nitro } from "nitro/vite";
 import { constants, createReadStream } from "node:fs";
 import { access, stat } from "node:fs/promises";
 import { dirname, resolve, sep } from "node:path";
@@ -12,7 +13,7 @@ const repoRoot = resolve(appDirectory, "../..");
 const corpusDataDirectory = resolve(repoRoot, "packages/corpus-data/data");
 
 export default defineConfig({
-  plugins: [corpusDataDevServer(), tanstackStart(), tailwindcss(), react()],
+  plugins: [corpusDataDevServer(), tanstackStart(), nitro(), tailwindcss(), react()],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url))

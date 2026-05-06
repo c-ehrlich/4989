@@ -216,6 +216,16 @@ export function YouTubePlayer({ className, selectedHit }: Readonly<YouTubePlayer
     setCurrentSeconds(nextSeconds);
   }, []);
 
+  const handleSeekToSegment = useCallback((segment: TranscriptSegment) => {
+    if (!playerRef.current) {
+      return;
+    }
+
+    const nextSeconds = getSegmentSeekSeconds(segment.start);
+    playerRef.current.seekTo(nextSeconds, true);
+    setCurrentSeconds(nextSeconds);
+  }, []);
+
   useEffect(() => {
     if (!selectedHit || !isPlayerReady) {
       return;
@@ -302,6 +312,7 @@ export function YouTubePlayer({ className, selectedHit }: Readonly<YouTubePlayer
         activeCaption={activeCaption}
         currentSeconds={currentSeconds}
         episodeSegmentsState={episodeSegmentsState}
+        onSeekToSegment={handleSeekToSegment}
         selectedHit={selectedHit}
       />
     </aside>
@@ -321,21 +332,34 @@ type ActiveCaption = {
   text: string;
 };
 
+type TranscriptSegment = EpisodeSegments["segments"][number];
+
 function CaptionPanel({
   activeCaption,
   currentSeconds,
   episodeSegmentsState,
+  onSeekToSegment,
   selectedHit
 }: Readonly<{
   activeCaption: ActiveCaption | null;
   currentSeconds: number;
   episodeSegmentsState: EpisodeSegmentsLoadState;
+  onSeekToSegment: (segment: TranscriptSegment) => void;
   selectedHit: HydratedSegment | null;
 }>) {
+  const activeCaptionRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    activeCaptionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  }, [activeCaption?.segmentKey]);
+
   if (!selectedHit) {
     return (
       <div className="rounded-md border border-dashed border-border bg-muted/40 px-4 py-5 text-sm text-muted-foreground">
-        Synced captions will appear here.
+        Transcript will appear here.
       </div>
     );
   }
@@ -356,7 +380,7 @@ function CaptionPanel({
     );
   }
 
-  if (!activeCaption) {
+  if (episodeSegmentsState.status !== "ready") {
     return (
       <div className="rounded-md border border-border bg-background px-4 py-4 text-sm text-muted-foreground">
         No caption segment at {formatTimestamp(currentSeconds)}.
@@ -364,19 +388,92 @@ function CaptionPanel({
     );
   }
 
-  const isSelectedSegment = activeCaption.segmentKey === selectedHit.segment.segmentKey;
+  const activeIndex = activeCaption
+    ? episodeSegmentsState.episodeSegments.segments.findIndex(
+        (segment) => segment.segmentKey === activeCaption.segmentKey
+      )
+    : -1;
 
   return (
-    <div className="grid gap-3 rounded-md border border-border bg-background px-4 py-4 shadow-sm">
-      <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-muted-foreground">
-        <span>
-          {formatTimestamp(activeCaption.start)}-{formatTimestamp(activeCaption.end)}
+    <div className="overflow-hidden rounded-md border border-border bg-background shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-3">
+        <div>
+          <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">Transcript</p>
+          <p className="m-0 mt-1 text-sm font-semibold">{episodeSegmentsState.episodeSegments.title}</p>
+        </div>
+        <span className="text-xs font-semibold text-muted-foreground">
+          {formatTimestamp(currentSeconds)}
         </span>
-        <span>{activeCaption.segmentKey}</span>
-        {isSelectedSegment ? <span className="text-secondary">selected clip</span> : null}
       </div>
-      <p className="m-0 text-lg leading-8 text-foreground">{activeCaption.text}</p>
+      <div className="max-h-[min(52vh,560px)] overflow-y-auto px-2 py-3">
+        <div className="grid gap-1">
+          {episodeSegmentsState.episodeSegments.segments.map((segment, index) => (
+            <TranscriptRow
+              activeIndex={activeIndex}
+              index={index}
+              isSelectedSearchHit={selectedHit.segment.segmentKey === segment.segmentKey}
+              key={segment.segmentKey}
+              onClick={() => onSeekToSegment(segment)}
+              ref={(element) => {
+                if (activeCaption?.segmentKey === segment.segmentKey) {
+                  activeCaptionRef.current = element;
+                }
+              }}
+              segment={segment}
+            />
+          ))}
+        </div>
+      </div>
     </div>
+  );
+}
+
+function TranscriptRow({
+  activeIndex,
+  index,
+  isSelectedSearchHit,
+  onClick,
+  ref,
+  segment
+}: Readonly<{
+  activeIndex: number;
+  index: number;
+  isSelectedSearchHit: boolean;
+  onClick: () => void;
+  ref: (element: HTMLButtonElement | null) => void;
+  segment: TranscriptSegment;
+}>) {
+  const isActive = activeIndex === index;
+  const distanceFromActive = activeIndex >= 0 ? Math.abs(index - activeIndex) : Number.POSITIVE_INFINITY;
+  const isNearby = distanceFromActive <= 2;
+
+  return (
+    <button
+      className={cn(
+        "grid w-full grid-cols-[4.5rem_1fr] gap-3 rounded-md border px-3 py-2 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        isActive
+          ? "border-secondary bg-card text-foreground shadow-sm"
+          : "border-transparent text-muted-foreground hover:border-border hover:bg-muted/50 hover:text-foreground",
+        !isActive && isNearby ? "opacity-85" : null,
+        !isActive && !isNearby ? "opacity-55" : null,
+        isSelectedSearchHit && !isActive ? "border-primary/40" : null
+      )}
+      onClick={onClick}
+      ref={ref}
+      type="button"
+    >
+      <span
+        className={cn(
+          "pt-1 text-xs font-semibold tabular-nums",
+          isActive ? "text-secondary" : "text-muted-foreground"
+        )}
+      >
+        {formatTimestamp(segment.start)}
+      </span>
+      <span className={cn("leading-7", isActive ? "text-lg font-semibold" : "text-sm")}>
+        {segment.text}
+      </span>
+    </button>
   );
 }
 
@@ -388,8 +485,9 @@ function getActiveCaption(
     return null;
   }
 
-  const activeSegment = episodeSegmentsState.episodeSegments.segments.find(
-    (segment) => currentSeconds >= segment.start && currentSeconds < segment.end
+  const activeSegment = findActiveOrPreviousSegment(
+    episodeSegmentsState.episodeSegments.segments,
+    currentSeconds
   );
 
   return activeSegment
@@ -402,8 +500,34 @@ function getActiveCaption(
     : null;
 }
 
+function findActiveOrPreviousSegment(segments: TranscriptSegment[], currentSeconds: number) {
+  if (segments.length === 0 || currentSeconds < segments[0].start) {
+    return null;
+  }
+
+  let previousSegment: TranscriptSegment | null = null;
+
+  for (const segment of segments) {
+    if (currentSeconds < segment.start) {
+      return previousSegment;
+    }
+
+    previousSegment = segment;
+
+    if (currentSeconds < segment.end) {
+      return segment;
+    }
+  }
+
+  return previousSegment;
+}
+
 function getClipSeekSeconds(hit: HydratedSegment) {
-  return Math.max(0, Math.floor(hit.start - DEFAULT_PLAYBACK_LEAD_SECONDS));
+  return getSegmentSeekSeconds(hit.start);
+}
+
+function getSegmentSeekSeconds(start: number) {
+  return Math.max(0, Math.floor(start - DEFAULT_PLAYBACK_LEAD_SECONDS));
 }
 
 function isEditableKeyboardTarget(target: EventTarget | null) {

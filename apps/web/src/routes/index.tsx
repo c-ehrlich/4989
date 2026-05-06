@@ -146,22 +146,13 @@ function HomePage() {
   return (
     <main className="min-h-screen px-5 py-8 text-foreground sm:px-8">
       <section className="mx-auto grid max-w-[1440px] gap-6">
-        <div className="flex flex-col gap-5 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
+        <div className="border-b border-border pb-6">
           <div>
             <p className="text-xs font-bold uppercase text-secondary">4989 American Life</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-normal sm:text-4xl">
               Corpus Search
             </h1>
           </div>
-          <Tabs
-            value={searchMode}
-            onValueChange={handleSearchModeChange}
-          >
-            <TabsList aria-label="Search mode">
-              <TabsTrigger value="exact">Exact</TabsTrigger>
-              <TabsTrigger value="loose">Loose</TabsTrigger>
-            </TabsList>
-          </Tabs>
         </div>
 
         <Panel>
@@ -187,22 +178,28 @@ function HomePage() {
             {corpusStatus.status === "error" ? <CorpusStatusError state={corpusStatus} /> : null}
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,440px)] xl:items-start">
               <div className="grid gap-5">
-                {corpusStatus.status === "ready" ? (
-                  <EpisodeRangeFilter
-                    bounds={{
-                      min: corpusStatus.result.minEpisodeNumber,
-                      max: corpusStatus.result.maxEpisodeNumber
-                    }}
-                    range={episodeRange}
-                    onChange={setEpisodeRange}
-                    onReset={() =>
+                <SearchFilterBar
+                  episodeBounds={
+                    corpusStatus.status === "ready"
+                      ? {
+                          min: corpusStatus.result.minEpisodeNumber,
+                          max: corpusStatus.result.maxEpisodeNumber
+                        }
+                      : null
+                  }
+                  episodeRange={episodeRange}
+                  onEpisodeRangeChange={setEpisodeRange}
+                  onEpisodeRangeReset={() => {
+                    if (corpusStatus.status === "ready") {
                       setEpisodeRange({
                         min: corpusStatus.result.minEpisodeNumber,
                         max: corpusStatus.result.maxEpisodeNumber
-                      })
+                      });
                     }
-                  />
-                ) : null}
+                  }}
+                  onSearchModeChange={handleSearchModeChange}
+                  searchMode={searchMode}
+                />
                 <SearchResults
                   onSelectHit={setSelectedHit}
                   selectedHit={selectedHit}
@@ -251,39 +248,61 @@ function CorpusStatusError({ state }: Readonly<{ state: Extract<CorpusLoadState,
   );
 }
 
-function EpisodeRangeFilter({
-  bounds,
-  onReset,
-  range,
-  onChange
+function SearchFilterBar({
+  episodeBounds,
+  episodeRange,
+  onEpisodeRangeChange,
+  onEpisodeRangeReset,
+  onSearchModeChange,
+  searchMode
 }: Readonly<{
-  bounds: EpisodeRange;
-  range: EpisodeRange;
-  onChange: (range: EpisodeRange) => void;
-  onReset: () => void;
+  episodeBounds: EpisodeRange | null;
+  episodeRange: EpisodeRange;
+  onEpisodeRangeChange: (range: EpisodeRange) => void;
+  onEpisodeRangeReset: () => void;
+  onSearchModeChange: (value: string) => void;
+  searchMode: SearchMode;
 }>) {
-  const minValue = clampEpisode(range.min, bounds);
-  const maxValue = clampEpisode(range.max, bounds);
-  const isFiltered = minValue !== bounds.min || maxValue !== bounds.max;
+  const minValue = episodeBounds ? clampEpisode(episodeRange.min, episodeBounds) : 0;
+  const maxValue = episodeBounds ? clampEpisode(episodeRange.max, episodeBounds) : 0;
+  const isFiltered = episodeBounds
+    ? minValue !== episodeBounds.min || maxValue !== episodeBounds.max
+    : false;
 
   return (
-    <div className="mb-5 grid gap-4 rounded-md border border-border bg-background px-4 py-3 text-sm md:grid-cols-[auto_1fr_auto] md:items-center">
+    <div className="grid gap-4 rounded-md border border-border bg-background px-4 py-3 text-sm lg:grid-cols-[auto_auto_minmax(14rem,1fr)_auto] lg:items-center">
+      <div className="min-w-32">
+        <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">Mode</p>
+        <Tabs
+          value={searchMode}
+          onValueChange={onSearchModeChange}
+        >
+          <TabsList aria-label="Search mode" className="mt-1">
+            <TabsTrigger value="exact">Exact</TabsTrigger>
+            <TabsTrigger value="loose">Loose</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
       <div className="min-w-32">
         <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">Episodes</p>
         <p className="m-0 mt-1 font-semibold">
-          ep{minValue}-ep{maxValue}
+          {episodeBounds ? `ep${minValue}-ep${maxValue}` : "Loading"}
         </p>
       </div>
-      <RangeSlider
-        getAriaLabel={(index) => (index === 0 ? "Minimum episode" : "Maximum episode")}
-        max={bounds.max}
-        min={bounds.min}
-        minStepsBetweenValues={0}
-        onValueChange={(value) => onChange(rangeSliderValueToEpisodeRange(value))}
-        step={1}
-        value={[minValue, maxValue]}
-      />
-      <Button disabled={!isFiltered} onClick={onReset} size="sm" variant="outline">
+      {episodeBounds ? (
+        <RangeSlider
+          getAriaLabel={(index) => (index === 0 ? "Minimum episode" : "Maximum episode")}
+          max={episodeBounds.max}
+          min={episodeBounds.min}
+          minStepsBetweenValues={0}
+          onValueChange={(value) => onEpisodeRangeChange(rangeSliderValueToEpisodeRange(value))}
+          step={1}
+          value={[minValue, maxValue]}
+        />
+      ) : (
+        <div className="h-6 rounded-full bg-muted" />
+      )}
+      <Button disabled={!isFiltered} onClick={onEpisodeRangeReset} size="sm" variant="outline">
         <RotateCcw />
         Reset
       </Button>
