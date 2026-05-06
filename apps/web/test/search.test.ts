@@ -141,6 +141,7 @@ describe("corpus search", () => {
 
     expect(result.query).toBe("食べ");
     expect(result.segmentIds).toEqual([17800002, 17800003]);
+    expect(result.allSegmentIds).toEqual([17800001, 17800002, 17800003]);
     expect(result.total).toBe(3);
     expect(result.cursor).toBe(1);
     expect(result.nextCursor).toBeNull();

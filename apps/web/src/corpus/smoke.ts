@@ -6,6 +6,8 @@ const SAMPLE_SURFACE = "食べ";
 
 export type CorpusStaticStatus = {
   episodeCount: number;
+  minEpisodeNumber: number;
+  maxEpisodeNumber: number;
   sampleEpisodeNumber: number;
   sampleEpisodeTitle: string;
   sampleSegmentCount: number;
@@ -30,9 +32,14 @@ export async function loadCorpusStaticStatus(
 
   const sampleEpisode = episodes.find((episode) => episode.episode === SAMPLE_EPISODE);
   const firstSegment = episodeSegments.segments[0];
+  const episodeNumbers = episodes.map((episode) => episode.episode);
 
   if (!sampleEpisode) {
     throw new Error(`Missing sample episode ${SAMPLE_EPISODE}`);
+  }
+
+  if (episodeNumbers.length === 0) {
+    throw new Error("Corpus episode metadata is empty");
   }
 
   if (!firstSegment) {
@@ -41,6 +48,8 @@ export async function loadCorpusStaticStatus(
 
   return {
     episodeCount: episodes.length,
+    minEpisodeNumber: Math.min(...episodeNumbers),
+    maxEpisodeNumber: Math.max(...episodeNumbers),
     sampleEpisodeNumber: sampleEpisode.episode,
     sampleEpisodeTitle: sampleEpisode.title ?? `ep${SAMPLE_EPISODE}`,
     sampleSegmentCount: episodeSegments.segments.length,

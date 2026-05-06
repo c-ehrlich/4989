@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { parseSegmentId } from "@4989/corpus-types";
 import { Clock3, ExternalLink, Search } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Panel, PanelBody, PanelHeader } from "@/components/ui/panel";
+import { RangeSlider, type RangeSliderValue } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { hydrateSegmentIds, type HydratedSegment } from "@/corpus/hydrate";
 import {
@@ -17,6 +19,8 @@ import {
   type CorpusStaticStatus
 } from "@/corpus/smoke";
 
+const RESULT_PAGE_SIZE = 25;
+
 export const Route = createFileRoute("/")({
   component: HomePage
 });
@@ -26,6 +30,10 @@ function HomePage() {
   const [query, setQuery] = useState("食べる");
   const [searchMode, setSearchMode] = useState<SearchMode>("loose");
   const [searchState, setSearchState] = useState<SearchLoadState>({ status: "idle" });
+  const [episodeRange, setEpisodeRange] = useState<EpisodeRange>({
+    min: 0,
+    max: Number.MAX_SAFE_INTEGER
+  });
 
   useEffect(() => {
     let isCurrent = true;
@@ -34,6 +42,10 @@ function HomePage() {
       .then((result) => {
         if (isCurrent) {
           setCorpusStatus({ status: "ready", result });
+          setEpisodeRange({
+            min: result.minEpisodeNumber,
+            max: result.maxEpisodeNumber
+          });
         }
       })
       .catch((error: unknown) => {
@@ -50,6 +62,52 @@ function HomePage() {
     };
   }, []);
 
+  const readySearchResult = searchState.status === "ready" ? searchState.result : null;
+
+  useEffect(() => {
+    if (!readySearchResult) {
+      return;
+    }
+
+    let isCurrent = true;
+    setSearchState((current) =>
+      current.status === "ready" && current.result === readySearchResult
+        ? { ...current, isFiltering: true }
+        : current
+    );
+
+    void hydrateVisibleSearchHits(readySearchResult, episodeRange).then(
+      ({ filteredTotal, hits }) => {
+        if (!isCurrent) {
+          return;
+        }
+
+        setSearchState((current) =>
+          current.status === "ready" && current.result === readySearchResult
+            ? {
+                ...current,
+                filteredTotal,
+                hits,
+                isFiltering: false
+              }
+            : current
+        );
+      },
+      (error: unknown) => {
+        if (isCurrent) {
+          setSearchState({
+            status: "error",
+            message: error instanceof Error ? error.message : "Unknown hydration error"
+          });
+        }
+      }
+    );
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [readySearchResult, episodeRange]);
+
   async function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSearchState({ status: "loading" });
@@ -58,13 +116,9 @@ function HomePage() {
       const result = await searchCorpus({
         query,
         mode: searchMode,
-        limit: 25
+        limit: RESULT_PAGE_SIZE
       });
-      const hits =
-        result.segmentIds.length > 0
-          ? await hydrateSegmentIds({ segmentIds: result.segmentIds })
-          : [];
-      setSearchState({ status: "ready", result, hits });
+      setSearchState({ status: "ready", result, hits: [], filteredTotal: 0, isFiltering: true });
     } catch (error: unknown) {
       setSearchState({
         status: "error",
@@ -115,6 +169,16 @@ function HomePage() {
           </PanelHeader>
           <PanelBody>
             <CorpusStatusPanel state={corpusStatus} />
+            {corpusStatus.status === "ready" ? (
+              <EpisodeRangeFilter
+                bounds={{
+                  min: corpusStatus.result.minEpisodeNumber,
+                  max: corpusStatus.result.maxEpisodeNumber
+                }}
+                range={episodeRange}
+                onChange={setEpisodeRange}
+              />
+            ) : null}
             <Tabs defaultValue="results">
               <TabsList aria-label="Preview sections">
                 <TabsTrigger value="results">Results</TabsTrigger>
@@ -139,8 +203,19 @@ function HomePage() {
 type SearchLoadState =
   | { status: "idle" }
   | { status: "loading" }
-  | { status: "ready"; result: SearchCorpusResult; hits: HydratedSegment[] }
+  | {
+      status: "ready";
+      result: SearchCorpusResult;
+      hits: HydratedSegment[];
+      filteredTotal: number;
+      isFiltering: boolean;
+    }
   | { status: "error"; message: string };
+
+type EpisodeRange = {
+  min: number;
+  max: number;
+};
 
 type CorpusLoadState =
   | { status: "loading" }
@@ -186,6 +261,39 @@ function CorpusStatusPanel({ state }: Readonly<{ state: CorpusLoadState }>) {
       <StatusMetric
         label={`Surface ${state.result.sampleSurface}`}
         value={`${state.result.sampleSurfaceLemmaCount.toLocaleString()} lemmas`}
+      />
+    </div>
+  );
+}
+
+function EpisodeRangeFilter({
+  bounds,
+  range,
+  onChange
+}: Readonly<{
+  bounds: EpisodeRange;
+  range: EpisodeRange;
+  onChange: (range: EpisodeRange) => void;
+}>) {
+  const minValue = clampEpisode(range.min, bounds);
+  const maxValue = clampEpisode(range.max, bounds);
+
+  return (
+    <div className="mb-5 grid gap-4 rounded-md border border-border bg-background px-4 py-3 text-sm md:grid-cols-[auto_1fr] md:items-center">
+      <div className="min-w-32">
+        <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">Episodes</p>
+        <p className="m-0 mt-1 font-semibold">
+          ep{minValue}-ep{maxValue}
+        </p>
+      </div>
+      <RangeSlider
+        getAriaLabel={(index) => (index === 0 ? "Minimum episode" : "Maximum episode")}
+        max={bounds.max}
+        min={bounds.min}
+        minStepsBetweenValues={0}
+        onValueChange={(value) => onChange(rangeSliderValueToEpisodeRange(value))}
+        step={1}
+        value={[minValue, maxValue]}
       />
     </div>
   );
@@ -243,6 +351,9 @@ function SearchResults({ state }: Readonly<{ state: SearchLoadState }>) {
     <div className="grid gap-3">
       <div className="flex flex-wrap items-center gap-3 rounded-md border border-border bg-background px-4 py-3 text-sm">
         <span className="font-semibold">{state.result.total.toLocaleString()} matches</span>
+        <span className="font-semibold text-secondary">
+          {state.filteredTotal.toLocaleString()} in range
+        </span>
         <span className="text-muted-foreground">
           {state.result.mode} search for {state.result.query}
         </span>
@@ -251,12 +362,19 @@ function SearchResults({ state }: Readonly<{ state: SearchLoadState }>) {
             terms: {state.result.matchedTerms.join(", ")}
           </span>
         ) : null}
+        {state.isFiltering ? <span className="text-muted-foreground">updating...</span> : null}
       </div>
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {state.hits.map((hit) => (
-          <ResultRow hit={hit} key={hit.segmentId} />
-        ))}
-      </div>
+      {state.filteredTotal === 0 ? (
+        <div className="rounded-md border border-border bg-background px-4 py-8 text-center text-sm text-muted-foreground">
+          No matches in the selected episode range.
+        </div>
+      ) : (
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {state.hits.map((hit) => (
+            <ResultRow hit={hit} key={hit.segmentId} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -290,4 +408,31 @@ function ResultRow({ hit }: Readonly<{ hit: HydratedSegment }>) {
       </div>
     </article>
   );
+}
+
+async function hydrateVisibleSearchHits(result: SearchCorpusResult, range: EpisodeRange) {
+  const filteredSegmentIds = result.allSegmentIds.filter((segmentId) => {
+    const { episode } = parseSegmentId(segmentId);
+    return episode >= range.min && episode <= range.max;
+  });
+  const visibleSegmentIds = filteredSegmentIds.slice(0, RESULT_PAGE_SIZE);
+
+  return {
+    filteredTotal: filteredSegmentIds.length,
+    hits:
+      visibleSegmentIds.length > 0
+        ? await hydrateSegmentIds({ segmentIds: visibleSegmentIds })
+        : []
+  };
+}
+
+function clampEpisode(value: number, bounds: EpisodeRange) {
+  return Math.min(bounds.max, Math.max(bounds.min, value));
+}
+
+function rangeSliderValueToEpisodeRange(value: RangeSliderValue): EpisodeRange {
+  return {
+    min: Math.min(value[0], value[1]),
+    max: Math.max(value[0], value[1])
+  };
 }

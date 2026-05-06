@@ -13,6 +13,7 @@ export type SearchCorpusResult = {
   query: string;
   mode: SearchMode;
   segmentIds: number[];
+  allSegmentIds: number[];
   total: number;
   limit: number;
   cursor: number;
@@ -168,6 +169,7 @@ function paginateResult({
     query,
     mode,
     segmentIds,
+    allSegmentIds,
     total,
     limit,
     cursor,
@@ -191,6 +193,7 @@ function emptySearchResult({
     query,
     mode,
     segmentIds: [],
+    allSegmentIds: [],
     total: 0,
     limit,
     cursor,
