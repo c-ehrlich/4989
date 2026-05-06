@@ -17,6 +17,8 @@ type ProcessLatestCliOptions = {
   scriptConcurrency?: number;
   ytDlpPath?: string;
   pythonPath?: string;
+  asrPythonPath?: string;
+  asrModel?: string;
 };
 
 async function main(): Promise<void> {
@@ -38,7 +40,9 @@ async function main(): Promise<void> {
     forceScriptRefresh: options.forceScriptRefresh,
     scriptConcurrency: options.scriptConcurrency,
     ytDlpPath: options.ytDlpPath,
-    pythonPath: options.pythonPath
+    pythonPath: options.pythonPath,
+    asrPythonPath: options.asrPythonPath,
+    asrModel: options.asrModel
   });
 
   console.log(
@@ -113,6 +117,18 @@ function parseArgs(args: string[]): ProcessLatestCliOptions | "help" {
       continue;
     }
 
+    if (arg === "--asr-python") {
+      options.asrPythonPath = readValueArg(args, index, arg);
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--asr-model") {
+      options.asrModel = readValueArg(args, index, arg);
+      index += 1;
+      continue;
+    }
+
     if (arg === "--no-refresh-sources") {
       options.refreshSources = false;
       continue;
@@ -167,6 +183,8 @@ Options:
   --script-concurrency <n> Number of script pages to fetch in parallel during source refresh.
   --yt-dlp <path>          yt-dlp executable path.
   --python <path>          Python executable with SudachiPy and a Sudachi dictionary installed.
+  --asr-python <path>      Python executable with faster-whisper installed.
+  --asr-model <name>       Faster Whisper model for captionless episodes. Default: base.
   --no-refresh-sources     Use the existing manifest instead of refreshing sources first.
   --retry-failed           Include failed manifest entries in the latest processable set.
   --force                  Redownload per-episode sources and regenerate alignments.

@@ -1,7 +1,7 @@
 import { execFile } from "node:child_process";
 import { constants } from "node:fs";
-import { access, mkdir, readFile, unlink, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { access, mkdir, readFile, readdir, unlink, writeFile } from "node:fs/promises";
+import { extname, resolve } from "node:path";
 import { promisify } from "node:util";
 
 import { makeEpisodeKey } from "@4989/corpus-types";
@@ -11,7 +11,7 @@ const DEFAULT_YT_DLP_BUFFER_BYTES = 128 * 1024 * 1024;
 
 export type EpisodeSourcePaths = {
   videoMetadataPath: string;
-  captionPath: string;
+  captionPath?: string;
 };
 
 export type DownloadEpisodeSourcesOptions = {
@@ -19,6 +19,7 @@ export type DownloadEpisodeSourcesOptions = {
   videoUrl: string;
   workDirectory: string;
   force?: boolean;
+  requireCaption?: boolean;
   ytDlpPath?: string;
 };
 
@@ -59,13 +60,81 @@ export async function downloadEpisodeSources(
   }
 
   if (!(await fileExists(captionPath))) {
-    throw new Error(`yt-dlp did not write expected caption file: ${captionPath}`);
+    if (options.requireCaption ?? true) {
+      throw new Error(`yt-dlp did not write expected caption file: ${captionPath}`);
+    }
+
+    return {
+      videoMetadataPath
+    };
   }
 
   return {
     videoMetadataPath,
     captionPath
   };
+}
+
+export async function downloadEpisodeAudio(options: DownloadEpisodeSourcesOptions): Promise<string> {
+  const ytDlpPath = options.ytDlpPath ?? "yt-dlp";
+  const episodeKey = makeEpisodeKey(options.episode);
+  const audioDirectory = resolve(options.workDirectory, "audio");
+  const outputTemplate = `${episodeKey}.%(ext)s`;
+  const preferredAudioPath = resolve(audioDirectory, `${episodeKey}.m4a`);
+
+  await mkdir(audioDirectory, { recursive: true });
+
+  if (options.force) {
+    await unlinkIfExists(preferredAudioPath);
+  }
+
+  if (!(await fileExists(preferredAudioPath))) {
+    await execFileAsync(
+      ytDlpPath,
+      [
+        "--ignore-config",
+        "--extract-audio",
+        "--audio-format",
+        "m4a",
+        "--paths",
+        audioDirectory,
+        "--output",
+        outputTemplate,
+        options.videoUrl
+      ],
+      {
+        encoding: "utf8",
+        maxBuffer: DEFAULT_YT_DLP_BUFFER_BYTES
+      }
+    );
+  }
+
+  if (await fileExists(preferredAudioPath)) {
+    return preferredAudioPath;
+  }
+
+  const downloadedPath = await findDownloadedAudioPath(audioDirectory, episodeKey);
+  if (!downloadedPath) {
+    throw new Error(`yt-dlp did not write expected audio file: ${preferredAudioPath}`);
+  }
+
+  return downloadedPath;
+}
+
+async function findDownloadedAudioPath(
+  directory: string,
+  episodeKey: string
+): Promise<string | undefined> {
+  const entries = await readdir(directory);
+  const candidates = entries
+    .filter((entry) => entry.startsWith(`${episodeKey}.`) && isLikelyAudioExtension(entry))
+    .sort();
+
+  return candidates[0] === undefined ? undefined : resolve(directory, candidates[0]);
+}
+
+function isLikelyAudioExtension(path: string): boolean {
+  return new Set([".m4a", ".mp3", ".opus", ".webm", ".wav"]).has(extname(path));
 }
 
 async function writeVideoMetadata(input: {
@@ -135,4 +204,3 @@ async function fileExists(path: string): Promise<boolean> {
 export async function readJsonFile(path: string): Promise<unknown> {
   return JSON.parse(await readFile(path, "utf8")) as unknown;
 }
-

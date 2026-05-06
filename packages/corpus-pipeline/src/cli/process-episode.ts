@@ -8,6 +8,8 @@ type ProcessEpisodeCliOptions = {
   force: boolean;
   ytDlpPath?: string;
   pythonPath?: string;
+  asrPythonPath?: string;
+  asrModel?: string;
 };
 
 async function main(): Promise<void> {
@@ -28,7 +30,9 @@ async function main(): Promise<void> {
     workDirectory: options.workDirectory ?? (await defaultWorkDirectory()),
     force: options.force,
     ytDlpPath: options.ytDlpPath,
-    pythonPath: options.pythonPath
+    pythonPath: options.pythonPath,
+    asrPythonPath: options.asrPythonPath,
+    asrModel: options.asrModel
   });
 
   console.log(
@@ -95,6 +99,18 @@ function parseArgs(args: string[]): ProcessEpisodeCliOptions | "help" {
       continue;
     }
 
+    if (arg === "--asr-python") {
+      options.asrPythonPath = readValueArg(args, index, arg);
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--asr-model") {
+      options.asrModel = readValueArg(args, index, arg);
+      index += 1;
+      continue;
+    }
+
     if (arg === "--force") {
       options.force = true;
       continue;
@@ -133,6 +149,8 @@ Options:
   --work-dir <path> Working directory for cached metadata and captions.
   --yt-dlp <path>   yt-dlp executable path.
   --python <path>   Python executable with SudachiPy and a Sudachi dictionary installed.
+  --asr-python <path> Python executable with faster-whisper installed.
+  --asr-model <name>  Faster Whisper model for captionless episodes. Default: base.
   --force           Redownload and regenerate even if cached sources are unchanged.
   -h, --help        Show this help.
 `);

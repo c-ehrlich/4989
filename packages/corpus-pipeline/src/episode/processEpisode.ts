@@ -23,14 +23,20 @@ import {
 import { alignCaptionLattice, type AlignmentIssue } from "../align/alignCaptionLattice.js";
 import { buildReadingCaptionLattice } from "../align/buildReadingLattice.js";
 import { normalizeForAlignment } from "../align/normalizeText.js";
+import { parseAsrTranscriptCaptions } from "../align/parseAsrTranscript.js";
+import type { CaptionLattice } from "../align/parseJson3Captions.js";
 import { parseJson3Captions } from "../align/parseJson3Captions.js";
 import { splitScriptSentences } from "../align/splitScriptSentences.js";
+import { transcribeAudioWithFasterWhisper } from "../asr/transcribeAudio.js";
 import { findRepoRoot } from "../cli/paths.js";
 import {
   normalizeJapaneseReadings,
   tokenizeJapaneseTexts
 } from "../tokenize/tokenizeJapanese.js";
-import { downloadEpisodeSources } from "../youtube/downloadEpisodeSources.js";
+import {
+  downloadEpisodeAudio,
+  downloadEpisodeSources
+} from "../youtube/downloadEpisodeSources.js";
 import { LOW_CONFIDENCE_THRESHOLD, MAX_REVIEW_ITEMS } from "./alignmentConstants.js";
 import { AlignmentValidationError, validateAlignmentFile } from "./validateAlignment.js";
 
@@ -43,6 +49,8 @@ export type ProcessEpisodeOptions = {
   force?: boolean;
   ytDlpPath?: string;
   pythonPath?: string;
+  asrPythonPath?: string;
+  asrModel?: string;
 };
 
 export type ProcessEpisodeResult = {
@@ -52,6 +60,13 @@ export type ProcessEpisodeResult = {
   skipped: boolean;
   scriptUnitCount: number;
   unmatchedIssues: AlignmentIssue[];
+};
+
+type ResolvedCaptionSource = {
+  captionTrack: string;
+  alignmentMethod: string;
+  sourceText: string;
+  lattice: CaptionLattice;
 };
 
 export async function processEpisode(
@@ -82,21 +97,31 @@ export async function processEpisode(
     videoUrl: manifestEntry.videoUrl,
     workDirectory,
     force: options.force,
+    requireCaption: !options.asrPythonPath,
     ytDlpPath: options.ytDlpPath
   });
 
   await ensureScriptCache(script, repoRoot);
 
-  const [scriptText, captionJsonText, videoMetadataText] = await Promise.all([
+  const [scriptText, videoMetadataText] = await Promise.all([
     readScriptText(script, repoRoot),
-    readFile(sourcePaths.captionPath, "utf8"),
     readFile(sourcePaths.videoMetadataPath, "utf8")
   ]);
+  const captionSource = await resolveCaptionSource({
+    episode: options.episode,
+    videoUrl: manifestEntry.videoUrl,
+    workDirectory,
+    sourcePaths,
+    force: options.force,
+    ytDlpPath: options.ytDlpPath,
+    asrPythonPath: resolveOptionalPath(options.asrPythonPath, repoRoot),
+    asrModel: options.asrModel
+  });
   const source = {
-    captionTrack: "ja-orig",
-    alignmentMethod: "youtube-caption-lattice",
+    captionTrack: captionSource.captionTrack,
+    alignmentMethod: captionSource.alignmentMethod,
     scriptHash: sha256(scriptText),
-    captionHash: sha256(captionJsonText),
+    captionHash: sha256(captionSource.sourceText),
     videoMetadataHash: sha256(videoMetadataText),
     pipelineVersion: PIPELINE_VERSION,
     generatedAt: new Date().toISOString()
@@ -152,7 +177,7 @@ export async function processEpisode(
     }
   }
 
-  const lattice = parseJson3Captions(JSON.parse(captionJsonText) as unknown);
+  const lattice = captionSource.lattice;
   const rawScriptUnits = splitScriptSentences(scriptText);
   const pythonPath = resolveOptionalPath(options.pythonPath, repoRoot);
   const readingTexts = await normalizeJapaneseReadings(
@@ -247,6 +272,54 @@ export async function processEpisode(
     skipped: false,
     scriptUnitCount: scriptUnits.length,
     unmatchedIssues: alignmentResult.issues
+  };
+}
+
+async function resolveCaptionSource(input: {
+  episode: number;
+  videoUrl: string;
+  workDirectory: string;
+  sourcePaths: { captionPath?: string };
+  force?: boolean;
+  ytDlpPath?: string;
+  asrPythonPath?: string;
+  asrModel?: string;
+}): Promise<ResolvedCaptionSource> {
+  if (input.sourcePaths.captionPath) {
+    const sourceText = await readFile(input.sourcePaths.captionPath, "utf8");
+    return {
+      captionTrack: "ja-orig",
+      alignmentMethod: "youtube-caption-lattice",
+      sourceText,
+      lattice: parseJson3Captions(JSON.parse(sourceText) as unknown)
+    };
+  }
+
+  if (!input.asrPythonPath) {
+    throw new Error(`Episode ${input.episode} has no ja-orig captions and no ASR fallback enabled`);
+  }
+
+  const audioPath = await downloadEpisodeAudio({
+    episode: input.episode,
+    videoUrl: input.videoUrl,
+    workDirectory: input.workDirectory,
+    force: input.force,
+    ytDlpPath: input.ytDlpPath
+  });
+  const { transcript, transcriptText } = await transcribeAudioWithFasterWhisper({
+    episode: input.episode,
+    audioPath,
+    workDirectory: input.workDirectory,
+    pythonPath: input.asrPythonPath,
+    model: input.asrModel,
+    force: input.force
+  });
+
+  return {
+    captionTrack: `faster-whisper-${transcript.model}`,
+    alignmentMethod: "faster-whisper-caption-lattice",
+    sourceText: transcriptText,
+    lattice: parseAsrTranscriptCaptions(transcript)
   };
 }
 

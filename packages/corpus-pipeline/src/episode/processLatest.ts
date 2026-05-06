@@ -40,6 +40,8 @@ export type ProcessLatestOptions = {
   scriptConcurrency?: number;
   ytDlpPath?: string;
   pythonPath?: string;
+  asrPythonPath?: string;
+  asrModel?: string;
 };
 
 export type ProcessLatestEpisodeResult = {
@@ -96,7 +98,9 @@ export async function processLatest(options: ProcessLatestOptions): Promise<Proc
         workDirectory,
         force: options.force,
         ytDlpPath: options.ytDlpPath,
-        pythonPath: options.pythonPath
+        pythonPath: options.pythonPath,
+        asrPythonPath: options.asrPythonPath,
+        asrModel: options.asrModel
       })
     );
   }
@@ -179,6 +183,8 @@ async function processLatestEpisode(input: {
   force?: boolean;
   ytDlpPath?: string;
   pythonPath?: string;
+  asrPythonPath?: string;
+  asrModel?: string;
 }): Promise<ProcessLatestEpisodeResult> {
   try {
     const result = await processEpisode({
@@ -187,7 +193,9 @@ async function processLatestEpisode(input: {
       workDirectory: input.workDirectory,
       force: input.force,
       ytDlpPath: input.ytDlpPath,
-      pythonPath: input.pythonPath
+      pythonPath: input.pythonPath,
+      asrPythonPath: input.asrPythonPath,
+      asrModel: input.asrModel
     });
 
     return toLatestEpisodeResult(result);
