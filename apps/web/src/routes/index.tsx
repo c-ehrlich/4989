@@ -180,11 +180,19 @@ function HomePage() {
               </div>
               <Tabs value={searchMode} onValueChange={handleSearchModeChange}>
                 <TabsList aria-label="Search mode" className="h-11">
-                  <TabsTrigger value="loose">Loose</TabsTrigger>
-                  <TabsTrigger value="exact">Exact</TabsTrigger>
+                  <TabsTrigger className="h-9" value="loose">
+                    Loose
+                  </TabsTrigger>
+                  <TabsTrigger className="h-9" value="exact">
+                    Exact
+                  </TabsTrigger>
                 </TabsList>
               </Tabs>
-              <Button disabled={searchState.status === "loading"} type="submit">
+              <Button
+                className="h-11"
+                disabled={searchState.status === "loading"}
+                type="submit"
+              >
                 <Search />
                 {searchState.status === "loading" ? "Searching" : "Search"}
               </Button>
@@ -287,15 +295,11 @@ function SearchFilterBar({
   episodeRange,
   onEpisodeRangeChange,
   onEpisodeRangeReset,
-  onSearchModeChange,
-  searchMode,
 }: Readonly<{
   episodeBounds: EpisodeRange | null;
   episodeRange: EpisodeRange;
   onEpisodeRangeChange: (range: EpisodeRange) => void;
   onEpisodeRangeReset: () => void;
-  onSearchModeChange: (value: string) => void;
-  searchMode: SearchMode;
 }>) {
   const minValue = episodeBounds
     ? clampEpisode(episodeRange.min, episodeBounds)
@@ -308,18 +312,7 @@ function SearchFilterBar({
     : false;
 
   return (
-    <div className="grid gap-4 rounded-md border border-border bg-background px-4 py-3 text-sm lg:grid-cols-[auto_auto_minmax(14rem,1fr)_auto] lg:items-center">
-      <div className="min-w-32">
-        <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">
-          Mode
-        </p>
-        <Tabs value={searchMode} onValueChange={onSearchModeChange}>
-          <TabsList aria-label="Search mode" className="mt-1">
-            <TabsTrigger value="exact">Exact</TabsTrigger>
-            <TabsTrigger value="loose">Loose</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+    <div className="grid gap-4 rounded-md border border-border bg-background px-4 py-3 text-sm md:grid-cols-[auto_minmax(14rem,1fr)_auto] md:items-center">
       <div className="min-w-32">
         <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">
           Episodes
