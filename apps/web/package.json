@@ -12,6 +12,7 @@
     "start": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint .",
+    "test": "tsc --noEmit -p tsconfig.test.json && vitest run",
     "clean": "rm -rf .output .tanstack dist"
   },
   "dependencies": {
@@ -37,6 +38,7 @@
     "eslint": "^10.3.0",
     "tailwindcss": "^4.2.4",
     "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.10"
+    "vite": "^8.0.10",
+    "vitest": "4.1.5"
   }
 }

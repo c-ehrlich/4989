@@ -1,12 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Clock3, Play, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Clock3, ExternalLink, Search } from "lucide-react";
+import { type FormEvent, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Panel, PanelBody, PanelHeader } from "@/components/ui/panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { hydrateSegmentIds, type HydratedSegment } from "@/corpus/hydrate";
+import {
+  searchCorpus,
+  type SearchCorpusResult,
+  type SearchMode
+} from "@/corpus/search";
 import {
   loadCorpusStaticStatus,
   type CorpusStaticStatus
@@ -18,6 +23,9 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const [corpusStatus, setCorpusStatus] = useState<CorpusLoadState>({ status: "loading" });
+  const [query, setQuery] = useState("食べる");
+  const [searchMode, setSearchMode] = useState<SearchMode>("loose");
+  const [searchState, setSearchState] = useState<SearchLoadState>({ status: "idle" });
 
   useEffect(() => {
     let isCurrent = true;
@@ -42,6 +50,29 @@ function HomePage() {
     };
   }, []);
 
+  async function handleSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSearchState({ status: "loading" });
+
+    try {
+      const result = await searchCorpus({
+        query,
+        mode: searchMode,
+        limit: 25
+      });
+      const hits =
+        result.segmentIds.length > 0
+          ? await hydrateSegmentIds({ segmentIds: result.segmentIds })
+          : [];
+      setSearchState({ status: "ready", result, hits });
+    } catch (error: unknown) {
+      setSearchState({
+        status: "error",
+        message: error instanceof Error ? error.message : "Unknown search error"
+      });
+    }
+  }
+
   return (
     <main className="min-h-screen px-5 py-8 text-foreground sm:px-8">
       <section className="mx-auto grid max-w-6xl gap-6">
@@ -52,26 +83,35 @@ function HomePage() {
               Corpus Search
             </h1>
           </div>
-          <Tabs defaultValue="lemma">
+          <Tabs
+            value={searchMode}
+            onValueChange={(value) => setSearchMode(value as SearchMode)}
+          >
             <TabsList aria-label="Search mode">
-              <TabsTrigger value="lemma">Lemma</TabsTrigger>
-              <TabsTrigger value="surface">Surface</TabsTrigger>
+              <TabsTrigger value="exact">Exact</TabsTrigger>
+              <TabsTrigger value="loose">Loose</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
 
         <Panel>
           <PanelHeader>
-            <div className="flex flex-col gap-3 md:flex-row">
+            <form className="flex flex-col gap-3 md:flex-row" onSubmit={handleSearch}>
               <div className="relative flex-1">
                 <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input className="pl-9" placeholder="食べる" aria-label="Search query" />
+                <Input
+                  className="pl-9"
+                  placeholder="食べる"
+                  aria-label="Search query"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
               </div>
-              <Button>
+              <Button disabled={searchState.status === "loading"} type="submit">
                 <Search />
-                Search
+                {searchState.status === "loading" ? "Searching" : "Search"}
               </Button>
-            </div>
+            </form>
           </PanelHeader>
           <PanelBody>
             <CorpusStatusPanel state={corpusStatus} />
@@ -81,18 +121,7 @@ function HomePage() {
                 <TabsTrigger value="player">Player</TabsTrigger>
               </TabsList>
               <TabsContent value="results">
-                <div className="grid gap-3">
-                  <ResultPreview
-                    episode="ep178"
-                    timestamp="10:20"
-                    text="やっぱりそういう季節の定番があるっていいですよね。"
-                  />
-                  <ResultPreview
-                    episode="ep300"
-                    timestamp="7:56"
-                    text="そのままアメリカの boarding school、寮のある学校に入学をして..."
-                  />
-                </div>
+                <SearchResults state={searchState} />
               </TabsContent>
               <TabsContent value="player">
                 <div className="flex min-h-48 items-center justify-center rounded-md border border-dashed border-border bg-muted/50 text-sm text-muted-foreground">
@@ -106,6 +135,12 @@ function HomePage() {
     </main>
   );
 }
+
+type SearchLoadState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "ready"; result: SearchCorpusResult; hits: HydratedSegment[] }
+  | { status: "error"; message: string };
 
 type CorpusLoadState =
   | { status: "loading" }
@@ -171,36 +206,88 @@ function StatusMetric({
   );
 }
 
-function ResultPreview({
-  episode,
-  timestamp,
-  text
-}: Readonly<{
-  episode: string;
-  timestamp: string;
-  text: string;
-}>) {
-  return (
-    <article className="grid gap-3 rounded-md border border-border bg-background p-4 md:grid-cols-[1fr_auto] md:items-center">
-      <div>
-        <div className="mb-2 flex flex-wrap items-center gap-3 text-xs font-semibold text-muted-foreground">
-          <span>{episode}</span>
-          <span className="inline-flex items-center gap-1">
-            <Clock3 className="size-3.5" />
-            {timestamp}
-          </span>
-        </div>
-        <p className="m-0 text-sm leading-7">{text}</p>
+function SearchResults({ state }: Readonly<{ state: SearchLoadState }>) {
+  if (state.status === "idle") {
+    return (
+      <div className="rounded-md border border-dashed border-border bg-muted/40 px-4 py-8 text-center text-sm text-muted-foreground">
+        Run a search to see matching segment IDs.
       </div>
-      <Tooltip>
-        <TooltipTrigger
-          className="inline-flex size-10 items-center justify-center rounded-md border border-border bg-card text-foreground transition-colors hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
-          type="button"
+    );
+  }
+
+  if (state.status === "loading") {
+    return (
+      <div className="rounded-md border border-border bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
+        Searching corpus indexes...
+      </div>
+    );
+  }
+
+  if (state.status === "error") {
+    return (
+      <div className="rounded-md border border-primary/40 bg-primary/10 px-4 py-3 text-sm text-primary">
+        Search failed: {state.message}
+      </div>
+    );
+  }
+
+  if (state.result.total === 0) {
+    return (
+      <div className="rounded-md border border-border bg-background px-4 py-8 text-center text-sm text-muted-foreground">
+        No segment IDs found for {state.result.query}.
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-3">
+      <div className="flex flex-wrap items-center gap-3 rounded-md border border-border bg-background px-4 py-3 text-sm">
+        <span className="font-semibold">{state.result.total.toLocaleString()} matches</span>
+        <span className="text-muted-foreground">
+          {state.result.mode} search for {state.result.query}
+        </span>
+        {state.result.matchedTerms.length > 0 ? (
+          <span className="text-muted-foreground">
+            terms: {state.result.matchedTerms.join(", ")}
+          </span>
+        ) : null}
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {state.hits.map((hit) => (
+          <ResultRow hit={hit} key={hit.segmentId} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ResultRow({ hit }: Readonly<{ hit: HydratedSegment }>) {
+  return (
+    <article className="grid gap-3 rounded-md border border-border bg-card p-4 text-sm shadow-sm sm:col-span-2 lg:col-span-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-semibold text-muted-foreground">
+        <span>ep{hit.episode}</span>
+        <span className="inline-flex items-center gap-1">
+          <Clock3 className="size-3.5" />
+          {hit.timestamp}-{hit.endTimestamp}
+        </span>
+        {hit.confidence === undefined ? null : (
+          <span>{Math.round(hit.confidence * 100)}% confidence</span>
+        )}
+        <span>{hit.segment.segmentKey}</span>
+      </div>
+      <p className="m-0 text-base leading-8 text-foreground">{hit.text}</p>
+      <div className="flex flex-col gap-2 border-t border-border pt-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <span className="line-clamp-1">{hit.title}</span>
+        <a
+          className="inline-flex items-center gap-1 font-semibold text-secondary transition-colors hover:text-primary"
+          href={hit.youtubeTimestampUrl}
+          rel="noreferrer"
+          target="_blank"
         >
-          <Play className="size-4" />
-        </TooltipTrigger>
-        <TooltipContent>Preview seek control</TooltipContent>
-      </Tooltip>
+          YouTube
+          <ExternalLink className="size-3.5" />
+        </a>
+      </div>
     </article>
   );
 }
