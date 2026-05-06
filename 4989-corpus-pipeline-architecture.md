@@ -692,24 +692,59 @@ Correctness:
 
 Completeness:
 
-- The UI includes:
+- 11.1 Scaffold TanStack Start:
+  - create `apps/web`
+  - wire workspace scripts
+  - confirm dev server, typecheck, and build
+  - decide how static corpus data is served in development and production
+- 11.2 Add UI foundation:
+  - install Tailwind and shadcn setup
+  - prefer Base UI over Radix where practical
+  - add only the primitives needed for the first search experience, such as button, input, select/tabs, list row, tooltip, and basic layout components
+- 11.3 Define corpus client contracts:
+  - typed loaders for `episodes.json`
+  - typed loaders for lemma buckets
+  - typed loaders for surface buckets
+  - typed loaders for per-episode segment files
+  - typed loader for `surface-to-lemmas.json`
+- 11.4 Load static JSON:
+  - serve or copy `packages/corpus-data/data` into the web app's static asset path
+  - verify the app can load episode metadata, one segment file, and one index bucket
+- 11.5 Implement search core:
+  - support lemma search
+  - support surface search
+  - return segment IDs with a limit and pagination-ready shape
+  - keep search logic mostly independent from UI components
+- 11.6 Hydrate results:
+  - group segment IDs by episode
+  - fetch only needed `segments/epNNN.json` files
+  - join hydrated segments with episode metadata
+- 11.7 Build the search UI:
   - search box
+  - search mode control if needed, such as lemma/surface/auto
   - result list
-  - YouTube player
-  - click-to-seek behavior
+  - loading, empty, and error states
   - episode/timestamp display
-  - basic Anki TSV export
+- 11.8 Add YouTube playback:
+  - result click opens or seeks the player
+  - seek to `max(0, segment.start - playbackLeadSeconds)`
+  - default `playbackLeadSeconds` to `2`
+- 11.9 QA and parity:
+  - compare several UI searches against CLI search
+  - check desktop and mobile layouts
+  - verify common-word searches remain usable
+  - verify player seek behavior against reviewed timestamps
 - The app loads static JSON from `packages/corpus-data` or copied public assets.
 - For the first deployment, static corpus assets use stable paths such as `/data/segments/ep367.json` and `/data/index/lemma-buckets/00.json`, not one large bundled JS payload.
 - On Vercel, rely on automatic gzip/Brotli compression and edge caching for those JSON assets, but keep browser caching conservative with revalidating headers such as `Cache-Control: public, max-age=0, must-revalidate` so corpus updates are visible after redeploys.
+- Anki export is intentionally deferred until after the first usable search/player workflow.
 
 Correctness:
 
 - Searches match CLI search results for the same query and limit.
-- Clicking a result seeks the YouTube player to the segment start time.
+- Clicking a result seeks the YouTube player to the segment start time minus the configured playback lead.
 - Result hydration loads only needed segment files, not the entire corpus at startup.
 - Common-word searches remain usable through limits or pagination.
-- Anki export rows include the expected fields and escape tabs/newlines correctly.
 - Basic browser validation passes on desktop and mobile widths.
 
 ### 12. Backfill All Script-Covered Episodes

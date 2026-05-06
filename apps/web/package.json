@@ -4,13 +4,29 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node ./scripts/build-placeholder.mjs",
-    "typecheck": "node ./scripts/placeholder.mjs",
-    "lint": "node ./scripts/placeholder.mjs",
-    "clean": "rm -rf dist"
+    "dev": "vite dev --host 127.0.0.1 --port 4989",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "clean": "rm -rf .output .tanstack dist"
   },
   "dependencies": {
     "@4989/corpus-data": "workspace:*",
-    "@4989/corpus-types": "workspace:*"
+    "@4989/corpus-types": "workspace:*",
+    "@tanstack/react-router": "^1.169.2",
+    "@tanstack/react-start": "^1.167.64",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.3.0",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^8.0.10"
   }
 }

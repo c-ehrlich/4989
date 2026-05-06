@@ -626,10 +626,14 @@ Mitigation:
 
 ### Milestone 3: Local Web UI
 
-- Search by lemma.
-- Display results.
-- Embed YouTube and seek to selected result.
-- Export basic Anki TSV.
+- Scaffold a TanStack Start web app.
+- Add Tailwind/shadcn UI foundation, preferring Base UI over Radix where practical.
+- Load static corpus JSON from `packages/corpus-data/data`.
+- Search lemma and surface indexes.
+- Hydrate matching segment files.
+- Display results with episode and timestamp metadata.
+- Embed YouTube and seek to `segment.start - 1s` or `segment.start - 2s`.
+- Defer Anki export until after the first usable search/player workflow.
 
 ### Milestone 4: Backfill Archive
 
