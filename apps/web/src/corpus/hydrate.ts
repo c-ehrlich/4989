@@ -2,8 +2,11 @@ import { parseSegmentId, type CorpusSegment, type Episode } from "@4989/corpus-t
 
 import { corpusClient, type CorpusClient } from "./client";
 
+export const DEFAULT_PLAYBACK_LEAD_SECONDS = 1;
+
 export type HydrateSegmentIdsInput = {
   segmentIds: number[];
+  playbackLeadSeconds?: number;
 };
 
 export type HydratedSegment = {
@@ -44,6 +47,7 @@ export function createCorpusHydrator(client: CorpusHydrationClient = corpusClien
         return [];
       }
 
+      const playbackLeadSeconds = input.playbackLeadSeconds ?? DEFAULT_PLAYBACK_LEAD_SECONDS;
       episodesPromise ??= client.loadEpisodes();
       const episodes = await episodesPromise;
       const episodeMetadataByNumber = new Map(
@@ -84,7 +88,7 @@ export function createCorpusHydrator(client: CorpusHydrationClient = corpusClien
           end: segment.end,
           timestamp: formatTimestamp(segment.start),
           endTimestamp: formatTimestamp(segment.end),
-          youtubeTimestampUrl: makeYoutubeTimestampUrl(youtubeId, segment.start),
+          youtubeTimestampUrl: makeYoutubeTimestampUrl(youtubeId, segment.start, playbackLeadSeconds),
           confidence: segment.confidence,
           timingSource: segment.timingSource,
           text: segment.text,
@@ -119,8 +123,12 @@ export function formatTimestamp(seconds: number): string {
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 
-export function makeYoutubeTimestampUrl(youtubeId: string, start: number): string {
-  const timestampSeconds = Math.max(0, Math.floor(start));
+export function makeYoutubeTimestampUrl(
+  youtubeId: string,
+  start: number,
+  playbackLeadSeconds = DEFAULT_PLAYBACK_LEAD_SECONDS
+): string {
+  const timestampSeconds = Math.max(0, Math.floor(start - playbackLeadSeconds));
   return `https://www.youtube.com/watch?v=${encodeURIComponent(youtubeId)}&t=${timestampSeconds}s`;
 }
 

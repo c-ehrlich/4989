@@ -47,7 +47,7 @@ describe("corpus hydration", () => {
       end: 75.9,
       timestamp: "1:12",
       endTimestamp: "1:15",
-      youtubeTimestampUrl: "https://www.youtube.com/watch?v=youtube0367&t=72s",
+      youtubeTimestampUrl: "https://www.youtube.com/watch?v=youtube0367&t=71s",
       confidence: 0.75,
       timingSource: "youtube-caption-lattice",
       text: "今日はパンを食べる。"
@@ -88,7 +88,10 @@ describe("corpus hydration", () => {
     expect(formatTimestamp(49.36)).toBe("0:49");
     expect(formatTimestamp(3723.9)).toBe("1:02:03");
     expect(makeYoutubeTimestampUrl("abc 123", 49.36)).toBe(
-      "https://www.youtube.com/watch?v=abc%20123&t=49s"
+      "https://www.youtube.com/watch?v=abc%20123&t=48s"
+    );
+    expect(makeYoutubeTimestampUrl("abc 123", 1.5)).toBe(
+      "https://www.youtube.com/watch?v=abc%20123&t=0s"
     );
   });
 });

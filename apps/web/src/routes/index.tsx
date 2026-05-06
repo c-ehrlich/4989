@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { parseSegmentId } from "@4989/corpus-types";
-import { Clock3, ExternalLink, Search } from "lucide-react";
+import { Clock3, ExternalLink, RotateCcw, Search } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Panel, PanelBody, PanelHeader } from "@/components/ui/panel";
 import { RangeSlider, type RangeSliderValue } from "@/components/ui/slider";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { hydrateSegmentIds, type HydratedSegment } from "@/corpus/hydrate";
 import {
   searchCorpus,
@@ -181,7 +181,7 @@ function HomePage() {
             </form>
           </PanelHeader>
           <PanelBody>
-            <CorpusStatusPanel state={corpusStatus} />
+            {corpusStatus.status === "error" ? <CorpusStatusError state={corpusStatus} /> : null}
             {corpusStatus.status === "ready" ? (
               <EpisodeRangeFilter
                 bounds={{
@@ -190,22 +190,15 @@ function HomePage() {
                 }}
                 range={episodeRange}
                 onChange={setEpisodeRange}
+                onReset={() =>
+                  setEpisodeRange({
+                    min: corpusStatus.result.minEpisodeNumber,
+                    max: corpusStatus.result.maxEpisodeNumber
+                  })
+                }
               />
             ) : null}
-            <Tabs defaultValue="results">
-              <TabsList aria-label="Preview sections">
-                <TabsTrigger value="results">Results</TabsTrigger>
-                <TabsTrigger value="player">Player</TabsTrigger>
-              </TabsList>
-              <TabsContent value="results">
-                <SearchResults state={searchState} />
-              </TabsContent>
-              <TabsContent value="player">
-                <div className="flex min-h-48 items-center justify-center rounded-md border border-dashed border-border bg-muted/50 text-sm text-muted-foreground">
-                  YouTube player slot
-                </div>
-              </TabsContent>
-            </Tabs>
+            <SearchResults state={searchState} />
           </PanelBody>
         </Panel>
       </section>
@@ -235,64 +228,31 @@ type CorpusLoadState =
   | { status: "ready"; result: CorpusStaticStatus }
   | { status: "error"; message: string };
 
-function CorpusStatusPanel({ state }: Readonly<{ state: CorpusLoadState }>) {
-  if (state.status === "loading") {
-    return (
-      <div className="mb-5 rounded-md border border-border bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
-        Loading corpus assets...
-      </div>
-    );
-  }
-
-  if (state.status === "error") {
-    return (
-      <div className="mb-5 rounded-md border border-primary/40 bg-primary/10 px-4 py-3 text-sm text-primary">
-        Corpus assets failed to load: {state.message}
-      </div>
-    );
-  }
-
+function CorpusStatusError({ state }: Readonly<{ state: Extract<CorpusLoadState, { status: "error" }> }>) {
   return (
-    <div className="mb-5 grid gap-3 rounded-md border border-border bg-card px-4 py-3 text-sm md:grid-cols-[1.25fr_1fr_1fr]">
-      <StatusMetric label="Episodes" value={state.result.episodeCount.toLocaleString()} />
-      <StatusMetric
-        label={`ep${state.result.sampleEpisodeNumber} segments`}
-        value={state.result.sampleSegmentCount.toLocaleString()}
-      />
-      <StatusMetric
-        label={`Lemma bucket ${state.result.sampleLemmaBucketName}`}
-        value={`${state.result.sampleLemmaHitCount.toLocaleString()} hits`}
-      />
-      <div className="md:col-span-2">
-        <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">
-          {state.result.sampleEpisodeTitle}
-        </p>
-        <p className="m-0 mt-1 line-clamp-2 leading-6">
-          {state.result.sampleFirstSegmentKey}: {state.result.sampleFirstSegmentText}
-        </p>
-      </div>
-      <StatusMetric
-        label={`Surface ${state.result.sampleSurface}`}
-        value={`${state.result.sampleSurfaceLemmaCount.toLocaleString()} lemmas`}
-      />
+    <div className="mb-5 rounded-md border border-primary/40 bg-primary/10 px-4 py-3 text-sm text-primary">
+      Corpus assets failed to load: {state.message}
     </div>
   );
 }
 
 function EpisodeRangeFilter({
   bounds,
+  onReset,
   range,
   onChange
 }: Readonly<{
   bounds: EpisodeRange;
   range: EpisodeRange;
   onChange: (range: EpisodeRange) => void;
+  onReset: () => void;
 }>) {
   const minValue = clampEpisode(range.min, bounds);
   const maxValue = clampEpisode(range.max, bounds);
+  const isFiltered = minValue !== bounds.min || maxValue !== bounds.max;
 
   return (
-    <div className="mb-5 grid gap-4 rounded-md border border-border bg-background px-4 py-3 text-sm md:grid-cols-[auto_1fr] md:items-center">
+    <div className="mb-5 grid gap-4 rounded-md border border-border bg-background px-4 py-3 text-sm md:grid-cols-[auto_1fr_auto] md:items-center">
       <div className="min-w-32">
         <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">Episodes</p>
         <p className="m-0 mt-1 font-semibold">
@@ -308,21 +268,10 @@ function EpisodeRangeFilter({
         step={1}
         value={[minValue, maxValue]}
       />
-    </div>
-  );
-}
-
-function StatusMetric({
-  label,
-  value
-}: Readonly<{
-  label: string;
-  value: string;
-}>) {
-  return (
-    <div>
-      <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">{label}</p>
-      <p className="m-0 mt-1 text-lg font-semibold">{value}</p>
+      <Button disabled={!isFiltered} onClick={onReset} size="sm" variant="outline">
+        <RotateCcw />
+        Reset
+      </Button>
     </div>
   );
 }
@@ -331,7 +280,7 @@ function SearchResults({ state }: Readonly<{ state: SearchLoadState }>) {
   if (state.status === "idle") {
     return (
       <div className="rounded-md border border-dashed border-border bg-muted/40 px-4 py-8 text-center text-sm text-muted-foreground">
-        Run a search to see matching segment IDs.
+        Run a search to see matching segments.
       </div>
     );
   }
@@ -355,7 +304,7 @@ function SearchResults({ state }: Readonly<{ state: SearchLoadState }>) {
   if (state.result.total === 0) {
     return (
       <div className="rounded-md border border-border bg-background px-4 py-8 text-center text-sm text-muted-foreground">
-        No segment IDs found for {state.result.query}.
+        No segments found for {state.result.query}.
       </div>
     );
   }
@@ -402,10 +351,15 @@ function ResultRow({ hit }: Readonly<{ hit: HydratedSegment }>) {
     <article className="grid gap-3 rounded-md border border-border bg-card p-4 text-sm shadow-sm sm:col-span-2 lg:col-span-3">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-semibold text-muted-foreground">
         <span>ep{hit.episode}</span>
-        <span className="inline-flex items-center gap-1">
+        <a
+          className="inline-flex items-center gap-1 text-secondary transition-colors hover:text-primary"
+          href={hit.youtubeTimestampUrl}
+          rel="noreferrer"
+          target="_blank"
+        >
           <Clock3 className="size-3.5" />
           {hit.timestamp}-{hit.endTimestamp}
-        </span>
+        </a>
         {hit.confidence === undefined ? null : (
           <span>{Math.round(hit.confidence * 100)}% confidence</span>
         )}
@@ -423,6 +377,17 @@ function ResultRow({ hit }: Readonly<{ hit: HydratedSegment }>) {
           YouTube
           <ExternalLink className="size-3.5" />
         </a>
+        {hit.scriptUrl ? (
+          <a
+            className="inline-flex items-center gap-1 font-semibold text-secondary transition-colors hover:text-primary"
+            href={hit.scriptUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            Script
+            <ExternalLink className="size-3.5" />
+          </a>
+        ) : null}
       </div>
     </article>
   );
