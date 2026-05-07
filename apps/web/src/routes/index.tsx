@@ -1,19 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   keepPreviousData,
   useQuery,
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { parseSegmentId } from "@4989/corpus-types";
+import { Clock3, Play, RotateCcw, Search, Sparkles } from "lucide-react";
 import {
-  Clock3,
-  ExternalLink,
-  Play,
-  RotateCcw,
-  Search,
-  Sparkles,
-} from "lucide-react";
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+  type FormEvent,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,25 +39,33 @@ import {
 const MAX_RENDERED_RESULTS = 10_000;
 
 export const Route = createFileRoute("/")({
+  validateSearch: validateRouteSearch,
   component: HomePage,
 });
 
 function HomePage() {
-  const [query, setQuery] = useState("食べる");
-  const [searchMode, setSearchMode] = useState<SearchMode>("loose");
-  const [submittedSearch, setSubmittedSearch] =
-    useState<SubmittedSearch | null>(null);
-  const [selectedHit, setSelectedHit] = useState<HydratedSegment | null>(null);
+  const urlSearch = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const searchMode: SearchMode = urlSearch.mode ?? "loose";
+  const submittedSearch = urlSearch.q
+    ? {
+        query: urlSearch.q,
+        mode: searchMode,
+      }
+    : null;
+  const [query, setQuery] = useState(urlSearch.q ?? "食べる");
+  const [searchRequestId, setSearchRequestId] = useState(0);
   const [episodeRange, setEpisodeRange] = useState<EpisodeRange>({
     min: 0,
     max: Number.MAX_SAFE_INTEGER,
   });
+  const deferredEpisodeRange = useDeferredValue(episodeRange);
   const corpusStatusQuery = useQuery({
     queryKey: ["corpus-status"],
     queryFn: () => loadCorpusStaticStatus(),
   });
   const searchQuery = useQuery({
-    queryKey: ["corpus-search", submittedSearch],
+    queryKey: ["corpus-search", submittedSearch, searchRequestId],
     queryFn: () => {
       if (!submittedSearch) {
         throw new Error(
@@ -78,9 +85,9 @@ function HomePage() {
   const hydratedHitsInput = useMemo(
     () =>
       searchQuery.data
-        ? getVisibleSearchHitInput(searchQuery.data, episodeRange)
+        ? getVisibleSearchHitInput(searchQuery.data, deferredEpisodeRange)
         : null,
-    [episodeRange, searchQuery.data],
+    [deferredEpisodeRange, searchQuery.data],
   );
   const hydratedHitsQuery = useQuery({
     queryKey: [
@@ -88,8 +95,8 @@ function HomePage() {
       searchQuery.dataUpdatedAt,
       searchQuery.data?.query,
       searchQuery.data?.mode,
-      episodeRange.min,
-      episodeRange.max,
+      deferredEpisodeRange.min,
+      deferredEpisodeRange.max,
     ],
     queryFn: async () => {
       if (!hydratedHitsInput) {
@@ -113,7 +120,27 @@ function HomePage() {
   });
 
   const corpusStatusState = getCorpusStatusState(corpusStatusQuery);
+  const selectedHitFromResults =
+    urlSearch.clip && hydratedHitsQuery.data
+      ? hydratedHitsQuery.data.hits.find(
+          (hit) => hit.segmentId === urlSearch.clip,
+        )
+      : null;
+  const selectedClipQuery = useQuery({
+    queryKey: ["selected-clip", urlSearch.clip],
+    queryFn: async () => {
+      if (!urlSearch.clip) {
+        throw new Error("Selected clip was requested before a clip was set.");
+      }
+
+      const [hit] = await hydrateSegmentIds({ segmentIds: [urlSearch.clip] });
+      return hit;
+    },
+    enabled: Boolean(urlSearch.clip) && !selectedHitFromResults,
+  });
+  const selectedHit = selectedHitFromResults ?? selectedClipQuery.data ?? null;
   const searchState = getSearchState({
+    isRangePending: deferredEpisodeRange !== episodeRange,
     hydratedHitsInput,
     hydratedHitsQuery,
     searchQuery,
@@ -121,16 +148,22 @@ function HomePage() {
   });
 
   useEffect(() => {
+    setQuery(urlSearch.q ?? "食べる");
+  }, [urlSearch.q]);
+
+  useEffect(() => {
     const corpusStatus = corpusStatusQuery.data;
-    if (!corpusStatus || episodeRange.max !== Number.MAX_SAFE_INTEGER) {
+    if (!corpusStatus) {
       return;
     }
 
-    setEpisodeRange({
-      min: corpusStatus.minEpisodeNumber,
-      max: corpusStatus.maxEpisodeNumber,
-    });
-  }, [corpusStatusQuery.data, episodeRange.max]);
+    setEpisodeRange(
+      getEpisodeRangeFromSearch(urlSearch.episodes, {
+        min: corpusStatus.minEpisodeNumber,
+        max: corpusStatus.maxEpisodeNumber,
+      }),
+    );
+  }, [corpusStatusQuery.data, urlSearch.episodes]);
 
   function runSearch(nextMode: SearchMode = searchMode) {
     const trimmedQuery = query.trim();
@@ -138,12 +171,16 @@ function HomePage() {
       return;
     }
 
-    setSelectedHit(null);
-    setSubmittedSearch((current) => ({
-      query: trimmedQuery,
-      mode: nextMode,
-      requestId: (current?.requestId ?? 0) + 1,
-    }));
+    setSearchRequestId((current) => current + 1);
+    void navigate({
+      search: (previous) =>
+        cleanRouteSearch({
+          ...previous,
+          q: trimmedQuery,
+          mode: modeToSearchParam(nextMode),
+          clip: undefined,
+        }),
+    });
   }
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
@@ -153,16 +190,78 @@ function HomePage() {
 
   function handleSearchModeChange(value: string) {
     const nextMode = value as SearchMode;
-    setSearchMode(nextMode);
 
     if (query.trim()) {
       runSearch(nextMode);
+      return;
     }
+
+    void navigate({
+      search: (previous) =>
+        cleanRouteSearch({
+          ...previous,
+          mode: modeToSearchParam(nextMode),
+        }),
+      replace: true,
+    });
+  }
+
+  function handleEpisodeRangeChange(nextRange: EpisodeRange) {
+    setEpisodeRange(nextRange);
+
+    if (corpusStatusState.status !== "ready") {
+      return;
+    }
+
+    const bounds = {
+      min: corpusStatusState.result.minEpisodeNumber,
+      max: corpusStatusState.result.maxEpisodeNumber,
+    };
+
+    void navigate({
+      search: (previous) =>
+        cleanRouteSearch({
+          ...previous,
+          episodes: serializeEpisodeRange(nextRange, bounds),
+        }),
+      replace: true,
+    });
+  }
+
+  function handleEpisodeRangeReset() {
+    if (corpusStatusState.status !== "ready") {
+      return;
+    }
+
+    const nextRange = {
+      min: corpusStatusState.result.minEpisodeNumber,
+      max: corpusStatusState.result.maxEpisodeNumber,
+    };
+
+    setEpisodeRange(nextRange);
+    void navigate({
+      search: (previous) =>
+        cleanRouteSearch({
+          ...previous,
+          episodes: undefined,
+        }),
+      replace: true,
+    });
+  }
+
+  function handleSelectHit(hit: HydratedSegment) {
+    void navigate({
+      search: (previous) =>
+        cleanRouteSearch({
+          ...previous,
+          clip: hit.segmentId,
+        }),
+    });
   }
 
   return (
     <main className="min-h-screen px-5 py-8 text-foreground sm:px-8">
-      <section className="mx-auto grid max-w-[1440px] gap-6">
+      <section className="mx-auto grid max-w-[1440px] gap-2">
         <TitleSection />
 
         <Panel>
@@ -192,7 +291,8 @@ function HomePage() {
                       }
                     />
                     <TooltipContent>
-                      Finds matching forms of the same word, like 食べる and 食べた.
+                      Finds matching forms of the same word, like 食べる and
+                      食べた.
                     </TooltipContent>
                   </Tooltip>
                   <Tooltip>
@@ -235,18 +335,11 @@ function HomePage() {
                       : null
                   }
                   episodeRange={episodeRange}
-                  onEpisodeRangeChange={setEpisodeRange}
-                  onEpisodeRangeReset={() => {
-                    if (corpusStatusState.status === "ready") {
-                      setEpisodeRange({
-                        min: corpusStatusState.result.minEpisodeNumber,
-                        max: corpusStatusState.result.maxEpisodeNumber,
-                      });
-                    }
-                  }}
+                  onEpisodeRangeChange={handleEpisodeRangeChange}
+                  onEpisodeRangeReset={handleEpisodeRangeReset}
                 />
                 <SearchResults
-                  onSelectHit={setSelectedHit}
+                  onSelectHit={handleSelectHit}
                   selectedHit={selectedHit}
                   state={searchState}
                 />
@@ -332,7 +425,13 @@ type SearchLoadState =
 type SubmittedSearch = {
   mode: SearchMode;
   query: string;
-  requestId: number;
+};
+
+type RouteSearch = {
+  clip?: number;
+  episodes?: string;
+  mode?: "exact";
+  q?: string;
 };
 
 type HydratedSearchHits = {
@@ -471,22 +570,14 @@ function SearchResults({
     <div className="grid gap-3">
       <div className="flex flex-wrap items-center gap-3 rounded-md border border-border bg-background px-4 py-3 text-sm">
         <span className="font-semibold">
+          {state.filteredTotal < state.result.total
+            ? `${state.filteredTotal.toLocaleString()}/`
+            : null}
           {state.result.total.toLocaleString()} matches
-        </span>
-        <span className="font-semibold text-secondary">
-          {state.filteredTotal.toLocaleString()} in range
         </span>
         {state.filteredTotal > state.hits.length ? (
           <span className="text-muted-foreground">
             showing first {state.hits.length.toLocaleString()}
-          </span>
-        ) : null}
-        <span className="text-muted-foreground">
-          {state.result.mode} search for {state.result.query}
-        </span>
-        {state.result.matchedTerms.length > 0 ? (
-          <span className="text-muted-foreground">
-            terms: {state.result.matchedTerms.join(", ")}
           </span>
         ) : null}
         {state.isFiltering ? (
@@ -554,26 +645,6 @@ function ResultRow({
             <Play />
             {isSelected ? "Loaded" : "Load clip"}
           </Button>
-          <a
-            className="inline-flex items-center gap-1 font-semibold text-secondary transition-colors hover:text-primary"
-            href={hit.youtubeTimestampUrl}
-            rel="noreferrer"
-            target="_blank"
-          >
-            YouTube
-            <ExternalLink className="size-3.5" />
-          </a>
-          {hit.scriptUrl ? (
-            <a
-              className="inline-flex items-center gap-1 font-semibold text-secondary transition-colors hover:text-primary"
-              href={hit.scriptUrl}
-              rel="noreferrer"
-              target="_blank"
-            >
-              Script
-              <ExternalLink className="size-3.5" />
-            </a>
-          ) : null}
         </div>
       </div>
     </article>
@@ -603,14 +674,120 @@ function getCorpusStatusState(
   return { status: "loading" };
 }
 
+function validateRouteSearch(search: Record<string, unknown>): RouteSearch {
+  return cleanRouteSearch({
+    q: parseSearchText(search.q),
+    mode: search.mode === "exact" ? "exact" : undefined,
+    clip: parsePositiveInteger(search.clip),
+    episodes: parseEpisodeRangeParam(search.episodes),
+  });
+}
+
+function cleanRouteSearch(search: Partial<RouteSearch>): RouteSearch {
+  const nextSearch: RouteSearch = {};
+
+  const q = parseSearchText(search.q);
+  if (q) {
+    nextSearch.q = q;
+  }
+
+  if (search.mode === "exact") {
+    nextSearch.mode = "exact";
+  }
+
+  const clip = parsePositiveInteger(search.clip);
+  if (clip !== undefined) {
+    nextSearch.clip = clip;
+  }
+
+  const episodes = parseEpisodeRangeParam(search.episodes);
+  if (episodes) {
+    nextSearch.episodes = episodes;
+  }
+
+  return nextSearch;
+}
+
+function parseSearchText(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function parsePositiveInteger(value: unknown) {
+  const parsedValue =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number(value)
+        : Number.NaN;
+
+  if (!Number.isInteger(parsedValue) || parsedValue <= 0) {
+    return undefined;
+  }
+
+  return parsedValue;
+}
+
+function parseEpisodeRangeParam(value: unknown) {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const match = value.match(/^(\d+)-(\d+)$/);
+  if (!match) {
+    return undefined;
+  }
+
+  const firstEpisode = Number(match[1]);
+  const secondEpisode = Number(match[2]);
+  if (!Number.isInteger(firstEpisode) || !Number.isInteger(secondEpisode)) {
+    return undefined;
+  }
+
+  const minEpisode = Math.min(firstEpisode, secondEpisode);
+  const maxEpisode = Math.max(firstEpisode, secondEpisode);
+  return `${minEpisode}-${maxEpisode}`;
+}
+
+function modeToSearchParam(mode: SearchMode) {
+  return mode === "exact" ? "exact" : undefined;
+}
+
+function serializeEpisodeRange(range: EpisodeRange, bounds: EpisodeRange) {
+  const minEpisode = clampEpisode(range.min, bounds);
+  const maxEpisode = clampEpisode(range.max, bounds);
+
+  if (minEpisode === bounds.min && maxEpisode === bounds.max) {
+    return undefined;
+  }
+
+  return `${minEpisode}-${maxEpisode}`;
+}
+
+function getEpisodeRangeFromSearch(
+  value: string | undefined,
+  bounds: EpisodeRange,
+): EpisodeRange {
+  if (!value) {
+    return bounds;
+  }
+
+  const [minValue, maxValue] = value.split("-").map(Number);
+  return {
+    min: clampEpisode(Math.min(minValue, maxValue), bounds),
+    max: clampEpisode(Math.max(minValue, maxValue), bounds),
+  };
+}
+
 function getSearchState({
   hydratedHitsInput,
   hydratedHitsQuery,
+  isRangePending,
   searchQuery,
   submittedSearch,
 }: Readonly<{
   hydratedHitsInput: HydratedHitsInput | null;
   hydratedHitsQuery: UseQueryResult<HydratedSearchHits>;
+  isRangePending: boolean;
   searchQuery: UseQueryResult<SearchCorpusResult>;
   submittedSearch: SubmittedSearch | null;
 }>): SearchLoadState {
@@ -650,7 +827,8 @@ function getSearchState({
       hydratedHitsInput?.filteredTotal ??
       0,
     hits: hydratedHitsQuery.data?.hits ?? [],
-    isFiltering: searchQuery.isFetching || hydratedHitsQuery.isFetching,
+    isFiltering:
+      isRangePending || searchQuery.isFetching || hydratedHitsQuery.isFetching,
   };
 }
 

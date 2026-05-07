@@ -7,7 +7,7 @@ import { corpusClient, type EpisodeSegments } from "@/corpus/client";
 import {
   DEFAULT_PLAYBACK_LEAD_SECONDS,
   formatTimestamp,
-  type HydratedSegment
+  type HydratedSegment,
 } from "@/corpus/hydrate";
 import { cn } from "@/lib/cn";
 
@@ -41,7 +41,10 @@ type YouTubePlayerOptions = {
 };
 
 type YouTubeNamespace = {
-  Player: new (element: HTMLElement, options: YouTubePlayerOptions) => YouTubePlayerApi;
+  Player: new (
+    element: HTMLElement,
+    options: YouTubePlayerOptions,
+  ) => YouTubePlayerApi;
 };
 
 declare global {
@@ -53,7 +56,10 @@ declare global {
 
 let youTubeApiPromise: Promise<YouTubeNamespace> | null = null;
 
-export function YouTubePlayer({ className, selectedHit }: Readonly<YouTubePlayerProps>) {
+export function YouTubePlayer({
+  className,
+  selectedHit,
+}: Readonly<YouTubePlayerProps>) {
   const playerHostRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YouTubePlayerApi | null>(null);
   const lastLoadedClipRef = useRef<string | null>(null);
@@ -64,18 +70,23 @@ export function YouTubePlayer({ className, selectedHit }: Readonly<YouTubePlayer
     queryKey: ["episode-segments", selectedHit?.episode],
     queryFn: () => {
       if (!selectedHit) {
-        throw new Error("Episode segments were requested before a clip was selected.");
+        throw new Error(
+          "Episode segments were requested before a clip was selected.",
+        );
       }
 
       return corpusClient.loadEpisodeSegments(selectedHit.episode);
     },
-    enabled: selectedHit !== null
+    enabled: selectedHit !== null,
   });
   const seekSeconds = selectedHit ? getClipSeekSeconds(selectedHit) : 0;
-  const episodeSegmentsState = getEpisodeSegmentsState(selectedHit, episodeSegmentsQuery);
+  const episodeSegmentsState = getEpisodeSegmentsState(
+    selectedHit,
+    episodeSegmentsQuery,
+  );
   const activeCaption = useMemo(
     () => getActiveCaption(episodeSegmentsState, currentSeconds),
-    [currentSeconds, episodeSegmentsState]
+    [currentSeconds, episodeSegmentsState],
   );
 
   useEffect(() => {
@@ -108,7 +119,7 @@ export function YouTubePlayer({ className, selectedHit }: Readonly<YouTubePlayer
             modestbranding: 1,
             origin: window.location.origin,
             playsinline: 1,
-            rel: 0
+            rel: 0,
           },
           videoId: selectedHit.youtubeId,
           width: "100%",
@@ -122,15 +133,19 @@ export function YouTubePlayer({ className, selectedHit }: Readonly<YouTubePlayer
               if (isCurrent) {
                 setPlayerError("YouTube could not load this video.");
               }
-            }
-          }
+            },
+          },
         });
       },
       (error: unknown) => {
         if (isCurrent) {
-          setPlayerError(error instanceof Error ? error.message : "Failed to load YouTube player.");
+          setPlayerError(
+            error instanceof Error
+              ? error.message
+              : "Failed to load YouTube player.",
+          );
         }
-      }
+      },
     );
 
     return () => {
@@ -160,7 +175,7 @@ export function YouTubePlayer({ className, selectedHit }: Readonly<YouTubePlayer
     setCurrentSeconds(seekSeconds);
     playerRef.current.loadVideoById({
       videoId: selectedHit.youtubeId,
-      startSeconds: seekSeconds
+      startSeconds: seekSeconds,
     });
   }, [isPlayerReady, seekSeconds, selectedHit]);
 
@@ -174,7 +189,9 @@ export function YouTubePlayer({ className, selectedHit }: Readonly<YouTubePlayer
 
       if (typeof nextSeconds === "number" && Number.isFinite(nextSeconds)) {
         setCurrentSeconds((previousSeconds) =>
-          Math.abs(previousSeconds - nextSeconds) > 0.15 ? nextSeconds : previousSeconds
+          Math.abs(previousSeconds - nextSeconds) > 0.15
+            ? nextSeconds
+            : previousSeconds,
         );
       }
     }, 250);
@@ -196,7 +213,10 @@ export function YouTubePlayer({ className, selectedHit }: Readonly<YouTubePlayer
       return;
     }
 
-    const nextSeconds = Math.max(0, playerRef.current.getCurrentTime() + offsetSeconds);
+    const nextSeconds = Math.max(
+      0,
+      playerRef.current.getCurrentTime() + offsetSeconds,
+    );
     playerRef.current.seekTo(nextSeconds, true);
     setCurrentSeconds(nextSeconds);
   }, []);
@@ -263,26 +283,43 @@ export function YouTubePlayer({ className, selectedHit }: Readonly<YouTubePlayer
                   : "Choose a segment from the results"}
               </p>
             </div>
-            <Button disabled={!selectedHit || !isPlayerReady} onClick={handleBackToClip} size="sm">
+            <Button
+              disabled={!selectedHit || !isPlayerReady}
+              onClick={handleBackToClip}
+              size="sm"
+            >
               <RotateCcw />
               Back to clip
             </Button>
           </div>
           {selectedHit ? (
-            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex flex-wrap justify-between items-center gap-2 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1">
                 <Clock3 className="size-3.5" />
                 Player {formatTimestamp(currentSeconds)}
               </span>
-              <a
-                className="inline-flex items-center gap-1 font-semibold text-secondary transition-colors hover:text-primary"
-                href={selectedHit.youtubeTimestampUrl}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Open YouTube
-                <ExternalLink className="size-3.5" />
-              </a>
+              <div className="flex items-center gap-2">
+                <a
+                  className="inline-flex items-center gap-1 font-semibold text-secondary transition-colors hover:text-primary"
+                  href={selectedHit.youtubeTimestampUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  YouTube
+                  <ExternalLink className="size-3.5" />
+                </a>
+                {selectedHit.scriptUrl ? (
+                  <a
+                    className="inline-flex items-center gap-1 font-semibold text-secondary transition-colors hover:text-primary"
+                    href={selectedHit.scriptUrl}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    Script
+                    <ExternalLink className="size-3.5" />
+                  </a>
+                ) : null}
+              </div>
             </div>
           ) : null}
           {playerError ? (
@@ -321,7 +358,7 @@ type TranscriptSegment = EpisodeSegments["segments"][number];
 
 function getEpisodeSegmentsState(
   selectedHit: HydratedSegment | null,
-  query: UseQueryResult<EpisodeSegments>
+  query: UseQueryResult<EpisodeSegments>,
 ): EpisodeSegmentsLoadState {
   if (!selectedHit) {
     return { status: "idle" };
@@ -330,14 +367,17 @@ function getEpisodeSegmentsState(
   if (query.isError && !query.data) {
     return {
       status: "error",
-      message: query.error instanceof Error ? query.error.message : "Unknown episode load error"
+      message:
+        query.error instanceof Error
+          ? query.error.message
+          : "Unknown episode load error",
     };
   }
 
   if (query.data) {
     return {
       status: "ready",
-      episodeSegments: query.data
+      episodeSegments: query.data,
     };
   }
 
@@ -349,7 +389,7 @@ function CaptionPanel({
   currentSeconds,
   episodeSegmentsState,
   onSeekToSegment,
-  selectedHit
+  selectedHit,
 }: Readonly<{
   activeCaption: ActiveCaption | null;
   currentSeconds: number;
@@ -369,7 +409,8 @@ function CaptionPanel({
     }
 
     const activeCaptionRect = activeCaptionElement.getBoundingClientRect();
-    const transcriptScrollRect = transcriptScrollElement.getBoundingClientRect();
+    const transcriptScrollRect =
+      transcriptScrollElement.getBoundingClientRect();
     const nextScrollTop =
       transcriptScrollElement.scrollTop +
       activeCaptionRect.top -
@@ -379,7 +420,7 @@ function CaptionPanel({
 
     transcriptScrollElement.scrollTo({
       behavior: "smooth",
-      top: Math.max(0, nextScrollTop)
+      top: Math.max(0, nextScrollTop),
     });
   }, [activeCaption?.segmentKey]);
 
@@ -417,7 +458,7 @@ function CaptionPanel({
 
   const activeIndex = activeCaption
     ? episodeSegmentsState.episodeSegments.segments.findIndex(
-        (segment) => segment.segmentKey === activeCaption.segmentKey
+        (segment) => segment.segmentKey === activeCaption.segmentKey,
       )
     : -1;
 
@@ -425,8 +466,12 @@ function CaptionPanel({
     <div className="overflow-hidden rounded-md border border-border bg-background shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-3">
         <div>
-          <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">Transcript</p>
-          <p className="m-0 mt-1 text-sm font-semibold">{episodeSegmentsState.episodeSegments.title}</p>
+          <p className="m-0 text-xs font-semibold uppercase text-muted-foreground">
+            Transcript
+          </p>
+          <p className="m-0 mt-1 text-sm font-semibold">
+            {episodeSegmentsState.episodeSegments.title}
+          </p>
         </div>
         <span className="text-xs font-semibold text-muted-foreground">
           {formatTimestamp(currentSeconds)}
@@ -437,21 +482,25 @@ function CaptionPanel({
         ref={transcriptScrollRef}
       >
         <div className="grid gap-1">
-          {episodeSegmentsState.episodeSegments.segments.map((segment, index) => (
-            <TranscriptRow
-              activeIndex={activeIndex}
-              index={index}
-              isSelectedSearchHit={selectedHit.segment.segmentKey === segment.segmentKey}
-              key={segment.segmentKey}
-              onClick={() => onSeekToSegment(segment)}
-              ref={(element) => {
-                if (activeCaption?.segmentKey === segment.segmentKey) {
-                  activeCaptionRef.current = element;
+          {episodeSegmentsState.episodeSegments.segments.map(
+            (segment, index) => (
+              <TranscriptRow
+                activeIndex={activeIndex}
+                index={index}
+                isSelectedSearchHit={
+                  selectedHit.segment.segmentKey === segment.segmentKey
                 }
-              }}
-              segment={segment}
-            />
-          ))}
+                key={segment.segmentKey}
+                onClick={() => onSeekToSegment(segment)}
+                ref={(element) => {
+                  if (activeCaption?.segmentKey === segment.segmentKey) {
+                    activeCaptionRef.current = element;
+                  }
+                }}
+                segment={segment}
+              />
+            ),
+          )}
         </div>
       </div>
     </div>
@@ -464,7 +513,7 @@ function TranscriptRow({
   isSelectedSearchHit,
   onClick,
   ref,
-  segment
+  segment,
 }: Readonly<{
   activeIndex: number;
   index: number;
@@ -474,7 +523,8 @@ function TranscriptRow({
   segment: TranscriptSegment;
 }>) {
   const isActive = activeIndex === index;
-  const distanceFromActive = activeIndex >= 0 ? Math.abs(index - activeIndex) : Number.POSITIVE_INFINITY;
+  const distanceFromActive =
+    activeIndex >= 0 ? Math.abs(index - activeIndex) : Number.POSITIVE_INFINITY;
   const isNearby = distanceFromActive <= 2;
 
   return (
@@ -486,7 +536,7 @@ function TranscriptRow({
           : "border-transparent text-muted-foreground hover:border-border hover:bg-muted/50 hover:text-foreground",
         !isActive && isNearby ? "opacity-85" : null,
         !isActive && !isNearby ? "opacity-55" : null,
-        isSelectedSearchHit && !isActive ? "border-primary/40" : null
+        isSelectedSearchHit && !isActive ? "border-primary/40" : null,
       )}
       onClick={onClick}
       ref={ref}
@@ -495,21 +545,19 @@ function TranscriptRow({
       <span
         className={cn(
           "pt-1 text-xs font-semibold tabular-nums",
-          isActive ? "text-secondary" : "text-muted-foreground"
+          isActive ? "text-secondary" : "text-muted-foreground",
         )}
       >
         {formatTimestamp(segment.start)}
       </span>
-      <span className="text-sm font-medium leading-7">
-        {segment.text}
-      </span>
+      <span className="text-sm font-medium leading-7">{segment.text}</span>
     </button>
   );
 }
 
 function getActiveCaption(
   episodeSegmentsState: EpisodeSegmentsLoadState,
-  currentSeconds: number
+  currentSeconds: number,
 ): ActiveCaption | null {
   if (episodeSegmentsState.status !== "ready") {
     return null;
@@ -517,7 +565,7 @@ function getActiveCaption(
 
   const activeSegment = findActiveOrPreviousSegment(
     episodeSegmentsState.episodeSegments.segments,
-    currentSeconds
+    currentSeconds,
   );
 
   return activeSegment
@@ -525,12 +573,15 @@ function getActiveCaption(
         end: activeSegment.end,
         segmentKey: activeSegment.segmentKey,
         start: activeSegment.start,
-        text: activeSegment.text
+        text: activeSegment.text,
       }
     : null;
 }
 
-function findActiveOrPreviousSegment(segments: TranscriptSegment[], currentSeconds: number) {
+function findActiveOrPreviousSegment(
+  segments: TranscriptSegment[],
+  currentSeconds: number,
+) {
   if (segments.length === 0 || currentSeconds < segments[0].start) {
     return null;
   }
@@ -575,7 +626,9 @@ function isEditableKeyboardTarget(target: EventTarget | null) {
 
 function loadYouTubeIframeApi(): Promise<YouTubeNamespace> {
   if (typeof window === "undefined") {
-    return Promise.reject(new Error("YouTube player can only load in the browser."));
+    return Promise.reject(
+      new Error("YouTube player can only load in the browser."),
+    );
   }
 
   if (window.YT?.Player) {
@@ -600,7 +653,7 @@ function loadYouTubeIframeApi(): Promise<YouTubeNamespace> {
     };
 
     const existingScript = document.querySelector<HTMLScriptElement>(
-      'script[src="https://www.youtube.com/iframe_api"]'
+      'script[src="https://www.youtube.com/iframe_api"]',
     );
 
     if (existingScript) {
@@ -610,7 +663,8 @@ function loadYouTubeIframeApi(): Promise<YouTubeNamespace> {
     const script = document.createElement("script");
     script.async = true;
     script.src = "https://www.youtube.com/iframe_api";
-    script.onerror = () => reject(new Error("Failed to load YouTube IFrame API."));
+    script.onerror = () =>
+      reject(new Error("Failed to load YouTube IFrame API."));
     document.head.appendChild(script);
   });
 
