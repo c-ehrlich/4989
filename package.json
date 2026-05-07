@@ -8,6 +8,7 @@
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
     "test": "turbo run test",
+    "corpus:update": "pnpm --filter @4989/corpus-pipeline update-corpus --",
     "clean": "turbo run clean"
   },
   "devDependencies": {
