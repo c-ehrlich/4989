@@ -1,0 +1,2432 @@
+[
+  {
+    "episode": 89,
+    "title": "[ポッドキャスト] ep.089/ 2020年のテーマ発表！",
+    "youtubeId": "1uGmo9B4NEA",
+    "videoUrl": "https://www.youtube.com/watch?v=1uGmo9B4NEA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-089--2020年のテーマ発表！",
+    "durationSeconds": 1551,
+    "segmentPath": "data/segments/ep89.json"
+  },
+  {
+    "episode": 90,
+    "title": "[ポッドキャスト] ep.090 / アメリカのお正月",
+    "youtubeId": "GIz3y0Yi0oI",
+    "videoUrl": "https://www.youtube.com/watch?v=GIz3y0Yi0oI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-090---アメリカのお正月",
+    "durationSeconds": 2102,
+    "segmentPath": "data/segments/ep90.json"
+  },
+  {
+    "episode": 91,
+    "title": "[ポッドキャスト] ep.091 / いくこのアメリカでビックリしたこと",
+    "youtubeId": "6WzCRP4dnkY",
+    "videoUrl": "https://www.youtube.com/watch?v=6WzCRP4dnkY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-091---いくこのアメリカでビックリしたこと",
+    "durationSeconds": 2239,
+    "segmentPath": "data/segments/ep91.json"
+  },
+  {
+    "episode": 92,
+    "title": "[ポッドキャスト] ep.092 / 厄介だぜポイズンオーク",
+    "youtubeId": "P64dqFgdiDw",
+    "videoUrl": "https://www.youtube.com/watch?v=P64dqFgdiDw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-092---厄介だぜポイズンオーク",
+    "durationSeconds": 1834,
+    "segmentPath": "data/segments/ep92.json"
+  },
+  {
+    "episode": 93,
+    "title": "[ポッドキャスト] ep.093 / 日本からの友達との6週間共同生活",
+    "youtubeId": "o8K7Xh43IrI",
+    "videoUrl": "https://www.youtube.com/watch?v=o8K7Xh43IrI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-093---日本からの友達との6週間共同生活",
+    "durationSeconds": 1782,
+    "segmentPath": "data/segments/ep93.json"
+  },
+  {
+    "episode": 94,
+    "title": "[ポッドキャスト] ep.094 / 我が家のご近所さん",
+    "youtubeId": "Vwoubw6fG5M",
+    "videoUrl": "https://www.youtube.com/watch?v=Vwoubw6fG5M",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-094---我が家のご近所さん",
+    "durationSeconds": 2253,
+    "segmentPath": "data/segments/ep94.json"
+  },
+  {
+    "episode": 95,
+    "title": "[ポッドキャスト] ep.095 / アメリカで初美容院！",
+    "youtubeId": "V2yHOH5HklM",
+    "videoUrl": "https://www.youtube.com/watch?v=V2yHOH5HklM",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-095---アメリカで初美容院！",
+    "durationSeconds": 2131,
+    "segmentPath": "data/segments/ep95.json"
+  },
+  {
+    "episode": 96,
+    "title": "[ポッドキャスト] ep.096 / 壁に耳あり障子に目あり",
+    "youtubeId": "qJLo4j81GUs",
+    "videoUrl": "https://www.youtube.com/watch?v=qJLo4j81GUs",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-096--壁に耳あり障子に目あり",
+    "durationSeconds": 1921,
+    "segmentPath": "data/segments/ep96.json"
+  },
+  {
+    "episode": 97,
+    "title": "[ポッドキャスト] ep.097 / お金をかけるもの、かけないもの",
+    "youtubeId": "bmA5xCW_0BI",
+    "videoUrl": "https://www.youtube.com/watch?v=bmA5xCW_0BI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-097---お金をかけるもの、かけないもの",
+    "durationSeconds": 2280,
+    "segmentPath": "data/segments/ep97.json"
+  },
+  {
+    "episode": 98,
+    "title": "[ポッドキャスト] ep.098 / めっちゃ楽しみなこと！",
+    "youtubeId": "QVz6Lsd4GQ8",
+    "videoUrl": "https://www.youtube.com/watch?v=QVz6Lsd4GQ8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-098---めっちゃ楽しみなこと！",
+    "durationSeconds": 1740,
+    "segmentPath": "data/segments/ep98.json"
+  },
+  {
+    "episode": 99,
+    "title": "[ポッドキャスト] ep.099 / 日付の言い方英語・日本語",
+    "youtubeId": "j6CIHGpgxIk",
+    "videoUrl": "https://www.youtube.com/watch?v=j6CIHGpgxIk",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-099---日付の言い方英語・日本語",
+    "durationSeconds": 2062,
+    "segmentPath": "data/segments/ep99.json"
+  },
+  {
+    "episode": 100,
+    "title": "[ポッドキャスト] ep.100/ 皆から見た私ってどんな人？",
+    "youtubeId": "__i60B-YoJU",
+    "videoUrl": "https://www.youtube.com/watch?v=__i60B-YoJU",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-100--聞いてみた！皆から見た私ってどんな人？",
+    "durationSeconds": 1936,
+    "segmentPath": "data/segments/ep100.json"
+  },
+  {
+    "episode": 101,
+    "title": "[ポッドキャスト] ep.101/私、生まれ変わりました！",
+    "youtubeId": "hUD_wYCIUKk",
+    "videoUrl": "https://www.youtube.com/watch?v=hUD_wYCIUKk",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-101-私、生まれ変わりました！",
+    "durationSeconds": 1751,
+    "segmentPath": "data/segments/ep101.json"
+  },
+  {
+    "episode": 102,
+    "title": "[ポッドキャスト] ep.102/ 究極の選択・あなたはどっち派？",
+    "youtubeId": "cIBAEusPy1o",
+    "videoUrl": "https://www.youtube.com/watch?v=cIBAEusPy1o",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-102--究極の選択・あなたはどっち派？",
+    "durationSeconds": 1939,
+    "segmentPath": "data/segments/ep102.json"
+  },
+  {
+    "episode": 103,
+    "title": "[ポッドキャスト] ep.103/ 時代の大転換期に私達はいる",
+    "youtubeId": "dPfHot3xfS4",
+    "videoUrl": "https://www.youtube.com/watch?v=dPfHot3xfS4",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-103--時代の大転換期に私達はいる",
+    "durationSeconds": 2041,
+    "segmentPath": "data/segments/ep103.json"
+  },
+  {
+    "episode": 104,
+    "title": "[ポッドキャスト] ep.104/ Zoom ESLクラスの愚痴",
+    "youtubeId": "nXSLd0Irj3I",
+    "videoUrl": "https://www.youtube.com/watch?v=nXSLd0Irj3I",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-104--zoom-eslクラスの愚痴",
+    "durationSeconds": 1894,
+    "segmentPath": "data/segments/ep104.json"
+  },
+  {
+    "episode": 105,
+    "title": "[ポッドキャスト] ep.105/ ぽっちゃりな私がモデルになる!?",
+    "youtubeId": "u3CQ_4n0vDo",
+    "videoUrl": "https://www.youtube.com/watch?v=u3CQ_4n0vDo",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-105--ぽっちゃりな私がモデルになる",
+    "durationSeconds": 1820,
+    "segmentPath": "data/segments/ep105.json"
+  },
+  {
+    "episode": 106,
+    "title": "[ポッドキャスト] ep.106/ トレジョ vs Whole Foods",
+    "youtubeId": "wmpHxKfUuoQ",
+    "videoUrl": "https://www.youtube.com/watch?v=wmpHxKfUuoQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-106--トレジョ-vs-whole-foods",
+    "durationSeconds": 1958,
+    "segmentPath": "data/segments/ep106.json"
+  },
+  {
+    "episode": 107,
+    "title": "[ポッドキャスト] ep.107/ アメリカの自動販売機は運試し",
+    "youtubeId": "g--SYED10Do",
+    "videoUrl": "https://www.youtube.com/watch?v=g--SYED10Do",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-107--アメリカの自動販売機は運試し",
+    "durationSeconds": 1997,
+    "segmentPath": "data/segments/ep107.json"
+  },
+  {
+    "episode": 108,
+    "title": "[ポッドキャスト] ep.108/ 止まない雨はない、超えられない壁はない",
+    "youtubeId": "ACT2ywX4Wh4",
+    "videoUrl": "https://www.youtube.com/watch?v=ACT2ywX4Wh4",
+    "scriptUrl": "https://www.4989americanlife.com/post/p-108--止まない雨はない、超えられない壁はない",
+    "durationSeconds": 1718,
+    "segmentPath": "data/segments/ep108.json"
+  },
+  {
+    "episode": 109,
+    "title": "[ポッドキャスト] ep.109/ アメリカで日本人が台湾ドラマをスペイン語音声で観る",
+    "youtubeId": "pUe1cf0nxZg",
+    "videoUrl": "https://www.youtube.com/watch?v=pUe1cf0nxZg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-109--アメリカで日本人が台湾ドラマをスペイン語音声で観る",
+    "durationSeconds": 1929,
+    "segmentPath": "data/segments/ep109.json"
+  },
+  {
+    "episode": 110,
+    "title": "[ポッドキャスト] ep.110/ アメリカ女性が使う感嘆詞が難易度高い件",
+    "youtubeId": "HhihADWAmO8",
+    "videoUrl": "https://www.youtube.com/watch?v=HhihADWAmO8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-110--アメリカ女性が使う感嘆詞が難易度高い件",
+    "durationSeconds": 1680,
+    "segmentPath": "data/segments/ep110.json"
+  },
+  {
+    "episode": 111,
+    "title": "[ポッドキャスト] ep.111/ アメリカ生活終了の危機？日本へ帰国？",
+    "youtubeId": "L82HtWIp3Do",
+    "videoUrl": "https://www.youtube.com/watch?v=L82HtWIp3Do",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-111--アメリカ生活終了の危機？日本へ帰国？",
+    "durationSeconds": 1654,
+    "segmentPath": "data/segments/ep111.json"
+  },
+  {
+    "episode": 112,
+    "title": "[ポッドキャスト] ep.112/ アパートのインスペクション",
+    "youtubeId": "SdU0UMOMzdc",
+    "videoUrl": "https://www.youtube.com/watch?v=SdU0UMOMzdc",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-112--アパートのインスペクション",
+    "durationSeconds": 1420,
+    "segmentPath": "data/segments/ep112.json"
+  },
+  {
+    "episode": 113,
+    "title": "[ポッドキャスト] ep.113/ 1年でひと区切り。未だアウェイ感。",
+    "youtubeId": "Zly20KR7mu4",
+    "videoUrl": "https://www.youtube.com/watch?v=Zly20KR7mu4",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-113--1年でひと区切り。未だアウェイ感。",
+    "durationSeconds": 1993,
+    "segmentPath": "data/segments/ep113.json"
+  },
+  {
+    "episode": 114,
+    "title": "[ポッドキャスト] ep.114/ 2020年前半終了",
+    "youtubeId": "u79-0ZdH-KY",
+    "videoUrl": "https://www.youtube.com/watch?v=u79-0ZdH-KY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-114--2020年前半終了",
+    "durationSeconds": 2480,
+    "segmentPath": "data/segments/ep114.json"
+  },
+  {
+    "episode": 115,
+    "title": "[ポッドキャスト] ep.115/ もったいない病",
+    "youtubeId": "zqI2l7GhnjM",
+    "videoUrl": "https://www.youtube.com/watch?v=zqI2l7GhnjM",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-115--もったいない病",
+    "durationSeconds": 2050,
+    "segmentPath": "data/segments/ep115.json"
+  },
+  {
+    "episode": 116,
+    "title": "[ポッドキャスト] ep.116/ 日本アメリカ文字の違い",
+    "youtubeId": "xTx1nHiQUQI",
+    "videoUrl": "https://www.youtube.com/watch?v=xTx1nHiQUQI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-116--日本アメリカ文字の違い",
+    "durationSeconds": 2311,
+    "segmentPath": "data/segments/ep116.json"
+  },
+  {
+    "episode": 117,
+    "title": "[ポッドキャスト] ep.117/ 英語でクレームの電話ができるようになりたい",
+    "youtubeId": "wVXVRIssDOU",
+    "videoUrl": "https://www.youtube.com/watch?v=wVXVRIssDOU",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-117--英語でクレームの電話ができるようになりたい",
+    "durationSeconds": 2114,
+    "segmentPath": "data/segments/ep117.json"
+  },
+  {
+    "episode": 118,
+    "title": "[ポッドキャスト] ep.118/ ワシントンD.C.とワシントン州",
+    "youtubeId": "wb54YploFR0",
+    "videoUrl": "https://www.youtube.com/watch?v=wb54YploFR0",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-118--ワシントンd-c-とワシントン州",
+    "durationSeconds": 1957,
+    "segmentPath": "data/segments/ep118.json"
+  },
+  {
+    "episode": 119,
+    "title": "[ポッドキャスト] ep.119/ 日本語への罪悪感？",
+    "youtubeId": "Tr-EOCy1Jtw",
+    "videoUrl": "https://www.youtube.com/watch?v=Tr-EOCy1Jtw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-119--日本語への罪悪感？",
+    "durationSeconds": 1793,
+    "segmentPath": "data/segments/ep119.json"
+  },
+  {
+    "episode": 120,
+    "title": "[ポッドキャスト] ep.120/ DMVで起こった奇跡",
+    "youtubeId": "JlUFqlVXxdA",
+    "videoUrl": "https://www.youtube.com/watch?v=JlUFqlVXxdA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-120--dmvで起こった奇跡",
+    "durationSeconds": 2470,
+    "segmentPath": "data/segments/ep120.json"
+  },
+  {
+    "episode": 121,
+    "title": "[ポッドキャスト] ep.121/ 山火事が大変なことになってる",
+    "youtubeId": "yNqtIsyMzik",
+    "videoUrl": "https://www.youtube.com/watch?v=yNqtIsyMzik",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-121--山火事が大変なことになってる",
+    "durationSeconds": 1958,
+    "segmentPath": "data/segments/ep121.json"
+  },
+  {
+    "episode": 122,
+    "title": "[ポッドキャスト] ep.122/  アメリカの道の名前について",
+    "youtubeId": "NLStcLVjg-k",
+    "videoUrl": "https://www.youtube.com/watch?v=NLStcLVjg-k",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-122--アメリカの道の名前について",
+    "durationSeconds": 2115,
+    "segmentPath": "data/segments/ep122.json"
+  },
+  {
+    "episode": 123,
+    "title": "[ポッドキャスト] ep.123/ 我が家の夏の過ごし方",
+    "youtubeId": "1qMT2WSWtmE",
+    "videoUrl": "https://www.youtube.com/watch?v=1qMT2WSWtmE",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-123--我が家の夏の過ごし方",
+    "durationSeconds": 2122,
+    "segmentPath": "data/segments/ep123.json"
+  },
+  {
+    "episode": 124,
+    "title": "[ポッドキャスト] ep.124/ 誕生日温泉キャンプ！",
+    "youtubeId": "O8ehRq8wZiI",
+    "videoUrl": "https://www.youtube.com/watch?v=O8ehRq8wZiI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-124--誕生日温泉キャンプ！",
+    "durationSeconds": 1970,
+    "segmentPath": "data/segments/ep124.json"
+  },
+  {
+    "episode": 125,
+    "title": "[ポッドキャスト] ep.125/ 今年も残り3カ月かぁ。",
+    "youtubeId": "UW8QsjZcHGs",
+    "videoUrl": "https://www.youtube.com/watch?v=UW8QsjZcHGs",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-125--今年も残り3カ月かぁ。",
+    "durationSeconds": 1979,
+    "segmentPath": "data/segments/ep125.json"
+  },
+  {
+    "episode": 126,
+    "title": "[ポッドキャスト] ep.126/ 最近やってる英語の勉強",
+    "youtubeId": "PyP6J0JKPJs",
+    "videoUrl": "https://www.youtube.com/watch?v=PyP6J0JKPJs",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-126--最近やってる英語の勉強",
+    "durationSeconds": 1794,
+    "segmentPath": "data/segments/ep126.json"
+  },
+  {
+    "episode": 127,
+    "title": "[ポッドキャスト] ep.127/ McDonald's VS Burger King",
+    "youtubeId": "f723QTgaAJE",
+    "videoUrl": "https://www.youtube.com/watch?v=f723QTgaAJE",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-127--mcdonald-s-vs-burger-king",
+    "durationSeconds": 2012,
+    "segmentPath": "data/segments/ep127.json"
+  },
+  {
+    "episode": 128,
+    "title": "[ポッドキャスト] ep.128/ 中古品はお好き？",
+    "youtubeId": "leNi4ueUIa4",
+    "videoUrl": "https://www.youtube.com/watch?v=leNi4ueUIa4",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-128--中古品はお好き？",
+    "durationSeconds": 1815,
+    "segmentPath": "data/segments/ep128.json"
+  },
+  {
+    "episode": 129,
+    "title": "[ポッドキャスト] ep.129/ 和製英語に気をつけろ！",
+    "youtubeId": "0PItUFXWDaY",
+    "videoUrl": "https://www.youtube.com/watch?v=0PItUFXWDaY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-129--和製英語に気をつけろ！",
+    "durationSeconds": 1730,
+    "segmentPath": "data/segments/ep129.json"
+  },
+  {
+    "episode": 130,
+    "title": "[ポッドキャスト] ep.130/ 旦那の自宅勤務が終了",
+    "youtubeId": "5vIcJj2hktI",
+    "videoUrl": "https://www.youtube.com/watch?v=5vIcJj2hktI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-130-夫、出勤再開。",
+    "durationSeconds": 1953,
+    "segmentPath": "data/segments/ep130.json"
+  },
+  {
+    "episode": 131,
+    "title": "[ポッドキャスト] ep.131/ チップ文化にマジで慣れない",
+    "youtubeId": "3rdHmcZcsrY",
+    "videoUrl": "https://www.youtube.com/watch?v=3rdHmcZcsrY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-131--チップ文化にマジで慣れない",
+    "durationSeconds": 2153,
+    "segmentPath": "data/segments/ep131.json"
+  },
+  {
+    "episode": 132,
+    "title": "[ポッドキャスト] ep.132/ Mac vs Windows",
+    "youtubeId": "G9d37P61pAU",
+    "videoUrl": "https://www.youtube.com/watch?v=G9d37P61pAU",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-132--mac-vs-windows",
+    "durationSeconds": 2135,
+    "segmentPath": "data/segments/ep132.json"
+  },
+  {
+    "episode": 133,
+    "title": "[ポッドキャスト] ep.133/ NATO phoneticコードって知ってる？",
+    "youtubeId": "-cpBfB1JuE8",
+    "videoUrl": "https://www.youtube.com/watch?v=-cpBfB1JuE8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-133--nato-phoneticコードって知ってる？",
+    "durationSeconds": 2059,
+    "segmentPath": "data/segments/ep133.json"
+  },
+  {
+    "episode": 134,
+    "title": "[ポッドキャスト] ep.134/ コロナ自粛Californiaの現在の様子",
+    "youtubeId": "AKCf6htWRVA",
+    "videoUrl": "https://www.youtube.com/watch?v=AKCf6htWRVA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-134--コロナ自粛californiaの現在の様子",
+    "durationSeconds": 1898,
+    "segmentPath": "data/segments/ep134.json"
+  },
+  {
+    "episode": 135,
+    "title": "[ポッドキャスト] ep.135/ 今年のまとめ来年の準備",
+    "youtubeId": "h192NNVd3bI",
+    "videoUrl": "https://www.youtube.com/watch?v=h192NNVd3bI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-135--今年のまとめ来年の準備",
+    "durationSeconds": 1691,
+    "segmentPath": "data/segments/ep135.json"
+  },
+  {
+    "episode": 136,
+    "title": "[ポッドキャスト] ep.136/ Walmart vs Target",
+    "youtubeId": "USJcAobTK-k",
+    "videoUrl": "https://www.youtube.com/watch?v=USJcAobTK-k",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-136--walmart-vs-target",
+    "durationSeconds": 2065,
+    "segmentPath": "data/segments/ep136.json"
+  },
+  {
+    "episode": 137,
+    "title": "[ポッドキャスト] ep.137/ アメリカのドーナツ屋",
+    "youtubeId": "8o98GT36prY",
+    "videoUrl": "https://www.youtube.com/watch?v=8o98GT36prY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-137--アメリカのドーナツ屋",
+    "durationSeconds": 2061,
+    "segmentPath": "data/segments/ep137.json"
+  },
+  {
+    "episode": 138,
+    "title": "[ポッドキャスト] ep.138/ 遂にCOVID テストを受けた話",
+    "youtubeId": "FqUaLa2rtyg",
+    "videoUrl": "https://www.youtube.com/watch?v=FqUaLa2rtyg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-138--遂にcovid-テストを受けた話",
+    "durationSeconds": 1849,
+    "segmentPath": "data/segments/ep138.json"
+  },
+  {
+    "episode": 139,
+    "title": "[ポッドキャスト] ep.139/ 2020年の振り返り",
+    "youtubeId": "kUrqdzNUOz0",
+    "videoUrl": "https://www.youtube.com/watch?v=kUrqdzNUOz0",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-139--2020年の振り返り",
+    "durationSeconds": 2071,
+    "segmentPath": "data/segments/ep139.json"
+  },
+  {
+    "episode": 140,
+    "title": "[ポッドキャスト]ep.140/ 謹賀新年！今年について色々",
+    "youtubeId": "g94sXSoYbQI",
+    "videoUrl": "https://www.youtube.com/watch?v=g94sXSoYbQI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-140--謹賀新年！今年について色々",
+    "durationSeconds": 1899,
+    "segmentPath": "data/segments/ep140.json"
+  },
+  {
+    "episode": 141,
+    "title": "[ポッドキャスト]ep.141/ 年末年始アメリカと日本の違い",
+    "youtubeId": "oofBApgi7Cc",
+    "videoUrl": "https://www.youtube.com/watch?v=oofBApgi7Cc",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-141--年末年始アメリカと日本の違い",
+    "durationSeconds": 1921,
+    "segmentPath": "data/segments/ep141.json"
+  },
+  {
+    "episode": 142,
+    "title": "[ポッドキャスト] ep.142/ サンキューハザード文化",
+    "youtubeId": "ip9ZdVcENwQ",
+    "videoUrl": "https://www.youtube.com/watch?v=ip9ZdVcENwQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-142-サンキューハザード文化",
+    "durationSeconds": 1918,
+    "segmentPath": "data/segments/ep142.json"
+  },
+  {
+    "episode": 143,
+    "title": "[ポッドキャスト] ep.143/ 40歳アメリカで大学生になる",
+    "youtubeId": "Va9fy8ep61c",
+    "videoUrl": "https://www.youtube.com/watch?v=Va9fy8ep61c",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-143--40歳アメリカで大学生になる",
+    "durationSeconds": 2202,
+    "segmentPath": "data/segments/ep143.json"
+  },
+  {
+    "episode": 144,
+    "title": "[ポッドキャスト] ep.144/ ラップはWalmart",
+    "youtubeId": "zBujrOpFgqQ",
+    "videoUrl": "https://www.youtube.com/watch?v=zBujrOpFgqQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-144--ラップはwalmart",
+    "durationSeconds": 1908,
+    "segmentPath": "data/segments/ep144.json"
+  },
+  {
+    "episode": 145,
+    "title": "[ポッドキャスト] ep.145/ 生活のリズム乱れ中",
+    "youtubeId": "XjvjrORy8CE",
+    "videoUrl": "https://www.youtube.com/watch?v=XjvjrORy8CE",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-145--生活のリズム乱れ中",
+    "durationSeconds": 1983,
+    "segmentPath": "data/segments/ep145.json"
+  },
+  {
+    "episode": 146,
+    "title": "[ポッドキャスト] ep.146/ 我が家の猫たち",
+    "youtubeId": "kYUwMAkV-2A",
+    "videoUrl": "https://www.youtube.com/watch?v=kYUwMAkV-2A",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-146--我が家の猫たち",
+    "durationSeconds": 1985,
+    "segmentPath": "data/segments/ep146.json"
+  },
+  {
+    "episode": 147,
+    "title": "[ポッドキャスト] ep.147/ PoliceとSheriffってどう違うの？",
+    "youtubeId": "Lu5-1BotVWE",
+    "videoUrl": "https://www.youtube.com/watch?v=Lu5-1BotVWE",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-147--policeとsheriffってどう違うの？",
+    "durationSeconds": 2159,
+    "segmentPath": "data/segments/ep147.json"
+  },
+  {
+    "episode": 148,
+    "title": "[ポッドキャスト] ep.148 / なぜアメリカに住み続けたいのか",
+    "youtubeId": "psyL6MVPITk",
+    "videoUrl": "https://www.youtube.com/watch?v=psyL6MVPITk",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-148---なぜアメリカに住み続けたいのか",
+    "durationSeconds": 2042,
+    "segmentPath": "data/segments/ep148.json"
+  },
+  {
+    "episode": 149,
+    "title": "[ポッドキャスト] ep.149 / 花粉症ってアメリカにもあるの？",
+    "youtubeId": "-DnLIpFfWRM",
+    "videoUrl": "https://www.youtube.com/watch?v=-DnLIpFfWRM",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-149---花粉症ってアメリカにもあるの？",
+    "durationSeconds": 1946,
+    "segmentPath": "data/segments/ep149.json"
+  },
+  {
+    "episode": 150,
+    "title": "[ポッドキャスト] ep.150 / フィラデルフィアはヨーロッパ？",
+    "youtubeId": "cFGllvtuRXs",
+    "videoUrl": "https://www.youtube.com/watch?v=cFGllvtuRXs",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-150---フィラデルフィアはヨーロッパ？",
+    "durationSeconds": 2100,
+    "segmentPath": "data/segments/ep150.json"
+  },
+  {
+    "episode": 151,
+    "title": "[ポッドキャスト] ep.151 / Online脱出ゲーム",
+    "youtubeId": "0MHssOTHHUA",
+    "videoUrl": "https://www.youtube.com/watch?v=0MHssOTHHUA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-151---online脱出ゲーム",
+    "durationSeconds": 1869,
+    "segmentPath": "data/segments/ep151.json"
+  },
+  {
+    "episode": 152,
+    "title": "[ポッドキャスト] ep.152/ 数学の先生がおもしろい",
+    "youtubeId": "6BIKwALYUPw",
+    "videoUrl": "https://www.youtube.com/watch?v=6BIKwALYUPw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-152--数学の先生がおもしろい",
+    "durationSeconds": 1857,
+    "segmentPath": "data/segments/ep152.json"
+  },
+  {
+    "episode": 153,
+    "title": "[ポッドキャスト] ep.153/ 切実：学校に友達が欲しい",
+    "youtubeId": "cpG9vhVhpY4",
+    "videoUrl": "https://www.youtube.com/watch?v=cpG9vhVhpY4",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-153--切実：学校に友達が欲しい",
+    "durationSeconds": 2041,
+    "segmentPath": "data/segments/ep153.json"
+  },
+  {
+    "episode": 154,
+    "title": "[ポッドキャスト] ep.154/ ロックスミスにご用心",
+    "youtubeId": "EQw399SmPVA",
+    "videoUrl": "https://www.youtube.com/watch?v=EQw399SmPVA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-154--ロックスミスにご用心",
+    "durationSeconds": 1770,
+    "segmentPath": "data/segments/ep154.json"
+  },
+  {
+    "episode": 155,
+    "title": "[ポッドキャスト] ep.155/ ノートにまとめる勉強法は日本だけ？",
+    "youtubeId": "_n3eFQJ02Ec",
+    "videoUrl": "https://www.youtube.com/watch?v=_n3eFQJ02Ec",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-155--ノートにまとめる勉強法は日本だけ？",
+    "durationSeconds": 2050,
+    "segmentPath": "data/segments/ep155.json"
+  },
+  {
+    "episode": 156,
+    "title": "[ポッドキャスト] ep.156/ グリーンカードLottery当選！",
+    "youtubeId": "t3RyMnRVIGo",
+    "videoUrl": "https://www.youtube.com/watch?v=t3RyMnRVIGo",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-156--グリーンカードlottery当選！",
+    "durationSeconds": 2068,
+    "segmentPath": "data/segments/ep156.json"
+  },
+  {
+    "episode": 157,
+    "title": "[ポッドキャスト]  ep.157/  スーパーのレジであたふたする",
+    "youtubeId": "Sz8rPRINZX8",
+    "videoUrl": "https://www.youtube.com/watch?v=Sz8rPRINZX8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-157--スーパーのレジであたふたする",
+    "durationSeconds": 1862,
+    "segmentPath": "data/segments/ep157.json"
+  },
+  {
+    "episode": 158,
+    "title": "[ポッドキャスト] ep.158/ Bagを床に置きたくない",
+    "youtubeId": "ySQ83VUoxpg",
+    "videoUrl": "https://www.youtube.com/watch?v=ySQ83VUoxpg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-158--bagを床に置きたくない",
+    "durationSeconds": 1726,
+    "segmentPath": "data/segments/ep158.json"
+  },
+  {
+    "episode": 159,
+    "title": "[ポッドキャスト] ep.159/ 日本みたいにお取り寄せがしたい！",
+    "youtubeId": "cY3jAL7WvSY",
+    "videoUrl": "https://www.youtube.com/watch?v=cY3jAL7WvSY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-159--日本みたいにお取り寄せがしたい！",
+    "durationSeconds": 1776,
+    "segmentPath": "data/segments/ep159.json"
+  },
+  {
+    "episode": 160,
+    "title": "[ポッドキャスト] ep.160/ 大学の食料配給がすごかった",
+    "youtubeId": "KiWKPn7uE0g",
+    "videoUrl": "https://www.youtube.com/watch?v=KiWKPn7uE0g",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-160--大学の食料配給がすごかった",
+    "durationSeconds": 1727,
+    "segmentPath": "data/segments/ep160.json"
+  },
+  {
+    "episode": 161,
+    "title": "[ポッドキャスト] ep.161/ 謝る文化の日本から来て感じること",
+    "youtubeId": "dPEvUJy4kk4",
+    "videoUrl": "https://www.youtube.com/watch?v=dPEvUJy4kk4",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-161--謝る文化の日本から来て感じること",
+    "durationSeconds": 1829,
+    "segmentPath": "data/segments/ep161.json"
+  },
+  {
+    "episode": 162,
+    "title": "[ポッドキャスト] ep.162/ 春学期の成績出たよ",
+    "youtubeId": "RyQO325eL0Y",
+    "videoUrl": "https://www.youtube.com/watch?v=RyQO325eL0Y",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-162--春学期の成績出たよ",
+    "durationSeconds": 2120,
+    "segmentPath": "data/segments/ep162.json"
+  },
+  {
+    "episode": 163,
+    "title": "[ポッドキャスト] ep.163/ なぜアメリカに住むことになったの？",
+    "youtubeId": "PUaHPJtEZow",
+    "videoUrl": "https://www.youtube.com/watch?v=PUaHPJtEZow",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-163--なぜアメリカに住むことになったの？",
+    "durationSeconds": 1655,
+    "segmentPath": "data/segments/ep163.json"
+  },
+  {
+    "episode": 164,
+    "title": "[ポッドキャスト] ep.164/ 速報：お隣さんが逮捕された",
+    "youtubeId": "y8EyG5K29rg",
+    "videoUrl": "https://www.youtube.com/watch?v=y8EyG5K29rg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-164--速報：お隣さんが逮捕された",
+    "durationSeconds": 2007,
+    "segmentPath": "data/segments/ep164.json"
+  },
+  {
+    "episode": 165,
+    "title": "[ポッドキャスト] ep.165/ 好きなビールについて",
+    "youtubeId": "QQoJq3_IoNg",
+    "videoUrl": "https://www.youtube.com/watch?v=QQoJq3_IoNg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-165--好きなビールについて",
+    "durationSeconds": 1985,
+    "segmentPath": "data/segments/ep165.json"
+  },
+  {
+    "episode": 166,
+    "title": "[ポッドキャスト] ep.166/ スピーチをビデオに撮る！",
+    "youtubeId": "qjbeVMPPbu8",
+    "videoUrl": "https://www.youtube.com/watch?v=qjbeVMPPbu8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-166--スピーチをビデオに撮る！",
+    "durationSeconds": 1690,
+    "segmentPath": "data/segments/ep166.json"
+  },
+  {
+    "episode": 167,
+    "title": "[ポッドキャスト] ep.167/ アメリカの接客に喝！",
+    "youtubeId": "ZXcwsOTKkHE",
+    "videoUrl": "https://www.youtube.com/watch?v=ZXcwsOTKkHE",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-167--アメリカの接客に喝！",
+    "durationSeconds": 1878,
+    "segmentPath": "data/segments/ep167.json"
+  },
+  {
+    "episode": 168,
+    "title": "[ポッドキャスト]ep.168/ 夏のSpeechクラスいよいよ大詰め",
+    "youtubeId": "7egE7abumy0",
+    "videoUrl": "https://www.youtube.com/watch?v=7egE7abumy0",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-168--夏のspeechクラスいよいよ大詰め",
+    "durationSeconds": 1791,
+    "segmentPath": "data/segments/ep168.json"
+  },
+  {
+    "episode": 169,
+    "title": "[ポッドキャスト]ep.169/ 結局Daisoしか勝たん！",
+    "youtubeId": "zK8B3F4H9oU",
+    "videoUrl": "https://www.youtube.com/watch?v=zK8B3F4H9oU",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-169--結局daisoしか勝たん！",
+    "durationSeconds": 1632,
+    "segmentPath": "data/segments/ep169.json"
+  },
+  {
+    "episode": 170,
+    "title": "[ポッドキャスト]ep.170/ 私のPaypal完全体になる",
+    "youtubeId": "zEPfISaEZyM",
+    "videoUrl": "https://www.youtube.com/watch?v=zEPfISaEZyM",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-170--私のpaypal完全体になる",
+    "durationSeconds": 2041,
+    "segmentPath": "data/segments/ep170.json"
+  },
+  {
+    "episode": 171,
+    "title": "[ポッドキャスト]ep.171/ 冷凍食品にハマってしまった",
+    "youtubeId": "Zgjar40hzV4",
+    "videoUrl": "https://www.youtube.com/watch?v=Zgjar40hzV4",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-171--冷凍食品にハマってしまった",
+    "durationSeconds": 1791,
+    "segmentPath": "data/segments/ep171.json"
+  },
+  {
+    "episode": 172,
+    "title": "[ポッドキャスト] ep.172/ 祝★Green Cardゲット！- Video有",
+    "youtubeId": "FDbtOSQ8-cI",
+    "videoUrl": "https://www.youtube.com/watch?v=FDbtOSQ8-cI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-172--祝-green-cardゲット！",
+    "durationSeconds": 1855,
+    "segmentPath": "data/segments/ep172.json"
+  },
+  {
+    "episode": 173,
+    "title": "[ポッドキャスト]ep.173/ アメリカでTapDanceを教える",
+    "youtubeId": "hnGFNmkP61I",
+    "videoUrl": "https://www.youtube.com/watch?v=hnGFNmkP61I",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-173--アメリカでtapdanceを教える",
+    "durationSeconds": 1695,
+    "segmentPath": "data/segments/ep173.json"
+  },
+  {
+    "episode": 174,
+    "title": "[ポッドキャスト]ep.174/ ユニクロ日米でサイズが違う問題",
+    "youtubeId": "t_h9KnF21wo",
+    "videoUrl": "https://www.youtube.com/watch?v=t_h9KnF21wo",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-174--ユニクロ日米でサイズが違う問題",
+    "durationSeconds": 1784,
+    "segmentPath": "data/segments/ep174.json"
+  },
+  {
+    "episode": 175,
+    "title": "[ポッドキャスト]ep.175/ 言ったもん勝ちアメリカ",
+    "youtubeId": "Y1UgvM3eDWw",
+    "videoUrl": "https://www.youtube.com/watch?v=Y1UgvM3eDWw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-175--言ったもん勝ちアメリカ",
+    "durationSeconds": 1966,
+    "segmentPath": "data/segments/ep175.json"
+  },
+  {
+    "episode": 176,
+    "title": "[ポッドキャスト]ep.176/ 夏の振り返りをしよう！",
+    "youtubeId": "q9-9aFKPXSo",
+    "videoUrl": "https://www.youtube.com/watch?v=q9-9aFKPXSo",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-176--夏の振り返りをしよう！",
+    "durationSeconds": 1250,
+    "segmentPath": "data/segments/ep176.json"
+  },
+  {
+    "episode": 177,
+    "title": "[ポッドキャスト]ep.177/ アラフォー大学生2021秋",
+    "youtubeId": "f8gGKIJGm7Q",
+    "videoUrl": "https://www.youtube.com/watch?v=f8gGKIJGm7Q",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-177--アラフォー大学生2021秋",
+    "durationSeconds": 2013,
+    "segmentPath": "data/segments/ep177.json"
+  },
+  {
+    "episode": 178,
+    "title": "[ポッドキャスト]ep.178/  この季節恋しくなる日本のあれ。",
+    "youtubeId": "r6SyISK_0eg",
+    "videoUrl": "https://www.youtube.com/watch?v=r6SyISK_0eg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-178--この季節恋しくなる日本のあれ。",
+    "durationSeconds": 1660,
+    "segmentPath": "data/segments/ep178.json"
+  },
+  {
+    "episode": 179,
+    "title": "[ポッドキャスト]ep.179/ コロナ禍の米カレッジ",
+    "youtubeId": "PYa2kWhPjcY",
+    "videoUrl": "https://www.youtube.com/watch?v=PYa2kWhPjcY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-179--コロナ禍の米カレッジ",
+    "durationSeconds": 1990,
+    "segmentPath": "data/segments/ep179.json"
+  },
+  {
+    "episode": 180,
+    "title": "[ポッドキャスト]ep.180/ 愚痴大好き日本人",
+    "youtubeId": "BZi0PMYEyb0",
+    "videoUrl": "https://www.youtube.com/watch?v=BZi0PMYEyb0",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-180--愚痴大好き日本人",
+    "durationSeconds": 1881,
+    "segmentPath": "data/segments/ep180.json"
+  },
+  {
+    "episode": 181,
+    "title": "[ポッドキャスト]ep.181/ ダンスに言葉は不要？",
+    "youtubeId": "OciHxBYtWmA",
+    "videoUrl": "https://www.youtube.com/watch?v=OciHxBYtWmA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-181-ダンスに言葉は不要？",
+    "durationSeconds": 1881,
+    "segmentPath": "data/segments/ep181.json"
+  },
+  {
+    "episode": 182,
+    "title": "[ポッドキャスト] ep.182/ 新しい友達ができた！",
+    "youtubeId": "l5U6wxj0Yio",
+    "videoUrl": "https://www.youtube.com/watch?v=l5U6wxj0Yio",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-182--新しい友達ができた！気がする！",
+    "durationSeconds": 1451,
+    "segmentPath": "data/segments/ep182.json"
+  },
+  {
+    "episode": 183,
+    "title": "[ポッドキャスト] ep.183/ iPadが最高すぎる",
+    "youtubeId": "wfcTIkRkMRk",
+    "videoUrl": "https://www.youtube.com/watch?v=wfcTIkRkMRk",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-183--ipadが最高すぎる",
+    "durationSeconds": 1995,
+    "segmentPath": "data/segments/ep183.json"
+  },
+  {
+    "episode": 184,
+    "title": "【ポッドキャスト】ep.184/ 日本語クラスに行った話！",
+    "youtubeId": "kEaty82jkho",
+    "videoUrl": "https://www.youtube.com/watch?v=kEaty82jkho",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-184--日本語クラスに行った話！",
+    "durationSeconds": 2381,
+    "segmentPath": "data/segments/ep184.json"
+  },
+  {
+    "episode": 185,
+    "title": "【ポッドキャスト】ep.185/ 日本語のオノマトペ",
+    "youtubeId": "gxUV_tRTypU",
+    "videoUrl": "https://www.youtube.com/watch?v=gxUV_tRTypU",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-185--日本語のオノマトペ",
+    "durationSeconds": 1598,
+    "segmentPath": "data/segments/ep185.json"
+  },
+  {
+    "episode": 186,
+    "title": "【ポッドキャスト】ep.186/ コミュ機会減り傾向",
+    "youtubeId": "xtbR8uKD9TQ",
+    "videoUrl": "https://www.youtube.com/watch?v=xtbR8uKD9TQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-186--コミュ機会減り傾向",
+    "durationSeconds": 1446,
+    "segmentPath": "data/segments/ep186.json"
+  },
+  {
+    "episode": 187,
+    "title": "【ポッドキャスト】ep.187/ 意外？お水を飲むアメリカの若者",
+    "youtubeId": "Wij6dgspDBA",
+    "videoUrl": "https://www.youtube.com/watch?v=Wij6dgspDBA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-187--意外？お水を飲むアメリカの若者",
+    "durationSeconds": 1039,
+    "segmentPath": "data/segments/ep187.json"
+  },
+  {
+    "episode": 188,
+    "title": "【ポッドキャスト】ep.188/ 緊張！初プレゼン！",
+    "youtubeId": "Sb9XCGHNXlI",
+    "videoUrl": "https://www.youtube.com/watch?v=Sb9XCGHNXlI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-188--緊張！初プレゼン！",
+    "durationSeconds": 1572,
+    "segmentPath": "data/segments/ep188.json"
+  },
+  {
+    "episode": 189,
+    "title": "【ポッドキャスト】ep.189/ シークレットサンタ",
+    "youtubeId": "LULVthwrWUw",
+    "videoUrl": "https://www.youtube.com/watch?v=LULVthwrWUw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-189--シークレットサンタ",
+    "durationSeconds": 1769,
+    "segmentPath": "data/segments/ep189.json"
+  },
+  {
+    "episode": 190,
+    "title": "【ポッドキャスト】ep.190/ 謹賀新年2022!!",
+    "youtubeId": "OLOCK0tXJeE",
+    "videoUrl": "https://www.youtube.com/watch?v=OLOCK0tXJeE",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-190--謹賀新年2022",
+    "durationSeconds": 1534,
+    "segmentPath": "data/segments/ep190.json"
+  },
+  {
+    "episode": 191,
+    "title": "【ポッドキャスト】ep.191/ Taxを勉強する！",
+    "youtubeId": "dpKwILGcUoA",
+    "videoUrl": "https://www.youtube.com/watch?v=dpKwILGcUoA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-191--taxを勉強する！",
+    "durationSeconds": 1611,
+    "segmentPath": "data/segments/ep191.json"
+  },
+  {
+    "episode": 192,
+    "title": "【ポッドキャスト】ep.192/ 夫、ERからの緊急入院",
+    "youtubeId": "L3KvtvyWyOI",
+    "videoUrl": "https://www.youtube.com/watch?v=L3KvtvyWyOI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-192--夫、erからの緊急入院",
+    "durationSeconds": 1775,
+    "segmentPath": "data/segments/ep192.json"
+  },
+  {
+    "episode": 193,
+    "title": "【ポッドキャスト】ep.193/ おばちゃん大学生3学期目",
+    "youtubeId": "i0Ki9wR1ml8",
+    "videoUrl": "https://www.youtube.com/watch?v=i0Ki9wR1ml8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-193--おばちゃん大学生3学期目",
+    "durationSeconds": 1785,
+    "segmentPath": "data/segments/ep193.json"
+  },
+  {
+    "episode": 194,
+    "title": "【ポッドキャスト】ep.194/ 日本食レストランで働く！",
+    "youtubeId": "cTiJBxMjG6M",
+    "videoUrl": "https://www.youtube.com/watch?v=cTiJBxMjG6M",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-194--日本食レストランで働く！",
+    "durationSeconds": 1513,
+    "segmentPath": "data/segments/ep194.json"
+  },
+  {
+    "episode": 195,
+    "title": "【ポッドキャスト】ep.195/ ダンス コンペティション！",
+    "youtubeId": "rMW_JftfgfQ",
+    "videoUrl": "https://www.youtube.com/watch?v=rMW_JftfgfQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-195--ダンス-コンペティション！",
+    "durationSeconds": 1778,
+    "segmentPath": "data/segments/ep195.json"
+  },
+  {
+    "episode": 196,
+    "title": "【ポッドキャスト】ep.196/  英語には無い日本語",
+    "youtubeId": "n6ITMN9HbEk",
+    "videoUrl": "https://www.youtube.com/watch?v=n6ITMN9HbEk",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-196--英語には無い日本語",
+    "durationSeconds": 1851,
+    "segmentPath": "data/segments/ep196.json"
+  },
+  {
+    "episode": 197,
+    "title": "【ポッドキャスト】ep.197/ 大学での友達作り",
+    "youtubeId": "cNMLSyyeQIg",
+    "videoUrl": "https://www.youtube.com/watch?v=cNMLSyyeQIg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-197--大学での友達作り",
+    "durationSeconds": 1504,
+    "segmentPath": "data/segments/ep197.json"
+  },
+  {
+    "episode": 198,
+    "title": "【ポッドキャスト】ep.198/ シェイクにはまる。",
+    "youtubeId": "BxkwE6QdhoM",
+    "videoUrl": "https://www.youtube.com/watch?v=BxkwE6QdhoM",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-198--シェイクにはまる。",
+    "durationSeconds": 1603,
+    "segmentPath": "data/segments/ep198.json"
+  },
+  {
+    "episode": 199,
+    "title": "【ポッドキャスト】ep.199/  寿司じゃなくてSUSHI",
+    "youtubeId": "-phfwErH8wA",
+    "videoUrl": "https://www.youtube.com/watch?v=-phfwErH8wA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-199--寿司じゃなくてsushi",
+    "durationSeconds": 2285,
+    "segmentPath": "data/segments/ep199.json"
+  },
+  {
+    "episode": 200,
+    "title": "【ポッドキャスト】ep.200/  50の質問に答える！",
+    "youtubeId": "ZKIHXX5YFHw",
+    "videoUrl": "https://www.youtube.com/watch?v=ZKIHXX5YFHw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-200--50の質問に答える！",
+    "durationSeconds": 1650,
+    "segmentPath": "data/segments/ep200.json"
+  },
+  {
+    "episode": 201,
+    "title": "【ポッドキャスト】ep.201/ アメリカ小切手事情",
+    "youtubeId": "OL6WzypDKGY",
+    "videoUrl": "https://www.youtube.com/watch?v=OL6WzypDKGY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-201--アメリカ小切手事情",
+    "durationSeconds": 2231,
+    "segmentPath": "data/segments/ep201.json"
+  },
+  {
+    "episode": 202,
+    "title": "【ポッドキャスト】ep.202/ 人と比べちゃうよね",
+    "youtubeId": "m1bAhD4IbLY",
+    "videoUrl": "https://www.youtube.com/watch?v=m1bAhD4IbLY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-202--人と比べちゃうよね",
+    "durationSeconds": 2146,
+    "segmentPath": "data/segments/ep202.json"
+  },
+  {
+    "episode": 203,
+    "title": "【ポッドキャスト】ep.203/ 友達に年齢を言い出せない",
+    "youtubeId": "GfmRuaB11H0",
+    "videoUrl": "https://www.youtube.com/watch?v=GfmRuaB11H0",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-203--友達に年齢を言い出せない",
+    "durationSeconds": 1928,
+    "segmentPath": "data/segments/ep203.json"
+  },
+  {
+    "episode": 204,
+    "title": "【ポッドキャスト】ep.204/ アメリカでスペイン語生活",
+    "youtubeId": "PSQ06pwPJa8",
+    "videoUrl": "https://www.youtube.com/watch?v=PSQ06pwPJa8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-204--アメリカでスペイン語生活",
+    "durationSeconds": 2160,
+    "segmentPath": "data/segments/ep204.json"
+  },
+  {
+    "episode": 205,
+    "title": "【ポッドキャスト】ep.205/この夏日本へ行くぞ！",
+    "youtubeId": "zM5i7OGSuc8",
+    "videoUrl": "https://www.youtube.com/watch?v=zM5i7OGSuc8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-205-この夏日本へ行くぞ！",
+    "durationSeconds": 1956,
+    "segmentPath": "data/segments/ep205.json"
+  },
+  {
+    "episode": 206,
+    "title": "【ポッドキャスト】ep.206/ 大学のクラスの愚痴",
+    "youtubeId": "yAk1-Glm8Lg",
+    "videoUrl": "https://www.youtube.com/watch?v=yAk1-Glm8Lg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-206--大学のクラスの愚痴",
+    "durationSeconds": 1699,
+    "segmentPath": "data/segments/ep206.json"
+  },
+  {
+    "episode": 207,
+    "title": "【ポッドキャスト】ep.207/ アメリカのシャワーが残念",
+    "youtubeId": "sBfSZjKw9p0",
+    "videoUrl": "https://www.youtube.com/watch?v=sBfSZjKw9p0",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-207--アメリカのシャワーが残念",
+    "durationSeconds": 1626,
+    "segmentPath": "data/segments/ep207.json"
+  },
+  {
+    "episode": 208,
+    "title": "【ポッドキャスト】ep.208/ 夏休みstart！でも…",
+    "youtubeId": "q9l7kZWXgwA",
+    "videoUrl": "https://www.youtube.com/watch?v=q9l7kZWXgwA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-208--夏休みstart！でも",
+    "durationSeconds": 2111,
+    "segmentPath": "data/segments/ep208.json"
+  },
+  {
+    "episode": 209,
+    "title": "【ポッドキャスト】ep.209/ アメリカレストランあるある",
+    "youtubeId": "YdbMVASDkZg",
+    "videoUrl": "https://www.youtube.com/watch?v=YdbMVASDkZg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-209--アメリカレストランあるある",
+    "durationSeconds": 2146,
+    "segmentPath": "data/segments/ep209.json"
+  },
+  {
+    "episode": 210,
+    "title": "【ポッドキャスト】ep.210/ 引っ越します！",
+    "youtubeId": "o8zp2HREMyI",
+    "videoUrl": "https://www.youtube.com/watch?v=o8zp2HREMyI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-210--引っ越します！",
+    "durationSeconds": 827,
+    "segmentPath": "data/segments/ep210.json"
+  },
+  {
+    "episode": 211,
+    "title": "【ポッドキャスト】ep.211/ 大ピンチ！住む家がない",
+    "youtubeId": "qP6bpnfzlvY",
+    "videoUrl": "https://www.youtube.com/watch?v=qP6bpnfzlvY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-211--大ピンチ！住む家がない",
+    "durationSeconds": 1006,
+    "segmentPath": "data/segments/ep211.json"
+  },
+  {
+    "episode": 212,
+    "title": "【ポッドキャスト】ep.212/ 壮絶引っ越しストーリー①",
+    "youtubeId": "fVZpP6bY7Iw",
+    "videoUrl": "https://www.youtube.com/watch?v=fVZpP6bY7Iw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-212--壮絶引っ越しストーリー",
+    "durationSeconds": 1304,
+    "segmentPath": "data/segments/ep212.json"
+  },
+  {
+    "episode": 213,
+    "title": "【ポッドキャスト】ep.213/ 壮絶引っ越しストーリー②",
+    "youtubeId": "LBelCE53R7s",
+    "videoUrl": "https://www.youtube.com/watch?v=LBelCE53R7s",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-213--壮絶引っ越しストーリー",
+    "durationSeconds": 1216,
+    "segmentPath": "data/segments/ep213.json"
+  },
+  {
+    "episode": 214,
+    "title": "【ポッドキャスト】ep.214/ 超ハードな1ヵ月",
+    "youtubeId": "n5DiWnxZWOw",
+    "videoUrl": "https://www.youtube.com/watch?v=n5DiWnxZWOw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-214--超ハードな1ヵ月",
+    "durationSeconds": 1733,
+    "segmentPath": "data/segments/ep214.json"
+  },
+  {
+    "episode": 215,
+    "title": "【ポッドキャスト】ep.215/ 新仕事、決まる。",
+    "youtubeId": "wNwq0v2p984",
+    "videoUrl": "https://www.youtube.com/watch?v=wNwq0v2p984",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-215--新仕事、決まる。",
+    "durationSeconds": 1929,
+    "segmentPath": "data/segments/ep215.json"
+  },
+  {
+    "episode": 216,
+    "title": "【ポッドキャスト】ep.216/ 日本のコンビニは最強",
+    "youtubeId": "O7SINwkNVHc",
+    "videoUrl": "https://www.youtube.com/watch?v=O7SINwkNVHc",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-216--日本のコンビニは最強",
+    "durationSeconds": 1724,
+    "segmentPath": "data/segments/ep216.json"
+  },
+  {
+    "episode": 217,
+    "title": "【ポッドキャスト】ep.217/ やりたいことリスト！",
+    "youtubeId": "1UvN02F3-TA",
+    "videoUrl": "https://www.youtube.com/watch?v=1UvN02F3-TA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-217--やりたいことリスト！",
+    "durationSeconds": 1623,
+    "segmentPath": "data/segments/ep217.json"
+  },
+  {
+    "episode": 218,
+    "title": "【ポッドキャスト】ep.218/ ホームシックです。",
+    "youtubeId": "6R6_S5WGuGo",
+    "videoUrl": "https://www.youtube.com/watch?v=6R6_S5WGuGo",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-218--ホームシックです。",
+    "durationSeconds": 1938,
+    "segmentPath": "data/segments/ep218.json"
+  },
+  {
+    "episode": 219,
+    "title": "【ポッドキャスト】ep.219/ 英語で電話対応",
+    "youtubeId": "pqyn3h7IvQg",
+    "videoUrl": "https://www.youtube.com/watch?v=pqyn3h7IvQg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-219--英語で電話対応",
+    "durationSeconds": 2079,
+    "segmentPath": "data/segments/ep219.json"
+  },
+  {
+    "episode": 220,
+    "title": "【ポッドキャスト】ep.220/ 我が家の外食買い物事情",
+    "youtubeId": "EBnzGSdIuYI",
+    "videoUrl": "https://www.youtube.com/watch?v=EBnzGSdIuYI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-220--我が家の外食買い物事情",
+    "durationSeconds": 1602,
+    "segmentPath": "data/segments/ep220.json"
+  },
+  {
+    "episode": 221,
+    "title": "【ポッドキャスト】ep.221/ 仕事が大変なの。",
+    "youtubeId": "wMjrWSo8RZE",
+    "videoUrl": "https://www.youtube.com/watch?v=wMjrWSo8RZE",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-221--仕事が大変なの。",
+    "durationSeconds": 1919,
+    "segmentPath": "data/segments/ep221.json"
+  },
+  {
+    "episode": 222,
+    "title": "【ポッドキャスト】ep.222/ ハロウィン",
+    "youtubeId": "OfYSIeQ07is",
+    "videoUrl": "https://www.youtube.com/watch?v=OfYSIeQ07is",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-222--ハロウィン",
+    "durationSeconds": 1426,
+    "segmentPath": "data/segments/ep222.json"
+  },
+  {
+    "episode": 223,
+    "title": "【ポッドキャスト】ep.223/ 蚊に7年ぶりに刺される",
+    "youtubeId": "2rpwN5GM-kk",
+    "videoUrl": "https://www.youtube.com/watch?v=2rpwN5GM-kk",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-223--7年ぶりに蚊に刺される",
+    "durationSeconds": 1277,
+    "segmentPath": "data/segments/ep223.json"
+  },
+  {
+    "episode": 225,
+    "title": "【ポッドキャスト】ep.225/ 25¢難民からの脱出",
+    "youtubeId": "IZ6QfIirt1c",
+    "videoUrl": "https://www.youtube.com/watch?v=IZ6QfIirt1c",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-225--25-難民からの脱出",
+    "durationSeconds": 1775,
+    "segmentPath": "data/segments/ep225.json"
+  },
+  {
+    "episode": 226,
+    "title": "【ポッドキャスト】ep.226/ Zumba復活!!",
+    "youtubeId": "0WqCLlzDBuE",
+    "videoUrl": "https://www.youtube.com/watch?v=0WqCLlzDBuE",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-226--zumba復活",
+    "durationSeconds": 2341,
+    "segmentPath": "data/segments/ep226.json"
+  },
+  {
+    "episode": 227,
+    "title": "【ポッドキャスト】ep.227/ 2022年の振り返り",
+    "youtubeId": "8WJtCBhgC-Y",
+    "videoUrl": "https://www.youtube.com/watch?v=8WJtCBhgC-Y",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-227--2022年の振り返り",
+    "durationSeconds": 1791,
+    "segmentPath": "data/segments/ep227.json"
+  },
+  {
+    "episode": 228,
+    "title": "【ポッドキャスト】ep.228/ あけおめ2023年!!",
+    "youtubeId": "QBD-5A0HvLU",
+    "videoUrl": "https://www.youtube.com/watch?v=QBD-5A0HvLU",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-228--あけおめ2023年",
+    "durationSeconds": 1500,
+    "segmentPath": "data/segments/ep228.json"
+  },
+  {
+    "episode": 229,
+    "title": "【ポッドキャスト】ep.229/ 働き蜂・うたこ",
+    "youtubeId": "KB7lC4jGTi4",
+    "videoUrl": "https://www.youtube.com/watch?v=KB7lC4jGTi4",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-229--働き蜂・うたこ",
+    "durationSeconds": 2232,
+    "segmentPath": "data/segments/ep229.json"
+  },
+  {
+    "episode": 230,
+    "title": "【ポッドキャスト】ep.230/ うたこ、警察に止められる",
+    "youtubeId": "lbobCefagS0",
+    "videoUrl": "https://www.youtube.com/watch?v=lbobCefagS0",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-230--うたこ、警察に止められる",
+    "durationSeconds": 1283,
+    "segmentPath": "data/segments/ep230.json"
+  },
+  {
+    "episode": 231,
+    "title": "【ポッドキャスト】ep.231/ 良い出会い！",
+    "youtubeId": "D8BArWpFhB4",
+    "videoUrl": "https://www.youtube.com/watch?v=D8BArWpFhB4",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-231--良い出会い！",
+    "durationSeconds": 1681,
+    "segmentPath": "data/segments/ep231.json"
+  },
+  {
+    "episode": 232,
+    "title": "【ポッドキャスト】ep.232/ 日米絵文字の違い",
+    "youtubeId": "lZqutfDVGYA",
+    "videoUrl": "https://www.youtube.com/watch?v=lZqutfDVGYA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-232--日米絵文字の違い",
+    "durationSeconds": 1592,
+    "segmentPath": "data/segments/ep232.json"
+  },
+  {
+    "episode": 233,
+    "title": "【ポッドキャスト】ep.233/ 暗黙の了解？限度？",
+    "youtubeId": "4lAwfGAw7O8",
+    "videoUrl": "https://www.youtube.com/watch?v=4lAwfGAw7O8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-233--暗黙の了解？限度？",
+    "durationSeconds": 1795,
+    "segmentPath": "data/segments/ep233.json"
+  },
+  {
+    "episode": 234,
+    "title": "【ポッドキャスト】ep.234/ アメリカの食パンまずい問題",
+    "youtubeId": "odsliDdYK8E",
+    "videoUrl": "https://www.youtube.com/watch?v=odsliDdYK8E",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-234--アメリカの食パンまずい問題",
+    "durationSeconds": 1510,
+    "segmentPath": "data/segments/ep234.json"
+  },
+  {
+    "episode": 235,
+    "title": "【ポッドキャスト】ep.235/ 近況報告",
+    "youtubeId": "MUGSZN8YGr0",
+    "videoUrl": "https://www.youtube.com/watch?v=MUGSZN8YGr0",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-235--近況報告",
+    "durationSeconds": 1825,
+    "segmentPath": "data/segments/ep235.json"
+  },
+  {
+    "episode": 236,
+    "title": "【ポッドキャスト】ep.236/ びっくり体験",
+    "youtubeId": "SSr9F6zE4_0",
+    "videoUrl": "https://www.youtube.com/watch?v=SSr9F6zE4_0",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-236--びっくり体験",
+    "durationSeconds": 1187,
+    "segmentPath": "data/segments/ep236.json"
+  },
+  {
+    "episode": 237,
+    "title": "【ポッドキャスト】ep.237/ 助けて！雑貨屋が無いの！",
+    "youtubeId": "DvhNxIu42Ok",
+    "videoUrl": "https://www.youtube.com/watch?v=DvhNxIu42Ok",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-237--助けて！雑貨屋が無いの！",
+    "durationSeconds": 1539,
+    "segmentPath": "data/segments/ep237.json"
+  },
+  {
+    "episode": 238,
+    "title": "【ポッドキャスト】ep.238/ 隣人トラブル",
+    "youtubeId": "NuSCj5YLGLg",
+    "videoUrl": "https://www.youtube.com/watch?v=NuSCj5YLGLg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-238--隣人トラブル",
+    "durationSeconds": 2339,
+    "segmentPath": "data/segments/ep238.json"
+  },
+  {
+    "episode": 239,
+    "title": "【ポッドキャスト】ep.239/ 勘違い女王：うたこ",
+    "youtubeId": "jnZdB7jDQd4",
+    "videoUrl": "https://www.youtube.com/watch?v=jnZdB7jDQd4",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-239--勘違い女王：うたこ",
+    "durationSeconds": 1415,
+    "segmentPath": "data/segments/ep239.json"
+  },
+  {
+    "episode": 240,
+    "title": "【ポッドキャスト】ep.240/ 後輩指導に四苦八苦",
+    "youtubeId": "YHc1xn4LfHs",
+    "videoUrl": "https://www.youtube.com/watch?v=YHc1xn4LfHs",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-240--後輩指導に四苦八苦",
+    "durationSeconds": 2013,
+    "segmentPath": "data/segments/ep240.json"
+  },
+  {
+    "episode": 241,
+    "title": "【ポッドキャスト】ep.241/ またKFCに裏切られた",
+    "youtubeId": "br0Jjr1yjvo",
+    "videoUrl": "https://www.youtube.com/watch?v=br0Jjr1yjvo",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-241-またkfcに裏切られた",
+    "durationSeconds": 1625,
+    "segmentPath": "data/segments/ep241.json"
+  },
+  {
+    "episode": 243,
+    "title": "【ポッドキャスト】ep.243 / 日米マヨネーズ対決",
+    "youtubeId": "nuJhg2Ez8rA",
+    "videoUrl": "https://www.youtube.com/watch?v=nuJhg2Ez8rA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-243---日米マヨネーズ対決",
+    "durationSeconds": 1931,
+    "segmentPath": "data/segments/ep243.json"
+  },
+  {
+    "episode": 244,
+    "title": "【ポッドキャスト】ep.244 / エピソード1をもう一度！",
+    "youtubeId": "ukBdK_2RLAA",
+    "videoUrl": "https://www.youtube.com/watch?v=ukBdK_2RLAA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-244---エピソード1をもう一度！",
+    "durationSeconds": 1789,
+    "segmentPath": "data/segments/ep244.json"
+  },
+  {
+    "episode": 246,
+    "title": "【ポッドキャスト】ep.246 / 運転免許更新またトラブってる",
+    "youtubeId": "sd3u1w8dPcQ",
+    "videoUrl": "https://www.youtube.com/watch?v=sd3u1w8dPcQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-246---運転免許更新またトラブってる",
+    "durationSeconds": 1915,
+    "segmentPath": "data/segments/ep246.json"
+  },
+  {
+    "episode": 249,
+    "title": "【ポッドキャスト】ep.249 /日本に帰る！仕事辞める！",
+    "youtubeId": "4TjTis8wQBw",
+    "videoUrl": "https://www.youtube.com/watch?v=4TjTis8wQBw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-249--日本に帰る！仕事辞める！",
+    "durationSeconds": 1827,
+    "segmentPath": "data/segments/ep249.json"
+  },
+  {
+    "episode": 250,
+    "title": "【ポッドキャスト】ep.250 / キャラクター大国・日本",
+    "youtubeId": "VEqVwBxbI7w",
+    "videoUrl": "https://www.youtube.com/watch?v=VEqVwBxbI7w",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-250---キャラクター大国・日本",
+    "durationSeconds": 1779,
+    "segmentPath": "data/segments/ep250.json"
+  },
+  {
+    "episode": 251,
+    "title": "【ポッドキャスト】ep.251 / すっぱいパン",
+    "youtubeId": "OnzWOfJ2O2U",
+    "videoUrl": "https://www.youtube.com/watch?v=OnzWOfJ2O2U",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-251---すっぱいパン",
+    "durationSeconds": 1941,
+    "segmentPath": "data/segments/ep251.json"
+  },
+  {
+    "episode": 252,
+    "title": "【ポッドキャスト】ep.252 / 海外旅行、上司に伝える？",
+    "youtubeId": "L3zvN59XGzs",
+    "videoUrl": "https://www.youtube.com/watch?v=L3zvN59XGzs",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-252---海外旅行、上司に伝える？",
+    "durationSeconds": 1849,
+    "segmentPath": "data/segments/ep252.json"
+  },
+  {
+    "episode": 254,
+    "title": "【ポッドキャスト】ep.254 / アメリカ電車初体験",
+    "youtubeId": "RjP-oOo6cQM",
+    "videoUrl": "https://www.youtube.com/watch?v=RjP-oOo6cQM",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-254---アメリカ電車初体験",
+    "durationSeconds": 2314,
+    "segmentPath": "data/segments/ep254.json"
+  },
+  {
+    "episode": 255,
+    "title": "【ポッドキャスト】ep.255 /仕事の引き継ぎ",
+    "youtubeId": "7CeXh9TWfnc",
+    "videoUrl": "https://www.youtube.com/watch?v=7CeXh9TWfnc",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-255--仕事の引き継ぎ",
+    "durationSeconds": 2098,
+    "segmentPath": "data/segments/ep255.json"
+  },
+  {
+    "episode": 258,
+    "title": "【ポッドキャスト】ep.258 / ダラダラして終わったThanksgiving",
+    "youtubeId": "N9xvz0G6Zq8",
+    "videoUrl": "https://www.youtube.com/watch?v=N9xvz0G6Zq8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-258---ダラダラして終わったthanksgiving",
+    "durationSeconds": 1782,
+    "segmentPath": "data/segments/ep258.json"
+  },
+  {
+    "episode": 259,
+    "title": "【ポッドキャスト】ep.259 / テーブルの上にイスを乗せる",
+    "youtubeId": "7cE9g3Y-R3c",
+    "videoUrl": "https://www.youtube.com/watch?v=7cE9g3Y-R3c",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-259-テーブルの上にイスを乗せる",
+    "durationSeconds": 1588,
+    "segmentPath": "data/segments/ep259.json"
+  },
+  {
+    "episode": 260,
+    "title": "【ポッドキャスト】ep.260 / 毎回悩むお土産",
+    "youtubeId": "qgGNoFDYJVo",
+    "videoUrl": "https://www.youtube.com/watch?v=qgGNoFDYJVo",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-260---毎回悩むお土産",
+    "durationSeconds": 1741,
+    "segmentPath": "data/segments/ep260.json"
+  },
+  {
+    "episode": 261,
+    "title": "【ポッドキャスト】ep.261 / 2023年の振り返り",
+    "youtubeId": "yiGsdzaHGFU",
+    "videoUrl": "https://www.youtube.com/watch?v=yiGsdzaHGFU",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-261---2023年の振り返り",
+    "durationSeconds": 1827,
+    "segmentPath": "data/segments/ep261.json"
+  },
+  {
+    "episode": 262,
+    "title": "ep.262 / 2024年、目標は明確！",
+    "youtubeId": "mGMaz5F-EbQ",
+    "videoUrl": "https://www.youtube.com/watch?v=mGMaz5F-EbQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-262---2024年、目標は明確！",
+    "durationSeconds": 1946,
+    "segmentPath": "data/segments/ep262.json"
+  },
+  {
+    "episode": 263,
+    "title": "【ポッドキャスト】ep.263 / トレジョの面接を受けた",
+    "youtubeId": "meBMfjZozNU",
+    "videoUrl": "https://www.youtube.com/watch?v=meBMfjZozNU",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-263---トレジョの面接を受けた",
+    "durationSeconds": 1607,
+    "segmentPath": "data/segments/ep263.json"
+  },
+  {
+    "episode": 264,
+    "title": "【ポッドキャスト】ep.264 / 洗濯機のある家に住みたい",
+    "youtubeId": "7yZ2uZUCxrw",
+    "videoUrl": "https://www.youtube.com/watch?v=7yZ2uZUCxrw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-264---洗濯機のある家に住みたい",
+    "durationSeconds": 2078,
+    "segmentPath": "data/segments/ep264.json"
+  },
+  {
+    "episode": 265,
+    "title": "【ポッドキャスト】ep.265 / アメリカ人と日本人の共通点?",
+    "youtubeId": "b01pwAoY3Ak",
+    "videoUrl": "https://www.youtube.com/watch?v=b01pwAoY3Ak",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-265---アメリカ人と日本人の共通点？",
+    "durationSeconds": 2300,
+    "segmentPath": "data/segments/ep265.json"
+  },
+  {
+    "episode": 266,
+    "title": "【ポッドキャスト】ep.266 / アメリカのシャンプー",
+    "youtubeId": "v0myOA_3rEo",
+    "videoUrl": "https://www.youtube.com/watch?v=v0myOA_3rEo",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-266---アメリカのシャンプー",
+    "durationSeconds": 2170,
+    "segmentPath": "data/segments/ep266.json"
+  },
+  {
+    "episode": 267,
+    "title": "【ポッドキャスト】ep.267 / 4989=四苦八苦",
+    "youtubeId": "PMaXVVYEBig",
+    "videoUrl": "https://www.youtube.com/watch?v=PMaXVVYEBig",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-267---4989-四苦八苦",
+    "durationSeconds": 1756,
+    "segmentPath": "data/segments/ep267.json"
+  },
+  {
+    "episode": 268,
+    "title": "【ポッドキャスト】ep.268 / 信用できないアメリカ人",
+    "youtubeId": "hbqhrApSoEQ",
+    "videoUrl": "https://www.youtube.com/watch?v=hbqhrApSoEQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-268---信用できないアメリカ人",
+    "durationSeconds": 2535,
+    "segmentPath": "data/segments/ep268.json"
+  },
+  {
+    "episode": 269,
+    "title": "【ポッドキャスト】ep.269 / 日米お酒を飲む時の違い",
+    "youtubeId": "VjS7XuFwz4k",
+    "videoUrl": "https://www.youtube.com/watch?v=VjS7XuFwz4k",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-269---日米お酒を飲む時の違い",
+    "durationSeconds": 1787,
+    "segmentPath": "data/segments/ep269.json"
+  },
+  {
+    "episode": 270,
+    "title": "【ポッドキャスト】ep.270 / 日本のココが嫌！",
+    "youtubeId": "MkyE3Tq6Vtg",
+    "videoUrl": "https://www.youtube.com/watch?v=MkyE3Tq6Vtg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-270---日本のココが嫌！",
+    "durationSeconds": 2236,
+    "segmentPath": "data/segments/ep270.json"
+  },
+  {
+    "episode": 271,
+    "title": "【ポッドキャスト】ep.271 / 前に住んでたエリアが恋しい",
+    "youtubeId": "FkSKVs2WFCk",
+    "videoUrl": "https://www.youtube.com/watch?v=FkSKVs2WFCk",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-271---前に住んでたエリアが恋しい",
+    "durationSeconds": 2003,
+    "segmentPath": "data/segments/ep271.json"
+  },
+  {
+    "episode": 272,
+    "title": "【ポッドキャスト】ep.272 / アルバイト始めました",
+    "youtubeId": "c7ha_6t6hb4",
+    "videoUrl": "https://www.youtube.com/watch?v=c7ha_6t6hb4",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-272--アルバイト始めました",
+    "durationSeconds": 1853,
+    "segmentPath": "data/segments/ep272.json"
+  },
+  {
+    "episode": 273,
+    "title": "【ポッドキャスト】ep.273 / 良い質問ですね！",
+    "youtubeId": "oBj0IrPBDwM",
+    "videoUrl": "https://www.youtube.com/watch?v=oBj0IrPBDwM",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-273---良い質問ですね！",
+    "durationSeconds": 1848,
+    "segmentPath": "data/segments/ep273.json"
+  },
+  {
+    "episode": 274,
+    "title": "【ポッドキャスト】ep.274 / 号泣して目が腫れた",
+    "youtubeId": "CyqlbtA1_-g",
+    "videoUrl": "https://www.youtube.com/watch?v=CyqlbtA1_-g",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-274--号泣して目が腫れた",
+    "durationSeconds": 2025,
+    "segmentPath": "data/segments/ep274.json"
+  },
+  {
+    "episode": 275,
+    "title": "【ポッドキャスト】ep.275 / バイトの休憩",
+    "youtubeId": "Nr9WYROldbw",
+    "videoUrl": "https://www.youtube.com/watch?v=Nr9WYROldbw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-275---バイトの休憩",
+    "durationSeconds": 1806,
+    "segmentPath": "data/segments/ep275.json"
+  },
+  {
+    "episode": 276,
+    "title": "【ポッドキャスト】ep.276 / 速報:引越し決定",
+    "youtubeId": "lwvh_ueURrU",
+    "videoUrl": "https://www.youtube.com/watch?v=lwvh_ueURrU",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-276---速報-引越し決定",
+    "durationSeconds": 1248,
+    "segmentPath": "data/segments/ep276.json"
+  },
+  {
+    "episode": 277,
+    "title": "【ポッドキャスト】ep.277 / 英語の恥ずかしい間違い",
+    "youtubeId": "lDbOvrbOj98",
+    "videoUrl": "https://www.youtube.com/watch?v=lDbOvrbOj98",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-277---英語の恥ずかしい間違い",
+    "durationSeconds": 1554,
+    "segmentPath": "data/segments/ep277.json"
+  },
+  {
+    "episode": 278,
+    "title": "【ポッドキャスト】ep.278 / 液体をゴミ箱に捨てる",
+    "youtubeId": "8rIDUhF3Y1Y",
+    "videoUrl": "https://www.youtube.com/watch?v=8rIDUhF3Y1Y",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-278---液体をゴミ箱に捨てる",
+    "durationSeconds": 1543,
+    "segmentPath": "data/segments/ep278.json"
+  },
+  {
+    "episode": 279,
+    "title": "【ポッドキャスト】ep.279 / アパート探しスタート",
+    "youtubeId": "s4rdx2HVK20",
+    "videoUrl": "https://www.youtube.com/watch?v=s4rdx2HVK20",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-278-アパート探しスタート",
+    "durationSeconds": 1638,
+    "segmentPath": "data/segments/ep279.json"
+  },
+  {
+    "episode": 280,
+    "title": "【ポッドキャスト】ep.280 / ゲスト：Norikoさん",
+    "youtubeId": "8xXARUfaFE8",
+    "videoUrl": "https://www.youtube.com/watch?v=8xXARUfaFE8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-280---ゲスト-norikoさん",
+    "durationSeconds": 1909,
+    "segmentPath": "data/segments/ep280.json"
+  },
+  {
+    "episode": 281,
+    "title": "【ポッドキャスト】ep.281 /  すぐに謝る日本人",
+    "youtubeId": "0AH4bmLVbnw",
+    "videoUrl": "https://www.youtube.com/watch?v=0AH4bmLVbnw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-281---すぐに謝る日本人",
+    "durationSeconds": 1227,
+    "segmentPath": "data/segments/ep281.json"
+  },
+  {
+    "episode": 282,
+    "title": "【ポッドキャスト】ep.282 /  ありえない！",
+    "youtubeId": "PbC46SV-1QQ",
+    "videoUrl": "https://www.youtube.com/watch?v=PbC46SV-1QQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-282---ありえない！",
+    "durationSeconds": 1629,
+    "segmentPath": "data/segments/ep282.json"
+  },
+  {
+    "episode": 283,
+    "title": "【ポッドキャスト】ep.283 /  新居決定！",
+    "youtubeId": "pCDhpUFVD0o",
+    "videoUrl": "https://www.youtube.com/watch?v=pCDhpUFVD0o",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-283---新居決定！",
+    "durationSeconds": 1979,
+    "segmentPath": "data/segments/ep283.json"
+  },
+  {
+    "episode": 284,
+    "title": "【ポッドキャスト】ep.284 /  恥ずかしかった出来事",
+    "youtubeId": "6kPDTQkBgqc",
+    "videoUrl": "https://www.youtube.com/watch?v=6kPDTQkBgqc",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-284---恥ずかしかった出来事",
+    "durationSeconds": 1744,
+    "segmentPath": "data/segments/ep284.json"
+  },
+  {
+    "episode": 285,
+    "title": "【ポッドキャスト】ep.285 /  引越し完了！",
+    "youtubeId": "j97fDxL9_T4",
+    "videoUrl": "https://www.youtube.com/watch?v=j97fDxL9_T4",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-285-引越し完了！",
+    "durationSeconds": 813,
+    "segmentPath": "data/segments/ep285.json"
+  },
+  {
+    "episode": 286,
+    "title": "【ポッドキャスト】ep.286 / 引越し4つのピンチ",
+    "youtubeId": "DEOu7uytXtg",
+    "videoUrl": "https://www.youtube.com/watch?v=DEOu7uytXtg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-286-引越し4つのピンチ",
+    "durationSeconds": 1829,
+    "segmentPath": "data/segments/ep286.json"
+  },
+  {
+    "episode": 287,
+    "title": "【ポッドキャスト】ep.287/ collegeをあきらめる？",
+    "youtubeId": "b8NlPQpDgSw",
+    "videoUrl": "https://www.youtube.com/watch?v=b8NlPQpDgSw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-287--collegeをあきらめる？",
+    "durationSeconds": 1924,
+    "segmentPath": "data/segments/ep287.json"
+  },
+  {
+    "episode": 288,
+    "title": "【ポッドキャスト】ep.288/ 空耳！共感求む！",
+    "youtubeId": "N9qkFDqABk8",
+    "videoUrl": "https://www.youtube.com/watch?v=N9qkFDqABk8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-288--空耳！共感求む！",
+    "durationSeconds": 1889,
+    "segmentPath": "data/segments/ep288.json"
+  },
+  {
+    "episode": 289,
+    "title": "【ポッドキャスト】ep.289/ 洗濯機の夢、その後",
+    "youtubeId": "Bgvx-QVFpBI",
+    "videoUrl": "https://www.youtube.com/watch?v=Bgvx-QVFpBI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-289--洗濯機の夢、その後",
+    "durationSeconds": 1834,
+    "segmentPath": "data/segments/ep289.json"
+  },
+  {
+    "episode": 290,
+    "title": "【ポッドキャスト】ep. 290/ 雑な対応に怒り心頭",
+    "youtubeId": "67__19aaDxw",
+    "videoUrl": "https://www.youtube.com/watch?v=67__19aaDxw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-290--雑な対応に怒り心頭",
+    "durationSeconds": 2071,
+    "segmentPath": "data/segments/ep290.json"
+  },
+  {
+    "episode": 291,
+    "title": "【ポッドキャスト】ep.291/ ブレーカーが頻繁に落ちる",
+    "youtubeId": "CA4MXdF1fQI",
+    "videoUrl": "https://www.youtube.com/watch?v=CA4MXdF1fQI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-291--ブレーカーが頻繁に落ちる",
+    "durationSeconds": 2271,
+    "segmentPath": "data/segments/ep291.json"
+  },
+  {
+    "episode": 292,
+    "title": "【ポッドキャスト】ep. 292/ My Go-To スーパー",
+    "youtubeId": "2amY7sMyBnw",
+    "videoUrl": "https://www.youtube.com/watch?v=2amY7sMyBnw",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-292--my-go-to-スーパー",
+    "durationSeconds": 2225,
+    "segmentPath": "data/segments/ep292.json"
+  },
+  {
+    "episode": 293,
+    "title": "【ポッドキャスト】ep.293/ 飲み残しを持って帰る？",
+    "youtubeId": "lBW2GD5E-_Y",
+    "videoUrl": "https://www.youtube.com/watch?v=lBW2GD5E-_Y",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-293--飲み残しを持って帰る？",
+    "durationSeconds": 1734,
+    "segmentPath": "data/segments/ep293.json"
+  },
+  {
+    "episode": 294,
+    "title": "【ポッドキャスト】ep.294/ 真夏のミステリー いけ！中年探偵団！",
+    "youtubeId": "6qSmZ8fXo3c",
+    "videoUrl": "https://www.youtube.com/watch?v=6qSmZ8fXo3c",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-294--真夏のミステリー-いけ！中年探偵団！",
+    "durationSeconds": 2012,
+    "segmentPath": "data/segments/ep294.json"
+  },
+  {
+    "episode": 295,
+    "title": "【ポッドキャスト】ep.295/ ゲスト★Norikoさん",
+    "youtubeId": "tXNreKQuAGI",
+    "videoUrl": "https://www.youtube.com/watch?v=tXNreKQuAGI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-295--ゲスト-norikoさん",
+    "durationSeconds": 1643,
+    "segmentPath": "data/segments/ep295.json"
+  },
+  {
+    "episode": 296,
+    "title": "【ポッドキャスト】ep.296/ 話す言葉によって性格が変わる？",
+    "youtubeId": "eNQFnzPRzHQ",
+    "videoUrl": "https://www.youtube.com/watch?v=eNQFnzPRzHQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-296--話す言葉によって性格が変わる？",
+    "durationSeconds": 1589,
+    "segmentPath": "data/segments/ep296.json"
+  },
+  {
+    "episode": 297,
+    "title": "【ポッドキャスト】ep.297/ パスタが不味い",
+    "youtubeId": "juMLRMrSljU",
+    "videoUrl": "https://www.youtube.com/watch?v=juMLRMrSljU",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-297--パスタが不味い",
+    "durationSeconds": 1386,
+    "segmentPath": "data/segments/ep297.json"
+  },
+  {
+    "episode": 298,
+    "title": "【ポッドキャスト】ep.298/ 数字を英語で処理できない",
+    "youtubeId": "5dhETisqIgc",
+    "videoUrl": "https://www.youtube.com/watch?v=5dhETisqIgc",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-298--数字を英語で処理できない",
+    "durationSeconds": 1821,
+    "segmentPath": "data/segments/ep298.json"
+  },
+  {
+    "episode": 299,
+    "title": "【ポッドキャスト】ep.299/ 勉強がんばってます",
+    "youtubeId": "ych1ZI_JUn4",
+    "videoUrl": "https://www.youtube.com/watch?v=ych1ZI_JUn4",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-299--勉強がんばってます",
+    "durationSeconds": 1896,
+    "segmentPath": "data/segments/ep299.json"
+  },
+  {
+    "episode": 300,
+    "title": "【ポッドキャスト】ep.300/ ついにMr.T(夫)登場！",
+    "youtubeId": "aC4IbnYzOHg",
+    "videoUrl": "https://www.youtube.com/watch?v=aC4IbnYzOHg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-300--ついにmr-t-夫-登場！",
+    "durationSeconds": 2419,
+    "segmentPath": "data/segments/ep300.json"
+  },
+  {
+    "episode": 301,
+    "title": "【ポッドキャスト】ep.301/ 貧乏ゆすりが酷すぎる",
+    "youtubeId": "75cnBNnc8V0",
+    "videoUrl": "https://www.youtube.com/watch?v=75cnBNnc8V0",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-301--貧乏ゆすりが酷すぎる",
+    "durationSeconds": 1726,
+    "segmentPath": "data/segments/ep301.json"
+  },
+  {
+    "episode": 302,
+    "title": "【ポッドキャスト】ep.302/ やっぱり好きな事をやる！",
+    "youtubeId": "vfYoPeY5N6w",
+    "videoUrl": "https://www.youtube.com/watch?v=vfYoPeY5N6w",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-302--やっぱり好きな事をやる！",
+    "durationSeconds": 1532,
+    "segmentPath": "data/segments/ep302.json"
+  },
+  {
+    "episode": 303,
+    "title": "【ポッドキャスト】ep.303/ アメリカのパーティーは時間通り行くな！",
+    "youtubeId": "zn3FsuJJO0Y",
+    "videoUrl": "https://www.youtube.com/watch?v=zn3FsuJJO0Y",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-303--アメリカのパーティーは時間通りに行くな！",
+    "durationSeconds": 2083,
+    "segmentPath": "data/segments/ep303.json"
+  },
+  {
+    "episode": 304,
+    "title": "【ポッドキャスト】ep.304/ 何語で夢をみる？",
+    "youtubeId": "tl8vJqFBewc",
+    "videoUrl": "https://www.youtube.com/watch?v=tl8vJqFBewc",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-304--何語で夢をみる？",
+    "durationSeconds": 2028,
+    "segmentPath": "data/segments/ep304.json"
+  },
+  {
+    "episode": 305,
+    "title": "【ポッドキャスト】ep.305/ 友達のアッティ",
+    "youtubeId": "Z9b7kZo2nI8",
+    "videoUrl": "https://www.youtube.com/watch?v=Z9b7kZo2nI8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-305--友達のアッティ",
+    "durationSeconds": 1647,
+    "segmentPath": "data/segments/ep305.json"
+  },
+  {
+    "episode": 306,
+    "title": "【ポッドキャスト】ep.306/ 2024年を振り返る",
+    "youtubeId": "zN_insG4vqY",
+    "videoUrl": "https://www.youtube.com/watch?v=zN_insG4vqY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-306--2024年を振り返る",
+    "durationSeconds": 1486,
+    "segmentPath": "data/segments/ep306.json"
+  },
+  {
+    "episode": 307,
+    "title": "【ポッドキャスト】ep.307/ あけおめ2025年",
+    "youtubeId": "wR23C14U8cA",
+    "videoUrl": "https://www.youtube.com/watch?v=wR23C14U8cA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-307--あけおめ2025年",
+    "durationSeconds": 1467,
+    "segmentPath": "data/segments/ep307.json"
+  },
+  {
+    "episode": 308,
+    "title": "【ポッドキャスト】ep.308/ 年末年始過ごし方の違い",
+    "youtubeId": "akoKs7zNaFs",
+    "videoUrl": "https://www.youtube.com/watch?v=akoKs7zNaFs",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-308--年末年始過ごし方の違い",
+    "durationSeconds": 1709,
+    "segmentPath": "data/segments/ep308.json"
+  },
+  {
+    "episode": 309,
+    "title": "【ポッドキャスト】ep.309/ ○○の前だと英語を上手く話せない",
+    "youtubeId": "-vz6Th-98go",
+    "videoUrl": "https://www.youtube.com/watch?v=-vz6Th-98go",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-309--の前だと英語を上手く話せない",
+    "durationSeconds": 1940,
+    "segmentPath": "data/segments/ep309.json"
+  },
+  {
+    "episode": 310,
+    "title": "【ポッドキャスト】ep.310/ 行動あるのみ！",
+    "youtubeId": "_plfaFr7TxU",
+    "videoUrl": "https://www.youtube.com/watch?v=_plfaFr7TxU",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-310--行動あるのみ！",
+    "durationSeconds": 1476,
+    "segmentPath": "data/segments/ep310.json"
+  },
+  {
+    "episode": 311,
+    "title": "【ポッドキャスト】ep.311/  これってホント!? in America",
+    "youtubeId": "nzUmTtfGb5U",
+    "videoUrl": "https://www.youtube.com/watch?v=nzUmTtfGb5U",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-311-これってホント-in-america",
+    "durationSeconds": 2051,
+    "segmentPath": "data/segments/ep311.json"
+  },
+  {
+    "episode": 312,
+    "title": "【ポッドキャスト】ep.312/  ホームレス問題の実情",
+    "youtubeId": "6hDM6WX58uQ",
+    "videoUrl": "https://www.youtube.com/watch?v=6hDM6WX58uQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-312-ホームレス問題の実情",
+    "durationSeconds": 1842,
+    "segmentPath": "data/segments/ep312.json"
+  },
+  {
+    "episode": 313,
+    "title": "【ポッドキャスト】ep.313/  SUSHI屋で働く？",
+    "youtubeId": "3ZOEtfkY8_s",
+    "videoUrl": "https://www.youtube.com/watch?v=3ZOEtfkY8_s",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-313-sushi屋で働く？",
+    "durationSeconds": 1766,
+    "segmentPath": "data/segments/ep313.json"
+  },
+  {
+    "episode": 315,
+    "title": "【ポッドキャスト】ep.315/ スペイン語熱、再び",
+    "youtubeId": "EtSL8T_C9xk",
+    "videoUrl": "https://www.youtube.com/watch?v=EtSL8T_C9xk",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-315-スペイン語熱、再び",
+    "durationSeconds": 1775,
+    "segmentPath": "data/segments/ep315.json"
+  },
+  {
+    "episode": 316,
+    "title": "【ポッドキャスト】ep.316/ Miso!お味噌汁の話",
+    "youtubeId": "C92iYRbLo_A",
+    "videoUrl": "https://www.youtube.com/watch?v=C92iYRbLo_A",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-316--miso-お味噌汁の話",
+    "durationSeconds": 1530,
+    "segmentPath": "data/segments/ep316.json"
+  },
+  {
+    "episode": 317,
+    "title": "【ポッドキャスト】ep.317/ チップってすごい",
+    "youtubeId": "-I1z6VgcEaI",
+    "videoUrl": "https://www.youtube.com/watch?v=-I1z6VgcEaI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-317--チップってすごい",
+    "durationSeconds": 1567,
+    "segmentPath": "data/segments/ep317.json"
+  },
+  {
+    "episode": 318,
+    "title": "【ポッドキャスト】ep.318/ 折り紙おばさん",
+    "youtubeId": "4S4N6A0HF-8",
+    "videoUrl": "https://www.youtube.com/watch?v=4S4N6A0HF-8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-318-折り紙おばさん",
+    "durationSeconds": 1606,
+    "segmentPath": "data/segments/ep318.json"
+  },
+  {
+    "episode": 319,
+    "title": "【ポッドキャスト】ep.319/ ハグがぎこちない私。",
+    "youtubeId": "6VZnfsv3lUA",
+    "videoUrl": "https://www.youtube.com/watch?v=6VZnfsv3lUA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-319-ハグがぎこちない私。",
+    "durationSeconds": 2054,
+    "segmentPath": "data/segments/ep319.json"
+  },
+  {
+    "episode": 320,
+    "title": "【ポッドキャスト】ep.320/ カレッジ卒業準備",
+    "youtubeId": "tU2RWud7HAg",
+    "videoUrl": "https://www.youtube.com/watch?v=tU2RWud7HAg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-320-カレッジ卒業準備",
+    "durationSeconds": 2008,
+    "segmentPath": "data/segments/ep320.json"
+  },
+  {
+    "episode": 321,
+    "title": "【ポッドキャスト】ep.321/ Working Too Hard!!",
+    "youtubeId": "WCM9b40NaoM",
+    "videoUrl": "https://www.youtube.com/watch?v=WCM9b40NaoM",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-321-working-too-hard",
+    "durationSeconds": 1510,
+    "segmentPath": "data/segments/ep321.json"
+  },
+  {
+    "episode": 322,
+    "title": "【ポッドキャスト】ep.322/ 寿司レストランでの違和感",
+    "youtubeId": "jXyzNLAPMUQ",
+    "videoUrl": "https://www.youtube.com/watch?v=jXyzNLAPMUQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-322--寿司レストランでの違和感",
+    "durationSeconds": 2299,
+    "segmentPath": "data/segments/ep322.json"
+  },
+  {
+    "episode": 323,
+    "title": "【ポッドキャスト】ep.323/ 英語の悪い言葉たち",
+    "youtubeId": "0F1sNuYeQQc",
+    "videoUrl": "https://www.youtube.com/watch?v=0F1sNuYeQQc",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-323-英語の悪い言葉たち",
+    "durationSeconds": 2005,
+    "segmentPath": "data/segments/ep323.json"
+  },
+  {
+    "episode": 324,
+    "title": "【ポッドキャスト】ep.324/ おばさん大学生表彰される",
+    "youtubeId": "cp0LwEgVMOA",
+    "videoUrl": "https://www.youtube.com/watch?v=cp0LwEgVMOA",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-324-おばさん大学生表彰される",
+    "durationSeconds": 1525,
+    "segmentPath": "data/segments/ep324.json"
+  },
+  {
+    "episode": 325,
+    "title": "【ポッドキャスト】ep.325/ 子供がいない夫婦in USA",
+    "youtubeId": "83acU4FTOwI",
+    "videoUrl": "https://www.youtube.com/watch?v=83acU4FTOwI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-325-子供がいない夫婦in-usa",
+    "durationSeconds": 1898,
+    "segmentPath": "data/segments/ep325.json"
+  },
+  {
+    "episode": 326,
+    "title": "【ポッドキャスト】ep.326/ 大ピンチ！家を追い出される？",
+    "youtubeId": "FkUC4iT3fDQ",
+    "videoUrl": "https://www.youtube.com/watch?v=FkUC4iT3fDQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-326--大ピンチ！家を追い出される？",
+    "durationSeconds": 986,
+    "segmentPath": "data/segments/ep326.json"
+  },
+  {
+    "episode": 327,
+    "title": "【ポッドキャスト】ep.327/ カレッジ卒業しました！",
+    "youtubeId": "OKtiAgikV-8",
+    "videoUrl": "https://www.youtube.com/watch?v=OKtiAgikV-8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-327-カレッジ卒業しました！",
+    "durationSeconds": 2172,
+    "segmentPath": "data/segments/ep327.json"
+  },
+  {
+    "episode": 328,
+    "title": "【ポッドキャスト】ep.328/ 職業ディスカウント？",
+    "youtubeId": "j0yFayh-uAY",
+    "videoUrl": "https://www.youtube.com/watch?v=j0yFayh-uAY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-328-職業ディスカウント？",
+    "durationSeconds": 1878,
+    "segmentPath": "data/segments/ep328.json"
+  },
+  {
+    "episode": 329,
+    "title": "【ポッドキャスト】ep.329/ 足を使って床を拭く？",
+    "youtubeId": "UfFa2-nOpnI",
+    "videoUrl": "https://www.youtube.com/watch?v=UfFa2-nOpnI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-329--足を使って床を拭く？",
+    "durationSeconds": 1652,
+    "segmentPath": "data/segments/ep329.json"
+  },
+  {
+    "episode": 330,
+    "title": "【ポッドキャスト】ep.330/ この1年間を振り返る",
+    "youtubeId": "4m02mzPW-1k",
+    "videoUrl": "https://www.youtube.com/watch?v=4m02mzPW-1k",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-330-この1年間を振り返る",
+    "durationSeconds": 1713,
+    "segmentPath": "data/segments/ep330.json"
+  },
+  {
+    "episode": 331,
+    "title": "【ポッドキャスト】ep.331/ 引っ越し2025夏-前半",
+    "youtubeId": "EyKA2PRBlX8",
+    "videoUrl": "https://www.youtube.com/watch?v=EyKA2PRBlX8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-331--引っ越し2025夏-前半",
+    "durationSeconds": 2381,
+    "segmentPath": "data/segments/ep331.json"
+  },
+  {
+    "episode": 332,
+    "title": "【ポッドキャスト】ep.332/ 引っ越し2025夏-後半",
+    "youtubeId": "y9PvHADBUks",
+    "videoUrl": "https://www.youtube.com/watch?v=y9PvHADBUks",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-332-引っ越し2025夏-後半",
+    "durationSeconds": 2310,
+    "segmentPath": "data/segments/ep332.json"
+  },
+  {
+    "episode": 333,
+    "title": "【ポッドキャスト】ep.333/ 人生初体験・食洗機の疑問",
+    "youtubeId": "q9Cng3kIrUs",
+    "videoUrl": "https://www.youtube.com/watch?v=q9Cng3kIrUs",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-333-人生初体験・食洗機の疑問",
+    "durationSeconds": 2141,
+    "segmentPath": "data/segments/ep333.json"
+  },
+  {
+    "episode": 334,
+    "title": "【ポッドキャスト】ep.334/ アメリカで車を買う！",
+    "youtubeId": "TWlAUYnhS8w",
+    "videoUrl": "https://www.youtube.com/watch?v=TWlAUYnhS8w",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-334-アメリカで車を買う！",
+    "durationSeconds": 2057,
+    "segmentPath": "data/segments/ep334.json"
+  },
+  {
+    "episode": 335,
+    "title": "【ポッドキャスト】ep.335/ 世知辛い世の中だねぇ",
+    "youtubeId": "p_I9eyEgLoE",
+    "videoUrl": "https://www.youtube.com/watch?v=p_I9eyEgLoE",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-335-世知辛い世の中だねぇ",
+    "durationSeconds": 1945,
+    "segmentPath": "data/segments/ep335.json"
+  },
+  {
+    "episode": 336,
+    "title": "【ポッドキャスト】ep.336/ ソーシャル時間再開！",
+    "youtubeId": "HeNWttNAE8g",
+    "videoUrl": "https://www.youtube.com/watch?v=HeNWttNAE8g",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-336-ソーシャル時間再開！",
+    "durationSeconds": 1297,
+    "segmentPath": "data/segments/ep336.json"
+  },
+  {
+    "episode": 337,
+    "title": "【ポッドキャスト】ep.337/ DMVでの都市伝説級の出来事",
+    "youtubeId": "CKjGQ4HxPBg",
+    "videoUrl": "https://www.youtube.com/watch?v=CKjGQ4HxPBg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-337-dmvでの都市伝説級の出来事",
+    "durationSeconds": 1631,
+    "segmentPath": "data/segments/ep337.json"
+  },
+  {
+    "episode": 338,
+    "title": "【ポッドキャスト】ep.338/ 仕事探し凹んだ出来事",
+    "youtubeId": "GnIjbOruVWc",
+    "videoUrl": "https://www.youtube.com/watch?v=GnIjbOruVWc",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-338-仕事探し凹んだ出来事",
+    "durationSeconds": 1721,
+    "segmentPath": "data/segments/ep338.json"
+  },
+  {
+    "episode": 339,
+    "title": "【ポッドキャスト】ep.339/ 旦那のぎっくり腰と猫の膀胱炎",
+    "youtubeId": "KLd6jlguHOk",
+    "videoUrl": "https://www.youtube.com/watch?v=KLd6jlguHOk",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-339-旦那のぎっくり腰と猫の膀胱炎",
+    "durationSeconds": 2051,
+    "segmentPath": "data/segments/ep339.json"
+  },
+  {
+    "episode": 340,
+    "title": "【ポッドキャスト】ep.340/ Full Timeの仕事、あきらめます",
+    "youtubeId": "bQ3DgXfwHkY",
+    "videoUrl": "https://www.youtube.com/watch?v=bQ3DgXfwHkY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-340--full-timeの仕事、あきらめます",
+    "durationSeconds": 1742,
+    "segmentPath": "data/segments/ep340.json"
+  },
+  {
+    "episode": 341,
+    "title": "【ポッドキャスト】ep.341/ 挑戦・試練・落胆、そして予想外の結果",
+    "youtubeId": "FwpzuOnCEjQ",
+    "videoUrl": "https://www.youtube.com/watch?v=FwpzuOnCEjQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-341-挑戦・試練・落胆、そして予想外の結果",
+    "durationSeconds": 2236,
+    "segmentPath": "data/segments/ep341.json"
+  },
+  {
+    "episode": 342,
+    "title": "【ポッドキャスト】ep.342/自分の居場所探し-好きなことで人と出会う",
+    "youtubeId": "5la2Hwn9YXE",
+    "videoUrl": "https://www.youtube.com/watch?v=5la2Hwn9YXE",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-342-自分の居場所探し-好きなことで人と出会う",
+    "durationSeconds": 1822,
+    "segmentPath": "data/segments/ep342.json"
+  },
+  {
+    "episode": 343,
+    "title": "【ポッドキャスト】ep.343/ アルバイトはじめました！",
+    "youtubeId": "xR_BfTQLFms",
+    "videoUrl": "https://www.youtube.com/watch?v=xR_BfTQLFms",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-343--アルバイトはじめました！",
+    "durationSeconds": 1913,
+    "segmentPath": "data/segments/ep343.json"
+  },
+  {
+    "episode": 344,
+    "title": "【ポッドキャスト】ep.344/ 耳を疑った、まさかの嬉しいオファー",
+    "youtubeId": "8ZYZ8sx37v4",
+    "videoUrl": "https://www.youtube.com/watch?v=8ZYZ8sx37v4",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-344-耳を疑った、まさかの嬉しいオファー",
+    "durationSeconds": 1729,
+    "segmentPath": "data/segments/ep344.json"
+  },
+  {
+    "episode": 345,
+    "title": "【ポッドキャスト】ep.345/ 高額！電気代に震えるアメリカ生活",
+    "youtubeId": "Kg0xYmTsQGc",
+    "videoUrl": "https://www.youtube.com/watch?v=Kg0xYmTsQGc",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-345-高額！電気代に震えるアメリカ生活",
+    "durationSeconds": 1753,
+    "segmentPath": "data/segments/ep345.json"
+  },
+  {
+    "episode": 346,
+    "title": "【ポッドキャスト】ep.346/ アメリカにもある日本の大手100円ショップ！",
+    "youtubeId": "pwIBRSqAbRY",
+    "videoUrl": "https://www.youtube.com/watch?v=pwIBRSqAbRY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-346-アメリカにもある日本の大手100円ショップ！",
+    "durationSeconds": 1838,
+    "segmentPath": "data/segments/ep346.json"
+  },
+  {
+    "episode": 347,
+    "title": "【ポッドキャスト】ep.347/ 場違いすぎない？BIGな話が舞い込んできた",
+    "youtubeId": "c630Z9wgopY",
+    "videoUrl": "https://www.youtube.com/watch?v=c630Z9wgopY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-347-場違いすぎない？bigな話が舞い込んできた",
+    "durationSeconds": 1760,
+    "segmentPath": "data/segments/ep347.json"
+  },
+  {
+    "episode": 348,
+    "title": "【ポッドキャスト】ep.348/ Mexican Wedding",
+    "youtubeId": "Qj6fZ1lNNdk",
+    "videoUrl": "https://www.youtube.com/watch?v=Qj6fZ1lNNdk",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-348--mexican-wedding",
+    "durationSeconds": 2203,
+    "segmentPath": "data/segments/ep348.json"
+  },
+  {
+    "episode": 349,
+    "title": "【ポッドキャスト】ep.349/ みんなマナー悪すぎ!!",
+    "youtubeId": "3JJ6IhnNzr8",
+    "videoUrl": "https://www.youtube.com/watch?v=3JJ6IhnNzr8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-349--みんなマナー悪すぎ",
+    "durationSeconds": 1938,
+    "segmentPath": "data/segments/ep349.json"
+  },
+  {
+    "episode": 350,
+    "title": "【ポッドキャスト】ep.350/ 色んな感情反省感謝。前進あるのみ！",
+    "youtubeId": "1GJhu022BPY",
+    "videoUrl": "https://www.youtube.com/watch?v=1GJhu022BPY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-350-色んな感情反省感謝。前進あるのみ！",
+    "durationSeconds": 1915,
+    "segmentPath": "data/segments/ep350.json"
+  },
+  {
+    "episode": 351,
+    "title": "【ポッドキャスト】ep.351/ どこ行く？もう行った？ホリデーイベント",
+    "youtubeId": "eAMqGfdLdhs",
+    "videoUrl": "https://www.youtube.com/watch?v=eAMqGfdLdhs",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-351-どこ行く？もう行った？ホリデーイベント",
+    "durationSeconds": 2002,
+    "segmentPath": "data/segments/ep351.json"
+  },
+  {
+    "episode": 352,
+    "title": "【ポッドキャスト】ep.352/ 量がすごい！アメリカXmasプレゼント",
+    "youtubeId": "iHOGNifhXAM",
+    "videoUrl": "https://www.youtube.com/watch?v=iHOGNifhXAM",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-352-量がすごい！アメリカxmasプレゼント",
+    "durationSeconds": 1693,
+    "segmentPath": "data/segments/ep352.json"
+  },
+  {
+    "episode": 353,
+    "title": "【ポッドキャスト】ep.353/ 2025年はモリモリだった",
+    "youtubeId": "_vbRXoZfv6E",
+    "videoUrl": "https://www.youtube.com/watch?v=_vbRXoZfv6E",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-353-2025年はモリモリだった",
+    "durationSeconds": 1429,
+    "segmentPath": "data/segments/ep353.json"
+  },
+  {
+    "episode": 354,
+    "title": "【ポッドキャスト】ep.354/ 2026年、テーマはもくもく！",
+    "youtubeId": "1YtWOfPiipM",
+    "videoUrl": "https://www.youtube.com/watch?v=1YtWOfPiipM",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-354-2026年、テーマはもくもく！",
+    "durationSeconds": 1039,
+    "segmentPath": "data/segments/ep354.json"
+  },
+  {
+    "episode": 355,
+    "title": "【ポッドキャスト】ep.355/ 日本での年末年始を振り返る",
+    "youtubeId": "RaHBVb5DVAI",
+    "videoUrl": "https://www.youtube.com/watch?v=RaHBVb5DVAI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-355-日本での年末年始を振り返る",
+    "durationSeconds": 2182,
+    "segmentPath": "data/segments/ep355.json"
+  },
+  {
+    "episode": 356,
+    "title": "【ポッドキャスト】ep.356/ やっぱり恋しい日本のお風呂",
+    "youtubeId": "r9RHmvW1dvU",
+    "videoUrl": "https://www.youtube.com/watch?v=r9RHmvW1dvU",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-356-やっぱり恋しい日本のお風呂",
+    "durationSeconds": 1277,
+    "segmentPath": "data/segments/ep356.json"
+  },
+  {
+    "episode": 357,
+    "title": "【ポッドキャスト】ep.357/ ペットシッター利用したことある？",
+    "youtubeId": "BJwQzHuT_C8",
+    "videoUrl": "https://www.youtube.com/watch?v=BJwQzHuT_C8",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-357-ペットシッター利用したことある？",
+    "durationSeconds": 2204,
+    "segmentPath": "data/segments/ep357.json"
+  },
+  {
+    "episode": 358,
+    "title": "【ポッドキャスト】ep.358/ 日本だって負けてない、いやアメリカ以上でクレイジー？日本のお土産・プレゼント文化",
+    "youtubeId": "Hs2K09GieiY",
+    "videoUrl": "https://www.youtube.com/watch?v=Hs2K09GieiY",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-358-日本だって負けてない、いやアメリカ以上でクレイジー？日本のお土産・プレゼント文化",
+    "durationSeconds": 1857,
+    "segmentPath": "data/segments/ep358.json"
+  },
+  {
+    "episode": 359,
+    "title": "【ポッドキャスト】ep.359/ 仕事探しに4989 -シーズン2-",
+    "youtubeId": "pNbRKBiyJhg",
+    "videoUrl": "https://www.youtube.com/watch?v=pNbRKBiyJhg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-359-仕事探しに4989-シーズン2",
+    "durationSeconds": 1534,
+    "segmentPath": "data/segments/ep359.json"
+  },
+  {
+    "episode": 360,
+    "title": "【ポッドキャスト】ep.360/ 好きなケーキの味を聞かれがち。",
+    "youtubeId": "sv518nwEM-U",
+    "videoUrl": "https://www.youtube.com/watch?v=sv518nwEM-U",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-360-好きなケーキの味を聞かれがち。",
+    "durationSeconds": 1781,
+    "segmentPath": "data/segments/ep360.json"
+  },
+  {
+    "episode": 361,
+    "title": "【ポッドキャスト】ep.361/ Retail(小売業)の仕事、想像と違いました",
+    "youtubeId": "E4uaKDInViQ",
+    "videoUrl": "https://www.youtube.com/watch?v=E4uaKDInViQ",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-361-retail（小売業）の仕事、想像と違いました",
+    "durationSeconds": 1775,
+    "segmentPath": "data/segments/ep361.json"
+  },
+  {
+    "episode": 362,
+    "title": "【ポッドキャスト】ep.362/ ひとつの作品をとことん楽しむ方法",
+    "youtubeId": "OUBUN0OqzFc",
+    "videoUrl": "https://www.youtube.com/watch?v=OUBUN0OqzFc",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-362-ひとつの作品をとことん楽しむ方法",
+    "durationSeconds": 2022,
+    "segmentPath": "data/segments/ep362.json"
+  },
+  {
+    "episode": 363,
+    "title": "【ポッドキャスト】ep.363/ 近況報告",
+    "youtubeId": "GQ1M4RelGv4",
+    "videoUrl": "https://www.youtube.com/watch?v=GQ1M4RelGv4",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-363--近況報告",
+    "durationSeconds": 1342,
+    "segmentPath": "data/segments/ep363.json"
+  },
+  {
+    "episode": 364,
+    "title": "【ポッドキャスト】ep.364/ 好きなことがあるっていいよね",
+    "youtubeId": "87j7o4Zyu94",
+    "videoUrl": "https://www.youtube.com/watch?v=87j7o4Zyu94",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-364-好きなことがあるっていいよね",
+    "durationSeconds": 1206,
+    "segmentPath": "data/segments/ep364.json"
+  },
+  {
+    "episode": 365,
+    "title": "【ポッドキャスト】ep.365/ 就職活動｜最終面接の手応えは…",
+    "youtubeId": "KZxGhCpHYGg",
+    "videoUrl": "https://www.youtube.com/watch?v=KZxGhCpHYGg",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-365-就職活動-最終面接の手応えは",
+    "durationSeconds": 1128,
+    "segmentPath": "data/segments/ep365.json"
+  },
+  {
+    "episode": 366,
+    "title": "【ポッドキャスト】ep.366/ガス欠…掛け持ち仕事と終わりが見えない就活",
+    "youtubeId": "LdExzMxXu8k",
+    "videoUrl": "https://www.youtube.com/watch?v=LdExzMxXu8k",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-366-ガス欠-掛け持ち仕事と終わりが見えない就活",
+    "durationSeconds": 1958,
+    "segmentPath": "data/segments/ep366.json"
+  },
+  {
+    "episode": 367,
+    "title": "【ポッドキャスト】ep.367/ アメリカの道路が凸凹すぎる件活",
+    "youtubeId": "nNRz_Jh_wZI",
+    "videoUrl": "https://www.youtube.com/watch?v=nNRz_Jh_wZI",
+    "scriptUrl": "https://www.4989americanlife.com/post/ep-367-アメリカの道路が凸凹すぎる件",
+    "durationSeconds": 1799,
+    "segmentPath": "data/segments/ep367.json"
+  }
+]

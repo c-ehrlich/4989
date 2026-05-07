@@ -14,11 +14,7 @@ _temp/
 
 packages/corpus-data/data/alignments/
 packages/corpus-data/data/reports/
-packages/corpus-data/data/segments/
-packages/corpus-data/data/index/
 packages/corpus-data/data/manifest.json
-packages/corpus-data/data/episodes.json
-packages/corpus-data/data/videos.json
 packages/corpus-data/data/scripts.json
 packages/corpus-data/data/scripts.sample.json
 packages/corpus-data/data/build-report.json
