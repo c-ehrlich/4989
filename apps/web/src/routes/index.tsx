@@ -37,9 +37,17 @@ import {
 } from "@/corpus/smoke";
 
 const MAX_RENDERED_RESULTS = 10_000;
+const PAGE_TITLE = "4989単語調べ";
 
 export const Route = createFileRoute("/")({
   validateSearch: validateRouteSearch,
+  head: ({ match }) => ({
+    meta: [
+      {
+        title: match.search.q ? `${PAGE_TITLE}・${match.search.q}` : PAGE_TITLE,
+      },
+    ],
+  }),
   component: HomePage,
 });
 

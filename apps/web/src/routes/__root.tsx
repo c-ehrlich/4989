@@ -11,7 +11,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "4989 Search" }
+      { title: "4989単語調べ" }
     ],
     links: [{ rel: "stylesheet", href: appStyles }]
   }),
