@@ -11,6 +11,7 @@ import {
   useDeferredValue,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -38,6 +39,7 @@ import {
 
 const MAX_RENDERED_RESULTS = 10_000;
 const PAGE_TITLE = "4989単語調べ";
+const EPISODE_RANGE_URL_DEBOUNCE_MS = 300;
 
 export const Route = createFileRoute("/")({
   validateSearch: validateRouteSearch,
@@ -67,6 +69,9 @@ function HomePage() {
     min: 0,
     max: Number.MAX_SAFE_INTEGER,
   });
+  const episodeRangeUrlTimer = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const deferredEpisodeRange = useDeferredValue(episodeRange);
   const corpusStatusQuery = useQuery({
     queryKey: ["corpus-status"],
@@ -165,6 +170,7 @@ function HomePage() {
       return;
     }
 
+    clearPendingEpisodeRangeUrlUpdate();
     setEpisodeRange(
       getEpisodeRangeFromSearch(urlSearch.episodes, {
         min: corpusStatus.minEpisodeNumber,
@@ -172,6 +178,15 @@ function HomePage() {
       }),
     );
   }, [corpusStatusQuery.data, urlSearch.episodes]);
+
+  useEffect(
+    () => () => {
+      if (episodeRangeUrlTimer.current !== null) {
+        clearTimeout(episodeRangeUrlTimer.current);
+      }
+    },
+    [],
+  );
 
   function runSearch(nextMode: SearchMode = searchMode) {
     const trimmedQuery = query.trim();
@@ -226,6 +241,30 @@ function HomePage() {
       max: corpusStatusState.result.maxEpisodeNumber,
     };
 
+    clearPendingEpisodeRangeUrlUpdate();
+    episodeRangeUrlTimer.current = setTimeout(() => {
+      episodeRangeUrlTimer.current = null;
+      updateEpisodeRangeUrl(nextRange, bounds);
+    }, EPISODE_RANGE_URL_DEBOUNCE_MS);
+  }
+
+  function handleEpisodeRangeReset() {
+    if (corpusStatusState.status !== "ready") {
+      return;
+    }
+
+    clearPendingEpisodeRangeUrlUpdate();
+
+    const nextRange = {
+      min: corpusStatusState.result.minEpisodeNumber,
+      max: corpusStatusState.result.maxEpisodeNumber,
+    };
+
+    setEpisodeRange(nextRange);
+    updateEpisodeRangeUrl(nextRange, nextRange);
+  }
+
+  function updateEpisodeRangeUrl(nextRange: EpisodeRange, bounds: EpisodeRange) {
     void navigate({
       search: (previous) =>
         cleanRouteSearch({
@@ -236,25 +275,13 @@ function HomePage() {
     });
   }
 
-  function handleEpisodeRangeReset() {
-    if (corpusStatusState.status !== "ready") {
+  function clearPendingEpisodeRangeUrlUpdate() {
+    if (episodeRangeUrlTimer.current === null) {
       return;
     }
 
-    const nextRange = {
-      min: corpusStatusState.result.minEpisodeNumber,
-      max: corpusStatusState.result.maxEpisodeNumber,
-    };
-
-    setEpisodeRange(nextRange);
-    void navigate({
-      search: (previous) =>
-        cleanRouteSearch({
-          ...previous,
-          episodes: undefined,
-        }),
-      replace: true,
-    });
+    clearTimeout(episodeRangeUrlTimer.current);
+    episodeRangeUrlTimer.current = null;
   }
 
   function handleSelectHit(hit: HydratedSegment) {
