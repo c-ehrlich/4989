@@ -95,6 +95,87 @@ describe("corpus search", () => {
     expect(client.loadLemmaBucketForKey).not.toHaveBeenCalledWith("た");
   });
 
+  it("does not infer a one-kanji noun as a stem inside an unknown compound", async () => {
+    const client = createSearchClient({
+      loadSurfaceToLemmas: vi.fn(async () => ({
+        "指": ["指"]
+      })),
+      loadLemmaBucketForKey: vi.fn(async (lemma) => {
+        const bucket: Record<string, number[]> = lemma === "指" ? { "指": [14400166] } : {};
+
+        return {
+          bucketName: "0c",
+          bucket
+        };
+      })
+    });
+
+    const result = await createCorpusSearcher(client).searchCorpus({
+      query: "指図",
+      mode: "loose"
+    });
+
+    expect(result.segmentIds).toEqual([]);
+    expect(result.matchedTerms).toEqual([]);
+    expect(client.loadLemmaBucketForKey).toHaveBeenCalledWith("指図");
+    expect(client.loadLemmaBucketForKey).not.toHaveBeenCalledWith("指");
+  });
+
+  it("deinflects godan compound verbs before falling back to shorter stems", async () => {
+    const client = createSearchClient({
+      loadSurfaceToLemmas: vi.fn(async () => ({
+        "飲み": ["飲み", "飲む"]
+      })),
+      loadLemmaBucketForKey: vi.fn(async (lemma) => {
+        const bucket: Record<string, number[]> =
+          lemma === "飲み込む" ? { "飲み込む": [14600123, 24400199] } : {};
+
+        return {
+          bucketName: "e9",
+          bucket
+        };
+      })
+    });
+
+    const result = await createCorpusSearcher(client).searchCorpus({
+      query: "飲み込んだ",
+      mode: "loose"
+    });
+
+    expect(result.segmentIds).toEqual([14600123, 24400199]);
+    expect(result.matchedTerms).toEqual(["飲み込む"]);
+    expect(client.loadLemmaBucketForKey).toHaveBeenCalledWith("飲み込んだ");
+    expect(client.loadLemmaBucketForKey).toHaveBeenCalledWith("飲み込む");
+    expect(client.loadLemmaBucketForKey).not.toHaveBeenCalledWith("飲む");
+  });
+
+  it("deinflects chained colloquial verb endings", async () => {
+    const client = createSearchClient({
+      loadSurfaceToLemmas: vi.fn(async () => ({
+        "飲み": ["飲み", "飲む"]
+      })),
+      loadLemmaBucketForKey: vi.fn(async (lemma) => {
+        const bucket: Record<string, number[]> =
+          lemma === "飲み込む" ? { "飲み込む": [14600123, 24400199] } : {};
+
+        return {
+          bucketName: "e9",
+          bucket
+        };
+      })
+    });
+
+    const result = await createCorpusSearcher(client).searchCorpus({
+      query: "飲み込んじゃった",
+      mode: "loose"
+    });
+
+    expect(result.segmentIds).toEqual([14600123, 24400199]);
+    expect(result.matchedTerms).toEqual(["飲み込む"]);
+    expect(client.loadLemmaBucketForKey).toHaveBeenCalledWith("飲み込む");
+    expect(client.loadLemmaBucketForKey).not.toHaveBeenCalledWith("飲む");
+  });
+
   it("treats base lemmas as loose queries even without surface expansion", async () => {
     const client = createSearchClient({
       loadLemmaBucketForKey: vi.fn(async () => ({

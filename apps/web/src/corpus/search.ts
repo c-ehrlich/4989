@@ -1,4 +1,5 @@
 import { corpusClient, type CorpusClient, type SurfaceToLemmas } from "./client";
+import { deinflectJapanese } from "./japanese-deinflector";
 
 export type SearchMode = "exact" | "loose";
 
@@ -115,35 +116,59 @@ function resolveLooseLemmas(query: string, surfaceToLemmas: SurfaceToLemmas) {
     return exactSurfaceLemmas;
   }
 
+  const deinflectedLemmas = deinflectJapanese(query)
+    .map(({ term }) => term)
+    .filter((term) => term !== query);
+  if (deinflectedLemmas.length > 0) {
+    return deinflectedLemmas;
+  }
+
   return inferStemSurfaceLemmas(query, surfaceToLemmas);
 }
 
 function inferStemSurfaceLemmas(query: string, surfaceToLemmas: SurfaceToLemmas) {
   const candidates = Object.keys(surfaceToLemmas)
-    .map((surface) => ({
-      surface,
-      start: query.indexOf(surface)
-    }))
+    .filter((surface) => query.startsWith(surface))
     .filter(
-      ({ surface, start }) =>
-        start >= 0 &&
+      (surface) =>
         surface !== query &&
-        (surface.length >= 2 || containsKanji(surface))
+        (surface.length >= 2 ||
+          isLikelySingleCharacterInflectionStem(query, surface, surfaceToLemmas[surface] ?? []))
     );
 
   if (candidates.length === 0) {
     return [];
   }
 
-  const firstStart = Math.min(...candidates.map(({ start }) => start));
-  const firstCandidates = candidates.filter(({ start }) => start === firstStart);
-  const longestLength = Math.max(...firstCandidates.map(({ surface }) => surface.length));
+  const longestLength = Math.max(...candidates.map((surface) => surface.length));
 
   return uniqueTerms(
-    firstCandidates
-      .filter(({ surface }) => surface.length === longestLength)
-      .flatMap(({ surface }) => surfaceToLemmas[surface] ?? [])
+    candidates
+      .filter((surface) => surface.length === longestLength)
+      .flatMap((surface) => surfaceToLemmas[surface] ?? [])
   );
+}
+
+function isLikelySingleCharacterInflectionStem(query: string, surface: string, lemmas: string[]) {
+  const suffix = query.slice(surface.length);
+
+  return (
+    lemmas.some((lemma) => lemma !== surface) &&
+    (isCommonJapaneseInflectionSuffix(suffix) || deinflectJapanese(query).length > 1)
+  );
+}
+
+function isCommonJapaneseInflectionSuffix(suffix: string) {
+  return [
+    "た",
+    "て",
+    "ない",
+    "なかった",
+    "ます",
+    "ました",
+    "ません",
+    "ませんでした"
+  ].includes(suffix);
 }
 
 function paginateResult({
@@ -203,7 +228,7 @@ function emptySearchResult({
 }
 
 function normalizeSearchQuery(query: string) {
-  return query.trim();
+  return query.normalize("NFKC").trim();
 }
 
 function normalizeLimit(limit = DEFAULT_LIMIT) {
@@ -228,8 +253,4 @@ function uniqueTerms(terms: string[]) {
 
 function dedupeAndSortSegmentIds(segmentIds: number[]) {
   return Array.from(new Set(segmentIds)).sort((left, right) => left - right);
-}
-
-function containsKanji(value: string) {
-  return /\p{Script=Han}/u.test(value);
 }
