@@ -26,6 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { YouTubePlayer } from "@/components/youtube-player";
+import { getSearchHighlightParts } from "@/corpus/highlight";
 import { hydrateSegmentIds, type HydratedSegment } from "@/corpus/hydrate";
 import {
   searchCorpus,
@@ -631,6 +632,11 @@ function SearchResults({
               isSelected={selectedHit?.segmentId === hit.segmentId}
               key={hit.segmentId}
               onSelect={() => onSelectHit(hit)}
+              searchHighlight={{
+                query: state.result.query,
+                mode: state.result.mode,
+                matchedTerms: state.result.matchedTerms,
+              }}
             />
           ))}
         </div>
@@ -643,11 +649,15 @@ function ResultRow({
   hit,
   isSelected,
   onSelect,
+  searchHighlight,
 }: Readonly<{
   hit: HydratedSegment;
   isSelected: boolean;
   onSelect: () => void;
+  searchHighlight: Pick<SearchCorpusResult, "query" | "mode" | "matchedTerms">;
 }>) {
+  const textParts = getSearchHighlightParts(hit.segment, searchHighlight);
+
   return (
     <article
       className={[
@@ -667,7 +677,17 @@ function ResultRow({
           {hit.timestamp}-{hit.endTimestamp}
         </a>
       </div>
-      <p className="m-0 text-base leading-8 text-foreground">{hit.text}</p>
+      <p className="m-0 text-base leading-8 text-foreground">
+        {textParts.map((part, index) =>
+          part.highlighted ? (
+            <strong className="font-bold" key={index}>
+              {part.text}
+            </strong>
+          ) : (
+            <span key={index}>{part.text}</span>
+          ),
+        )}
+      </p>
       <div className="flex flex-col gap-2 border-t border-border pt-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
         <span className="line-clamp-1">{hit.title}</span>
         <div className="flex flex-wrap items-center gap-3">
