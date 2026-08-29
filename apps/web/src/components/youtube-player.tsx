@@ -1,7 +1,19 @@
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
-import { AlertCircle, Clock3, ExternalLink, RotateCcw } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock3,
+  ExternalLink,
+  RotateCcw,
+  Scissors,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import {
+  CaptureEditor,
+  type CaptureDraft,
+  type CaptureSelection,
+} from "@/components/capture-editor";
 import { Button } from "@/components/ui/button";
 import { corpusClient, type EpisodeSegments } from "@/corpus/client";
 import {
@@ -10,6 +22,7 @@ import {
   type HydratedSegment,
 } from "@/corpus/hydrate";
 import { cn } from "@/lib/cn";
+import { useFreegaku } from "@/lib/use-freegaku";
 
 type YouTubePlayerProps = {
   className?: string;
@@ -20,7 +33,10 @@ type YouTubePlayerApi = {
   cueVideoById: (options: { videoId: string; startSeconds?: number }) => void;
   destroy: () => void;
   getCurrentTime: () => number;
+  getPlayerState: () => number;
   loadVideoById: (options: { videoId: string; startSeconds?: number }) => void;
+  pauseVideo: () => void;
+  playVideo: () => void;
   seekTo: (seconds: number, allowSeekAhead: boolean) => void;
   stopVideo: () => void;
 };
@@ -63,9 +79,17 @@ export function YouTubePlayer({
   const playerHostRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YouTubePlayerApi | null>(null);
   const lastLoadedClipRef = useRef<string | null>(null);
+  const previewIntervalRef = useRef<number | null>(null);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [playerError, setPlayerError] = useState<string | null>(null);
   const [currentSeconds, setCurrentSeconds] = useState(0);
+  const [captureSelection, setCaptureSelection] =
+    useState<CaptureSelection | null>(null);
+  const [captureDraft, setCaptureDraft] = useState<CaptureDraft | null>(null);
+  const [captureError, setCaptureError] = useState<string | null>(null);
+  const [captureSuccess, setCaptureSuccess] = useState<string | null>(null);
+  const [isMining, setIsMining] = useState(false);
+  const freegaku = useFreegaku();
   const episodeSegmentsQuery = useQuery({
     queryKey: ["episode-segments", selectedHit?.episode],
     queryFn: () => {
@@ -95,6 +119,10 @@ export function YouTubePlayer({
       setCurrentSeconds(0);
       lastLoadedClipRef.current = null;
     }
+    setCaptureSelection(null);
+    setCaptureDraft(null);
+    setCaptureError(null);
+    setCaptureSuccess(null);
   }, [selectedHit]);
 
   useEffect(() => {
@@ -155,6 +183,9 @@ export function YouTubePlayer({
 
   useEffect(() => {
     return () => {
+      if (previewIntervalRef.current !== null) {
+        window.clearInterval(previewIntervalRef.current);
+      }
       playerRef.current?.destroy();
       playerRef.current = null;
     };
@@ -230,6 +261,102 @@ export function YouTubePlayer({
     playerRef.current.seekTo(nextSeconds, true);
     setCurrentSeconds(nextSeconds);
   }, []);
+
+  const stopPreview = useCallback(() => {
+    if (previewIntervalRef.current !== null) {
+      window.clearInterval(previewIntervalRef.current);
+      previewIntervalRef.current = null;
+    }
+  }, []);
+
+  const handleTranscriptSelection = useCallback(
+    (selection: CaptureSelection) => {
+      stopPreview();
+      const frame = selection.start + (selection.end - selection.start) / 2;
+      setCaptureSelection(selection);
+      setCaptureDraft({
+        start: selection.start,
+        end: selection.end,
+        frame,
+        sentence: selection.selectedText,
+      });
+      setCaptureError(null);
+      setCaptureSuccess(null);
+      playerRef.current?.pauseVideo();
+      playerRef.current?.seekTo(frame, true);
+      setCurrentSeconds(frame);
+    },
+    [stopPreview],
+  );
+
+  const handlePreviewCapture = useCallback(() => {
+    if (!captureDraft || !playerRef.current) return;
+    stopPreview();
+    playerRef.current.seekTo(captureDraft.start, true);
+    playerRef.current.playVideo();
+    setCurrentSeconds(captureDraft.start);
+    previewIntervalRef.current = window.setInterval(() => {
+      const player = playerRef.current;
+      if (!player || player.getCurrentTime() < captureDraft.end) return;
+      player.pauseVideo();
+      stopPreview();
+    }, 50);
+  }, [captureDraft, stopPreview]);
+
+  const handleSeekFrame = useCallback(
+    (seconds: number) => {
+      stopPreview();
+      playerRef.current?.pauseVideo();
+      playerRef.current?.seekTo(seconds, true);
+      setCurrentSeconds(seconds);
+    },
+    [stopPreview],
+  );
+
+  const handleCancelCapture = useCallback(() => {
+    stopPreview();
+    setCaptureSelection(null);
+    setCaptureDraft(null);
+    setCaptureError(null);
+  }, [stopPreview]);
+
+  const handleConfirmCapture = useCallback(async () => {
+    if (!selectedHit || !captureSelection || !captureDraft || isMining) return;
+    setIsMining(true);
+    setCaptureError(null);
+    stopPreview();
+    const lines = captureDraft.sentence
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+    const result = await freegaku.mine({
+      mode: "update",
+      lines,
+      selectedText: captureSelection.selectedText,
+      capture: {
+        startMs: Math.round(captureDraft.start * 1000),
+        endMs: Math.round(captureDraft.end * 1000),
+        imageMs: Math.round(captureDraft.frame * 1000),
+      },
+      video: {
+        id: selectedHit.youtubeId,
+        title: selectedHit.episodeTitle,
+        author: "4989 American Life",
+        startSec: Math.floor(captureDraft.start),
+        url: `https://www.youtube.com/watch?v=${encodeURIComponent(selectedHit.youtubeId)}&t=${Math.floor(captureDraft.start)}s`,
+      },
+    });
+    setIsMining(false);
+    if (!result.ok) {
+      setCaptureError(result.error);
+      return;
+    }
+    setCaptureSelection(null);
+    setCaptureDraft(null);
+    setCaptureSuccess(
+      result.word ? `Updated the latest “${result.word}” card.` : "Updated the latest Anki card.",
+    );
+  }, [captureDraft, captureSelection, freegaku, isMining, selectedHit, stopPreview]);
 
   useEffect(() => {
     if (!selectedHit || !isPlayerReady) {
@@ -330,10 +457,32 @@ export function YouTubePlayer({
           ) : null}
         </div>
       </div>
+      {captureSelection && captureDraft ? (
+        <CaptureEditor
+          available={freegaku.available}
+          busy={isMining}
+          draft={captureDraft}
+          error={captureError}
+          onCancel={handleCancelCapture}
+          onConfirm={() => void handleConfirmCapture()}
+          onDraftChange={setCaptureDraft}
+          onPreview={handlePreviewCapture}
+          onSeekFrame={handleSeekFrame}
+          phase={freegaku.phase}
+          selection={captureSelection}
+        />
+      ) : null}
+      {captureSuccess ? (
+        <div className="flex items-start gap-2 rounded-md border border-secondary/30 bg-secondary/10 px-4 py-3 text-sm font-medium text-secondary">
+          <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
+          {captureSuccess}
+        </div>
+      ) : null}
       <CaptionPanel
         activeCaption={activeCaption}
         currentSeconds={currentSeconds}
         episodeSegmentsState={episodeSegmentsState}
+        onSelectTranscript={handleTranscriptSelection}
         onSeekToSegment={handleSeekToSegment}
         selectedHit={selectedHit}
       />
@@ -388,17 +537,24 @@ function CaptionPanel({
   activeCaption,
   currentSeconds,
   episodeSegmentsState,
+  onSelectTranscript,
   onSeekToSegment,
   selectedHit,
 }: Readonly<{
   activeCaption: ActiveCaption | null;
   currentSeconds: number;
   episodeSegmentsState: EpisodeSegmentsLoadState;
+  onSelectTranscript: (selection: CaptureSelection) => void;
   onSeekToSegment: (segment: TranscriptSegment) => void;
   selectedHit: HydratedSegment | null;
 }>) {
-  const activeCaptionRef = useRef<HTMLButtonElement | null>(null);
+  const activeCaptionRef = useRef<HTMLDivElement | null>(null);
   const transcriptScrollRef = useRef<HTMLDivElement | null>(null);
+  const [selectionAction, setSelectionAction] = useState<{
+    left: number;
+    selection: CaptureSelection;
+    top: number;
+  } | null>(null);
 
   useEffect(() => {
     const activeCaptionElement = activeCaptionRef.current;
@@ -423,6 +579,35 @@ function CaptionPanel({
       top: Math.max(0, nextScrollTop),
     });
   }, [activeCaption?.segmentKey]);
+
+  useEffect(() => {
+    const transcriptElement = transcriptScrollRef.current;
+    if (!transcriptElement || episodeSegmentsState.status !== "ready") return;
+    const segments = episodeSegmentsState.episodeSegments.segments;
+
+    const updateSelectionAction = () => {
+      const selection = window.getSelection();
+      const transcriptSelection = selection
+        ? readTranscriptSelection(selection, transcriptElement, segments)
+        : null;
+      if (!transcriptSelection || !selection || selection.rangeCount === 0) {
+        setSelectionAction(null);
+        return;
+      }
+
+      const rect = selection.getRangeAt(0).getBoundingClientRect();
+      const left = Math.min(
+        window.innerWidth - 92,
+        Math.max(92, rect.left + rect.width / 2),
+      );
+      const top = rect.top > 54 ? rect.top - 10 : rect.bottom + 44;
+      setSelectionAction({ left, selection: transcriptSelection, top });
+    };
+
+    document.addEventListener("selectionchange", updateSelectionAction);
+    return () =>
+      document.removeEventListener("selectionchange", updateSelectionAction);
+  }, [episodeSegmentsState]);
 
   if (!selectedHit) {
     return (
@@ -491,7 +676,7 @@ function CaptionPanel({
                   selectedHit.segment.segmentKey === segment.segmentKey
                 }
                 key={segment.segmentKey}
-                onClick={() => onSeekToSegment(segment)}
+                onSeek={() => onSeekToSegment(segment)}
                 ref={(element) => {
                   if (activeCaption?.segmentKey === segment.segmentKey) {
                     activeCaptionRef.current = element;
@@ -503,6 +688,22 @@ function CaptionPanel({
           )}
         </div>
       </div>
+      {selectionAction ? (
+        <button
+          className="fixed z-50 inline-flex h-9 -translate-x-1/2 -translate-y-full items-center gap-1.5 rounded-full border border-secondary/50 bg-secondary px-3 text-xs font-bold text-secondary-foreground shadow-lg transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          onClick={() => {
+            onSelectTranscript(selectionAction.selection);
+            window.getSelection()?.removeAllRanges();
+            setSelectionAction(null);
+          }}
+          onMouseDown={(event) => event.preventDefault()}
+          style={{ left: selectionAction.left, top: selectionAction.top }}
+          type="button"
+        >
+          <Scissors className="size-3.5" />
+          Cut to Anki
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -511,15 +712,15 @@ function TranscriptRow({
   activeIndex,
   index,
   isSelectedSearchHit,
-  onClick,
+  onSeek,
   ref,
   segment,
 }: Readonly<{
   activeIndex: number;
   index: number;
   isSelectedSearchHit: boolean;
-  onClick: () => void;
-  ref: (element: HTMLButtonElement | null) => void;
+  onSeek: () => void;
+  ref: (element: HTMLDivElement | null) => void;
   segment: TranscriptSegment;
 }>) {
   const isActive = activeIndex === index;
@@ -528,9 +729,9 @@ function TranscriptRow({
   const isNearby = distanceFromActive <= 2;
 
   return (
-    <button
+    <div
       className={cn(
-        "grid w-full grid-cols-[4.5rem_1fr] gap-3 rounded-md border px-3 py-2 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        "grid w-full grid-cols-[4.5rem_1fr] gap-3 rounded-md border px-3 py-2 text-left transition-colors",
         isActive
           ? "border-secondary bg-card text-foreground shadow-sm"
           : "border-transparent text-muted-foreground hover:border-border hover:bg-muted/50 hover:text-foreground",
@@ -538,21 +739,140 @@ function TranscriptRow({
         !isActive && !isNearby ? "opacity-55" : null,
         isSelectedSearchHit && !isActive ? "border-primary/40" : null,
       )}
-      onClick={onClick}
+      data-transcript-index={index}
+      data-transcript-row=""
       ref={ref}
-      type="button"
     >
-      <span
+      <button
         className={cn(
-          "pt-1 text-xs font-semibold tabular-nums",
+          "h-fit rounded-sm pt-1 text-left text-xs font-semibold tabular-nums focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
           isActive ? "text-secondary" : "text-muted-foreground",
         )}
+        onClick={onSeek}
+        title={`Seek to ${formatTimestamp(segment.start)}`}
+        type="button"
       >
         {formatTimestamp(segment.start)}
+      </button>
+      <span
+        className="cursor-text select-text text-sm font-medium leading-7 selection:bg-accent/60 selection:text-foreground"
+        data-transcript-text=""
+      >
+        {segment.text}
       </span>
-      <span className="text-sm font-medium leading-7">{segment.text}</span>
-    </button>
+    </div>
   );
+}
+
+function readTranscriptSelection(
+  selection: Selection,
+  transcriptElement: HTMLElement,
+  segments: TranscriptSegment[],
+): CaptureSelection | null {
+  if (selection.isCollapsed || selection.rangeCount === 0) return null;
+  if (!selection.toString().trim()) return null;
+
+  const range = selection.getRangeAt(0);
+  if (
+    !transcriptElement.contains(range.startContainer) ||
+    !transcriptElement.contains(range.endContainer)
+  ) {
+    return null;
+  }
+
+  const startTextElement = getTranscriptTextElement(range.startContainer);
+  const endTextElement = getTranscriptTextElement(range.endContainer);
+  const startRow = startTextElement?.closest<HTMLElement>(
+    "[data-transcript-row]",
+  );
+  const endRow = endTextElement?.closest<HTMLElement>("[data-transcript-row]");
+  if (!startTextElement || !endTextElement || !startRow || !endRow) return null;
+
+  const startIndex = Number(startRow.dataset.transcriptIndex);
+  const endIndex = Number(endRow.dataset.transcriptIndex);
+  if (
+    !Number.isInteger(startIndex) ||
+    !Number.isInteger(endIndex) ||
+    startIndex < 0 ||
+    endIndex < startIndex ||
+    endIndex >= segments.length
+  ) {
+    return null;
+  }
+
+  const startOffset = getTextOffset(
+    startTextElement,
+    range.startContainer,
+    range.startOffset,
+  );
+  const endOffset = getTextOffset(
+    endTextElement,
+    range.endContainer,
+    range.endOffset,
+  );
+  if (startOffset === null || endOffset === null) return null;
+
+  const first = segments[startIndex];
+  const last = segments[endIndex];
+  if (!first || !last) return null;
+  const selectedText =
+    startIndex === endIndex
+      ? first.text.slice(startOffset, endOffset).trim()
+      : [
+          first.text.slice(startOffset),
+          ...segments
+            .slice(startIndex + 1, endIndex)
+            .map((segment) => segment.text),
+          last.text.slice(0, endOffset),
+        ]
+          .join("\n")
+          .trim();
+  if (!selectedText) return null;
+  const estimatedStart = estimateCharacterTime(first, startOffset);
+  const estimatedEnd = estimateCharacterTime(last, endOffset);
+  let start = Math.max(first.start, estimatedStart - 0.25);
+  let end = Math.min(last.end, estimatedEnd + 0.25);
+  if (end - start < 0.25) {
+    start = Math.max(first.start, end - 0.25);
+    end = Math.min(last.end, start + 0.25);
+  }
+  if (!(end > start)) return null;
+
+  return {
+    selectedText,
+    lines: segments.slice(startIndex, endIndex + 1).map((segment) => segment.text),
+    start,
+    end,
+    windowStart: first.start,
+    windowEnd: last.end,
+  };
+}
+
+function getTranscriptTextElement(node: Node) {
+  const element = node instanceof Element ? node : node.parentElement;
+  return element?.closest<HTMLElement>("[data-transcript-text]") ?? null;
+}
+
+function getTextOffset(
+  textElement: HTMLElement,
+  container: Node,
+  offset: number,
+) {
+  if (!textElement.contains(container)) return null;
+  const range = document.createRange();
+  range.selectNodeContents(textElement);
+  try {
+    range.setEnd(container, offset);
+    return Math.min(textElement.textContent?.length ?? 0, range.toString().length);
+  } catch {
+    return null;
+  }
+}
+
+function estimateCharacterTime(segment: TranscriptSegment, offset: number) {
+  const length = Math.max(1, segment.text.length);
+  const fraction = Math.min(1, Math.max(0, offset / length));
+  return segment.start + (segment.end - segment.start) * fraction;
 }
 
 function getActiveCaption(

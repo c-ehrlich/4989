@@ -5,6 +5,52 @@ import { cn } from "@/lib/cn";
 
 export type RangeSliderValue = readonly [number, number];
 
+export type SingleSliderProps = {
+  className?: string;
+  disabled?: boolean;
+  getAriaLabel?: () => string;
+  max: number;
+  min: number;
+  onValueChange?: (value: number) => void;
+  step?: number;
+  value: number;
+};
+
+export function SingleSlider({
+  className,
+  disabled,
+  getAriaLabel,
+  max,
+  min,
+  onValueChange,
+  step = 1,
+  value,
+}: SingleSliderProps) {
+  return (
+    <BaseSlider.Root
+      className={cn("grid w-full gap-2", className)}
+      disabled={disabled}
+      max={max}
+      min={min}
+      onValueChange={(nextValue) =>
+        onValueChange?.(typeof nextValue === "number" ? nextValue : (nextValue[0] ?? min))
+      }
+      step={step}
+      value={value}
+    >
+      <BaseSlider.Control className="flex h-6 touch-none items-center">
+        <BaseSlider.Track className="relative h-2 w-full rounded-full bg-muted">
+          <BaseSlider.Indicator className="absolute h-full rounded-full bg-secondary" />
+          <BaseSlider.Thumb
+            className="absolute top-1/2 size-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-secondary bg-background shadow-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring data-[dragging]:bg-secondary"
+            getAriaLabel={getAriaLabel}
+          />
+        </BaseSlider.Track>
+      </BaseSlider.Control>
+    </BaseSlider.Root>
+  );
+}
+
 export type RangeSliderProps = {
   className?: string;
   disabled?: boolean;
@@ -26,7 +72,7 @@ export function RangeSlider({
   minStepsBetweenValues = 0,
   onValueChange,
   step = 1,
-  value
+  value,
 }: RangeSliderProps) {
   return (
     <BaseSlider.Root<RangeSliderValue>
@@ -35,7 +81,9 @@ export function RangeSlider({
       max={max}
       min={min}
       minStepsBetweenValues={minStepsBetweenValues}
-      onValueChange={(nextValue) => onValueChange?.(normalizeRangeValue(nextValue))}
+      onValueChange={(nextValue) =>
+        onValueChange?.(normalizeRangeValue(nextValue))
+      }
       step={step}
       thumbCollisionBehavior="none"
       value={value}
@@ -53,7 +101,7 @@ export function RangeSlider({
 
 function SliderThumb({
   getAriaLabel,
-  index
+  index,
 }: Readonly<{
   getAriaLabel?: (index: number) => string;
   index: number;
