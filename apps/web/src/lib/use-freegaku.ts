@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const CHANNEL = "freegaku-4989";
-const PROTOCOL_VERSION = 1;
+const PROTOCOL_VERSION = 2;
 const REQUEST_TIMEOUT_MS = 90_000;
 
 export type FreegakuPhase =
@@ -15,6 +15,7 @@ export type FreegakuMinePayload = {
   front?: string;
   lines: string[];
   selectedText: string;
+  targetOverride?: FreegakuMiningTarget;
   capture: {
     startMs: number;
     endMs: number;
@@ -29,9 +30,22 @@ export type FreegakuMinePayload = {
   };
 };
 
+export type FreegakuMiningTarget = {
+  noteId: number;
+  word: string;
+};
+
+export type FreegakuTargetMismatch = {
+  ok: false;
+  code: "target-word-mismatch";
+  error: string;
+  target: FreegakuMiningTarget;
+};
+
 export type FreegakuMineResult =
   | { ok: true; word: string }
-  | { ok: false; error: string };
+  | FreegakuTargetMismatch
+  | { ok: false; error: string; code?: undefined };
 
 type PendingRequest = {
   resolve: (result: FreegakuMineResult) => void;
@@ -158,9 +172,20 @@ function isFreegakuResponse(value: unknown): value is FreegakuResponse {
     );
   }
   if (value.type !== "result" || !isRecord(value.result)) return false;
-  return value.result.ok === true
-    ? typeof value.result.word === "string"
-    : value.result.ok === false && typeof value.result.error === "string";
+  if (value.result.ok === true) return typeof value.result.word === "string";
+  if (value.result.ok !== false || typeof value.result.error !== "string") {
+    return false;
+  }
+  if (value.result.code === undefined) return true;
+  return (
+    value.result.code === "target-word-mismatch" &&
+    isRecord(value.result.target) &&
+    Number.isSafeInteger(value.result.target.noteId) &&
+    (value.result.target.noteId as number) > 0 &&
+    typeof value.result.target.word === "string" &&
+    value.result.target.word.length > 0 &&
+    value.result.target.word.length <= 10_000
+  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

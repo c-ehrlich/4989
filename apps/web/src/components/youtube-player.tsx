@@ -22,7 +22,10 @@ import {
   type HydratedSegment,
 } from "@/corpus/hydrate";
 import { cn } from "@/lib/cn";
-import { useFreegaku } from "@/lib/use-freegaku";
+import {
+  useFreegaku,
+  type FreegakuTargetMismatch,
+} from "@/lib/use-freegaku";
 
 type YouTubePlayerProps = {
   className?: string;
@@ -88,6 +91,8 @@ export function YouTubePlayer({
   const [captureDraft, setCaptureDraft] = useState<CaptureDraft | null>(null);
   const [captureError, setCaptureError] = useState<string | null>(null);
   const [captureSuccess, setCaptureSuccess] = useState<string | null>(null);
+  const [targetMismatch, setTargetMismatch] =
+    useState<FreegakuTargetMismatch | null>(null);
   const [isMining, setIsMining] = useState(false);
   const freegaku = useFreegaku();
   const episodeSegmentsQuery = useQuery({
@@ -123,6 +128,7 @@ export function YouTubePlayer({
     setCaptureDraft(null);
     setCaptureError(null);
     setCaptureSuccess(null);
+    setTargetMismatch(null);
   }, [selectedHit]);
 
   useEffect(() => {
@@ -282,6 +288,7 @@ export function YouTubePlayer({
       });
       setCaptureError(null);
       setCaptureSuccess(null);
+      setTargetMismatch(null);
       playerRef.current?.pauseVideo();
       playerRef.current?.seekTo(frame, true);
       setCurrentSeconds(frame);
@@ -318,7 +325,19 @@ export function YouTubePlayer({
     setCaptureSelection(null);
     setCaptureDraft(null);
     setCaptureError(null);
+    setTargetMismatch(null);
   }, [stopPreview]);
+
+  const handleCaptureDraftChange = useCallback(
+    (nextDraft: CaptureDraft) => {
+      if (captureDraft && nextDraft.sentence !== captureDraft.sentence) {
+        setTargetMismatch(null);
+        setCaptureError(null);
+      }
+      setCaptureDraft(nextDraft);
+    },
+    [captureDraft],
+  );
 
   const handleConfirmCapture = useCallback(async () => {
     if (!selectedHit || !captureSelection || !captureDraft || isMining) return;
@@ -333,6 +352,7 @@ export function YouTubePlayer({
       mode: "update",
       lines,
       selectedText: captureSelection.selectedText,
+      targetOverride: targetMismatch?.target,
       capture: {
         startMs: Math.round(captureDraft.start * 1000),
         endMs: Math.round(captureDraft.end * 1000),
@@ -348,15 +368,20 @@ export function YouTubePlayer({
     });
     setIsMining(false);
     if (!result.ok) {
+      if (result.code === "target-word-mismatch") {
+        setTargetMismatch(result);
+        return;
+      }
       setCaptureError(result.error);
       return;
     }
     setCaptureSelection(null);
     setCaptureDraft(null);
+    setTargetMismatch(null);
     setCaptureSuccess(
       result.word ? `Updated the latest “${result.word}” card.` : "Updated the latest Anki card.",
     );
-  }, [captureDraft, captureSelection, freegaku, isMining, selectedHit, stopPreview]);
+  }, [captureDraft, captureSelection, freegaku, isMining, selectedHit, stopPreview, targetMismatch]);
 
   useEffect(() => {
     if (!selectedHit || !isPlayerReady) {
@@ -465,11 +490,12 @@ export function YouTubePlayer({
           error={captureError}
           onCancel={handleCancelCapture}
           onConfirm={() => void handleConfirmCapture()}
-          onDraftChange={setCaptureDraft}
+          onDraftChange={handleCaptureDraftChange}
           onPreview={handlePreviewCapture}
           onSeekFrame={handleSeekFrame}
           phase={freegaku.phase}
           selection={captureSelection}
+          targetMismatch={targetMismatch}
         />
       ) : null}
       {captureSuccess ? (

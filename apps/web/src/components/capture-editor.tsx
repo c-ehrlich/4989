@@ -4,6 +4,7 @@ import {
   CircleAlert,
   Play,
   Scissors,
+  ShieldAlert,
   X,
 } from "lucide-react";
 
@@ -14,7 +15,10 @@ import {
   type RangeSliderValue,
 } from "@/components/ui/slider";
 import { formatTimestamp } from "@/corpus/hydrate";
-import type { FreegakuPhase } from "@/lib/use-freegaku";
+import type {
+  FreegakuPhase,
+  FreegakuTargetMismatch,
+} from "@/lib/use-freegaku";
 
 export type CaptureSelection = {
   lines: string[];
@@ -44,6 +48,7 @@ export function CaptureEditor({
   onSeekFrame,
   phase,
   selection,
+  targetMismatch,
 }: Readonly<{
   available: boolean;
   busy: boolean;
@@ -56,6 +61,7 @@ export function CaptureEditor({
   onSeekFrame: (seconds: number) => void;
   phase: FreegakuPhase;
   selection: CaptureSelection;
+  targetMismatch: FreegakuTargetMismatch | null;
 }>) {
   const duration = draft.end - draft.start;
   const invalidDuration = duration < 0.25 || duration > 30;
@@ -170,6 +176,25 @@ export function CaptureEditor({
             Freegaku is not connected. Install or update it, then reload this page.
           </InlineNotice>
         ) : null}
+        {targetMismatch ? (
+          <div className="grid gap-2.5 rounded-md border border-accent bg-accent/15 px-3 py-3 text-accent-foreground shadow-[inset_3px_0_0_var(--accent)]">
+            <div className="flex items-start gap-2">
+              <ShieldAlert className="mt-0.5 size-4 shrink-0" />
+              <div className="min-w-0">
+                <p className="m-0 text-xs font-bold uppercase tracking-wide">
+                  Check the Anki target
+                </p>
+                <p className="m-0 mt-1 text-sm leading-5">
+                  The latest card is <strong>「{targetMismatch.target.word}」</strong>, but that
+                  term was not found in this sentence.
+                </p>
+              </div>
+            </div>
+            <p className="m-0 pl-6 text-xs leading-5 text-muted-foreground">
+              Edit the sentence to check again, close this cut, or update this exact card anyway.
+            </p>
+          </div>
+        ) : null}
         {error ? <InlineNotice>{error}</InlineNotice> : null}
 
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4">
@@ -184,7 +209,11 @@ export function CaptureEditor({
           </Button>
           <Button disabled={!canConfirm} onClick={onConfirm} size="sm">
             <Scissors />
-            {busy ? phaseLabel(phase) : "Update latest card"}
+            {busy
+              ? phaseLabel(phase)
+              : targetMismatch
+                ? "Update this card anyway"
+                : "Update latest card"}
           </Button>
         </div>
       </div>
