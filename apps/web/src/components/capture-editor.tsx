@@ -40,6 +40,7 @@ export type CaptureDraft = {
 export function CaptureEditor({
   available,
   busy,
+  checkingTarget,
   draft,
   error,
   onCancel,
@@ -47,6 +48,7 @@ export function CaptureEditor({
   onConfirmOverride,
   onDraftChange,
   onPreview,
+  onRefreshTarget,
   onSeekFrame,
   phase,
   selection,
@@ -54,6 +56,7 @@ export function CaptureEditor({
 }: Readonly<{
   available: boolean;
   busy: boolean;
+  checkingTarget: boolean;
   draft: CaptureDraft;
   error: string | null;
   onCancel: () => void;
@@ -61,6 +64,7 @@ export function CaptureEditor({
   onConfirmOverride: () => void;
   onDraftChange: (draft: CaptureDraft) => void;
   onPreview: () => void;
+  onRefreshTarget: () => void;
   onSeekFrame: (seconds: number) => void;
   phase: FreegakuPhase;
   selection: CaptureSelection;
@@ -194,7 +198,7 @@ export function CaptureEditor({
               </div>
             </div>
             <p className="m-0 pl-6 text-xs leading-5 text-muted-foreground">
-              Edit the sentence to check again, close this cut, or update this exact card anyway.
+              Refresh after mining a new card, cancel this cut, or update this exact card anyway.
             </p>
           </div>
         ) : null}
@@ -212,24 +216,23 @@ export function CaptureEditor({
               Cancel
             </Button>
             <Button
-              aria-label={`Update “${targetMismatch.target.word}” anyway`}
+              aria-label="Check latest card again"
               className="size-10"
               disabled={!canConfirm}
-              onClick={onConfirmOverride}
+              onClick={onRefreshTarget}
               size="icon"
-              title={`Update “${targetMismatch.target.word}” anyway`}
+              title="Check latest card again"
               variant="secondary"
             >
-              <RotateCcw />
+              <RotateCcw className={checkingTarget ? "animate-spin" : undefined} />
             </Button>
             <Button
-              aria-label="Retry latest card"
-              className="h-10 w-full"
+              className="h-10 w-full leading-tight"
               disabled={!canConfirm}
-              onClick={onConfirm}
+              onClick={onConfirmOverride}
               size="sm"
             >
-              {busy ? phaseLabel(phase) : "Retry latest"}
+              {busy && !checkingTarget ? phaseLabel(phase) : "Update this card anyway"}
             </Button>
           </div>
         ) : (

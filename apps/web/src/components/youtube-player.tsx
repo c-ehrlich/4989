@@ -95,7 +95,9 @@ export function YouTubePlayer({
   const [targetMismatch, setTargetMismatch] =
     useState<FreegakuTargetMismatch | null>(null);
   const [isMining, setIsMining] = useState(false);
+  const [isCheckingTarget, setIsCheckingTarget] = useState(false);
   const freegaku = useFreegaku();
+  const captureBusy = isMining || isCheckingTarget;
   const episodeSegmentsQuery = useQuery({
     queryKey: ["episode-segments", selectedHit?.episode],
     queryFn: () => {
@@ -341,7 +343,7 @@ export function YouTubePlayer({
   );
 
   const handleConfirmCapture = useCallback(async (targetOverride?: FreegakuMiningTarget) => {
-    if (!selectedHit || !captureSelection || !captureDraft || isMining) return;
+    if (!selectedHit || !captureSelection || !captureDraft || captureBusy) return;
     setIsMining(true);
     setCaptureError(null);
     stopPreview();
@@ -382,7 +384,29 @@ export function YouTubePlayer({
     setCaptureSuccess(
       result.word ? `Updated the latest “${result.word}” card.` : "Updated the latest Anki card.",
     );
-  }, [captureDraft, captureSelection, freegaku, isMining, selectedHit, stopPreview]);
+  }, [captureBusy, captureDraft, captureSelection, freegaku, selectedHit, stopPreview]);
+
+  const handleRefreshTarget = useCallback(async () => {
+    if (!captureDraft || captureBusy) return;
+    setIsCheckingTarget(true);
+    setCaptureError(null);
+    stopPreview();
+    const lines = captureDraft.sentence
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+    const result = await freegaku.checkTarget(lines);
+    setIsCheckingTarget(false);
+    if (!result.ok) {
+      if (result.code === "target-word-mismatch") {
+        setTargetMismatch(result);
+        return;
+      }
+      setCaptureError(result.error);
+      return;
+    }
+    setTargetMismatch(null);
+  }, [captureBusy, captureDraft, freegaku, stopPreview]);
 
   useEffect(() => {
     if (!selectedHit || !isPlayerReady) {
@@ -486,7 +510,8 @@ export function YouTubePlayer({
       {captureSelection && captureDraft ? (
         <CaptureEditor
           available={freegaku.available}
-          busy={isMining}
+          busy={captureBusy}
+          checkingTarget={isCheckingTarget}
           draft={captureDraft}
           error={captureError}
           onCancel={handleCancelCapture}
@@ -496,6 +521,7 @@ export function YouTubePlayer({
           }}
           onDraftChange={handleCaptureDraftChange}
           onPreview={handlePreviewCapture}
+          onRefreshTarget={() => void handleRefreshTarget()}
           onSeekFrame={handleSeekFrame}
           phase={freegaku.phase}
           selection={captureSelection}
