@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const CHANNEL = "freegaku-4989";
-const PROTOCOL_VERSION = 2;
+const PROTOCOL_VERSION = 3;
 const REQUEST_TIMEOUT_MS = 90_000;
 
 export type FreegakuPhase =
@@ -42,13 +42,22 @@ export type FreegakuTargetMismatch = {
   target: FreegakuMiningTarget;
 };
 
-export type FreegakuMineResult =
-  | { ok: true; word: string }
+type FreegakuFailure =
   | FreegakuTargetMismatch
   | { ok: false; error: string; code?: undefined };
 
+export type FreegakuMineResult =
+  | { ok: true; word: string }
+  | FreegakuFailure;
+
+export type FreegakuTargetCheckResult =
+  | { ok: true; target: FreegakuMiningTarget }
+  | FreegakuFailure;
+
+type FreegakuResult = FreegakuMineResult | FreegakuTargetCheckResult;
+
 type PendingRequest = {
-  resolve: (result: FreegakuMineResult) => void;
+  resolve: (result: FreegakuResult) => void;
   timeoutId: number;
 };
 
@@ -104,35 +113,42 @@ export function useFreegaku() {
     };
   }, []);
 
-  const mine = useCallback(
-    (payload: FreegakuMinePayload): Promise<FreegakuMineResult> => {
+  const sendRequest = useCallback(
+    <T extends FreegakuResult>(
+      request:
+        | { type: "mine"; payload: FreegakuMinePayload }
+        | { type: "target-check"; lines: string[] },
+      timeoutError: string,
+    ): Promise<T> => {
       if (!available) {
         return Promise.resolve({
           ok: false,
           error: "Freegaku is not connected. Install or reload the extension, then reload this page.",
-        });
+        } as T);
       }
 
       const requestId = createRequestId();
       setPhase("checking-anki");
-      return new Promise((resolve) => {
+      return new Promise<T>((resolve) => {
         const timeoutId = window.setTimeout(() => {
           pendingRequestsRef.current.delete(requestId);
           setPhase("idle");
           resolve({
             ok: false,
-            error: "Freegaku did not finish the card update in time.",
-          });
+            error: timeoutError,
+          } as T);
         }, REQUEST_TIMEOUT_MS);
-        pendingRequestsRef.current.set(requestId, { resolve, timeoutId });
+        pendingRequestsRef.current.set(requestId, {
+          resolve: (result) => resolve(result as T),
+          timeoutId,
+        });
         window.postMessage(
           {
             channel: CHANNEL,
             version: PROTOCOL_VERSION,
             source: "4989",
-            type: "mine",
             requestId,
-            payload,
+            ...request,
           },
           window.location.origin,
         );
@@ -141,7 +157,25 @@ export function useFreegaku() {
     [available],
   );
 
-  return { available, mine, phase };
+  const mine = useCallback(
+    (payload: FreegakuMinePayload) =>
+      sendRequest<FreegakuMineResult>(
+        { type: "mine", payload },
+        "Freegaku did not finish the card update in time.",
+      ),
+    [sendRequest],
+  );
+
+  const checkTarget = useCallback(
+    (lines: string[]) =>
+      sendRequest<FreegakuTargetCheckResult>(
+        { type: "target-check", lines },
+        "Freegaku did not finish checking the latest card in time.",
+      ),
+    [sendRequest],
+  );
+
+  return { available, checkTarget, mine, phase };
 }
 
 type FreegakuResponse =
@@ -151,7 +185,7 @@ type FreegakuResponse =
       requestId: string;
       phase: Exclude<FreegakuPhase, "idle">;
     }
-  | { type: "result"; requestId: string; result: FreegakuMineResult };
+  | { type: "result"; requestId: string; result: FreegakuResult };
 
 function isFreegakuResponse(value: unknown): value is FreegakuResponse {
   if (!isRecord(value)) return false;
@@ -172,19 +206,27 @@ function isFreegakuResponse(value: unknown): value is FreegakuResponse {
     );
   }
   if (value.type !== "result" || !isRecord(value.result)) return false;
-  if (value.result.ok === true) return typeof value.result.word === "string";
+  if (value.result.ok === true) {
+    return typeof value.result.word === "string" || isMiningTarget(value.result.target);
+  }
   if (value.result.ok !== false || typeof value.result.error !== "string") {
     return false;
   }
   if (value.result.code === undefined) return true;
   return (
     value.result.code === "target-word-mismatch" &&
-    isRecord(value.result.target) &&
-    Number.isSafeInteger(value.result.target.noteId) &&
-    (value.result.target.noteId as number) > 0 &&
-    typeof value.result.target.word === "string" &&
-    value.result.target.word.length > 0 &&
-    value.result.target.word.length <= 10_000
+    isMiningTarget(value.result.target)
+  );
+}
+
+function isMiningTarget(value: unknown): value is FreegakuMiningTarget {
+  return (
+    isRecord(value) &&
+    Number.isSafeInteger(value.noteId) &&
+    (value.noteId as number) > 0 &&
+    typeof value.word === "string" &&
+    value.word.length > 0 &&
+    value.word.length <= 10_000
   );
 }
 

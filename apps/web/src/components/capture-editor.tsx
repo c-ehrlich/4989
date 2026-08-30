@@ -3,6 +3,7 @@ import {
   Camera,
   CircleAlert,
   Play,
+  RotateCcw,
   Scissors,
   ShieldAlert,
   X,
@@ -39,12 +40,15 @@ export type CaptureDraft = {
 export function CaptureEditor({
   available,
   busy,
+  checkingTarget,
   draft,
   error,
   onCancel,
   onConfirm,
+  onConfirmOverride,
   onDraftChange,
   onPreview,
+  onRefreshTarget,
   onSeekFrame,
   phase,
   selection,
@@ -52,12 +56,15 @@ export function CaptureEditor({
 }: Readonly<{
   available: boolean;
   busy: boolean;
+  checkingTarget: boolean;
   draft: CaptureDraft;
   error: string | null;
   onCancel: () => void;
   onConfirm: () => void;
+  onConfirmOverride: () => void;
   onDraftChange: (draft: CaptureDraft) => void;
   onPreview: () => void;
+  onRefreshTarget: () => void;
   onSeekFrame: (seconds: number) => void;
   phase: FreegakuPhase;
   selection: CaptureSelection;
@@ -191,31 +198,60 @@ export function CaptureEditor({
               </div>
             </div>
             <p className="m-0 pl-6 text-xs leading-5 text-muted-foreground">
-              Edit the sentence to check again, close this cut, or update this exact card anyway.
+              Refresh after mining a new card, cancel this cut, or update this exact card anyway.
             </p>
           </div>
         ) : null}
         {error ? <InlineNotice>{error}</InlineNotice> : null}
 
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4">
-          <Button
-            disabled={busy}
-            onClick={onPreview}
-            size="sm"
-            variant="outline"
-          >
-            <Play />
-            Preview cut
-          </Button>
-          <Button disabled={!canConfirm} onClick={onConfirm} size="sm">
-            <Scissors />
-            {busy
-              ? phaseLabel(phase)
-              : targetMismatch
-                ? "Update this card anyway"
-                : "Update latest card"}
-          </Button>
-        </div>
+        {targetMismatch ? (
+          <div className="grid w-full grid-cols-[minmax(0,0.8fr)_2.5rem_minmax(0,1.5fr)] gap-2 border-t border-border pt-4">
+            <Button
+              className="h-10 w-full"
+              disabled={busy}
+              onClick={onCancel}
+              size="sm"
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button
+              aria-label="Check latest card again"
+              className="size-10"
+              disabled={!canConfirm}
+              onClick={onRefreshTarget}
+              size="icon"
+              title="Check latest card again"
+              variant="secondary"
+            >
+              <RotateCcw className={checkingTarget ? "animate-spin" : undefined} />
+            </Button>
+            <Button
+              className="h-10 w-full leading-tight"
+              disabled={!canConfirm}
+              onClick={onConfirmOverride}
+              size="sm"
+            >
+              {busy && !checkingTarget ? phaseLabel(phase) : "Update this card anyway"}
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4">
+            <Button
+              disabled={busy}
+              onClick={onPreview}
+              size="sm"
+              variant="outline"
+            >
+              <Play />
+              Preview cut
+            </Button>
+            <Button disabled={!canConfirm} onClick={onConfirm} size="sm">
+              <Scissors />
+              {busy ? phaseLabel(phase) : "Update latest card"}
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   );
