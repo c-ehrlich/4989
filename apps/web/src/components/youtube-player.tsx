@@ -24,6 +24,7 @@ import {
 import { cn } from "@/lib/cn";
 import {
   useFreegaku,
+  type FreegakuMiningTarget,
   type FreegakuTargetMismatch,
 } from "@/lib/use-freegaku";
 
@@ -339,7 +340,7 @@ export function YouTubePlayer({
     [captureDraft],
   );
 
-  const handleConfirmCapture = useCallback(async () => {
+  const handleConfirmCapture = useCallback(async (targetOverride?: FreegakuMiningTarget) => {
     if (!selectedHit || !captureSelection || !captureDraft || isMining) return;
     setIsMining(true);
     setCaptureError(null);
@@ -352,7 +353,7 @@ export function YouTubePlayer({
       mode: "update",
       lines,
       selectedText: captureSelection.selectedText,
-      targetOverride: targetMismatch?.target,
+      targetOverride,
       capture: {
         startMs: Math.round(captureDraft.start * 1000),
         endMs: Math.round(captureDraft.end * 1000),
@@ -381,7 +382,7 @@ export function YouTubePlayer({
     setCaptureSuccess(
       result.word ? `Updated the latest “${result.word}” card.` : "Updated the latest Anki card.",
     );
-  }, [captureDraft, captureSelection, freegaku, isMining, selectedHit, stopPreview, targetMismatch]);
+  }, [captureDraft, captureSelection, freegaku, isMining, selectedHit, stopPreview]);
 
   useEffect(() => {
     if (!selectedHit || !isPlayerReady) {
@@ -490,6 +491,9 @@ export function YouTubePlayer({
           error={captureError}
           onCancel={handleCancelCapture}
           onConfirm={() => void handleConfirmCapture()}
+          onConfirmOverride={() => {
+            if (targetMismatch) void handleConfirmCapture(targetMismatch.target);
+          }}
           onDraftChange={handleCaptureDraftChange}
           onPreview={handlePreviewCapture}
           onSeekFrame={handleSeekFrame}

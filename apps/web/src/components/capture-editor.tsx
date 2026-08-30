@@ -3,6 +3,7 @@ import {
   Camera,
   CircleAlert,
   Play,
+  RotateCcw,
   Scissors,
   ShieldAlert,
   X,
@@ -43,6 +44,7 @@ export function CaptureEditor({
   error,
   onCancel,
   onConfirm,
+  onConfirmOverride,
   onDraftChange,
   onPreview,
   onSeekFrame,
@@ -56,6 +58,7 @@ export function CaptureEditor({
   error: string | null;
   onCancel: () => void;
   onConfirm: () => void;
+  onConfirmOverride: () => void;
   onDraftChange: (draft: CaptureDraft) => void;
   onPreview: () => void;
   onSeekFrame: (seconds: number) => void;
@@ -197,25 +200,55 @@ export function CaptureEditor({
         ) : null}
         {error ? <InlineNotice>{error}</InlineNotice> : null}
 
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4">
-          <Button
-            disabled={busy}
-            onClick={onPreview}
-            size="sm"
-            variant="outline"
-          >
-            <Play />
-            Preview cut
-          </Button>
-          <Button disabled={!canConfirm} onClick={onConfirm} size="sm">
-            <Scissors />
-            {busy
-              ? phaseLabel(phase)
-              : targetMismatch
-                ? "Update this card anyway"
-                : "Update latest card"}
-          </Button>
-        </div>
+        {targetMismatch ? (
+          <div className="grid w-full grid-cols-[minmax(0,0.8fr)_2.5rem_minmax(0,1.5fr)] gap-2 border-t border-border pt-4">
+            <Button
+              className="h-10 w-full"
+              disabled={busy}
+              onClick={onCancel}
+              size="sm"
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button
+              aria-label={`Update “${targetMismatch.target.word}” anyway`}
+              className="size-10"
+              disabled={!canConfirm}
+              onClick={onConfirmOverride}
+              size="icon"
+              title={`Update “${targetMismatch.target.word}” anyway`}
+              variant="secondary"
+            >
+              <RotateCcw />
+            </Button>
+            <Button
+              aria-label="Retry latest card"
+              className="h-10 w-full"
+              disabled={!canConfirm}
+              onClick={onConfirm}
+              size="sm"
+            >
+              {busy ? phaseLabel(phase) : "Retry latest"}
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4">
+            <Button
+              disabled={busy}
+              onClick={onPreview}
+              size="sm"
+              variant="outline"
+            >
+              <Play />
+              Preview cut
+            </Button>
+            <Button disabled={!canConfirm} onClick={onConfirm} size="sm">
+              <Scissors />
+              {busy ? phaseLabel(phase) : "Update latest card"}
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   );
